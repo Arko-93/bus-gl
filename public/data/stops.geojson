@@ -1,0 +1,60 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "stop-1",
+        "name": "Nuuk Center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-51.6941, 64.1814]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "stop-2",
+        "name": "Nuuk Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-51.6781, 64.1909]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "stop-3",
+        "name": "Nuussuaq"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-51.7200, 64.1950]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "stop-4",
+        "name": "Qinngorput"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-51.6500, 64.1650]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "stop-5",
+        "name": "Kolonihavnen"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-51.7100, 64.1750]
+      }
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Route 1",
+        "route": "1",
+        "color": "#ef4444"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-51.7200, 64.1950],
+          [-51.7100, 64.1850],
+          [-51.6941, 64.1814],
+          [-51.6781, 64.1750]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Route 2",
+        "route": "2",
+        "color": "#3b82f6"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-51.6500, 64.1650],
+          [-51.6700, 64.1750],
+          [-51.6941, 64.1814],
+          [-51.7100, 64.1850]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Route 3",
+        "route": "3",
+        "color": "#22c55e"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-51.6781, 64.1909],
+          [-51.6850, 64.1850],
+          [-51.6941, 64.1814],
+          [-51.7050, 64.1780]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Route X2 (Express)",
+        "route": "X2",
+        "color": "#f59e0b"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-51.7200, 64.1950],
+          [-51.6941, 64.1814],
+          [-51.6500, 64.1650]
+        ]
+      }
+    }
+  ]
+}

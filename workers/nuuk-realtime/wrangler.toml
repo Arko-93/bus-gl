@@ -1,0 +1,18 @@
+# Nuuk Bus Realtime Proxy Worker
+# Cloudflare Worker configuration
+
+name = "nuuk-bus-realtime"
+main = "worker.ts"
+compatibility_date = "2024-01-01"
+
+# Optional: Set org_id via environment variable
+# [vars]
+# ORG_ID = "968"
+
+# Production route (uncomment and configure)
+# [[routes]]
+# pattern = "your-domain.com/api/nuuk-realtime"
+# zone_name = "your-domain.com"
+
+# Development (local testing)
+# Run: wrangler dev
