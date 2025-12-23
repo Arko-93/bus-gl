@@ -12,6 +12,7 @@ import { useResolvedTheme } from '../hooks/useResolvedTheme'
 import BusMarker from './BusMarker'
 import StopsLayer from './StopsLayer'
 import RoutesLayer from './RoutesLayer'
+import SelectedBusPath from './SelectedBusPath'
 import type { Vehicle } from '../data/ridangoRealtime'
 
 // Nuuk, Greenland coordinates
@@ -372,6 +373,9 @@ export default function MapView() {
 
       {/* Static route lines (behind feature flag) */}
       {ENABLE_ROUTES_LAYER && <RoutesLayer />}
+
+      {/* Selected bus path towards current destination */}
+      <SelectedBusPath />
 
       {/* Bus stops layer - always enabled */}
       <StopsLayer />

@@ -29,7 +29,7 @@ const persistedPreferences = getPersistedPreferences()
 interface AppState {
   // Selected vehicle for details view
   selectedVehicleId: string | null
-  setSelectedVehicleId: (id: string | null) => void
+  setSelectedVehicleId: (id: string | null, options?: { openPanel?: boolean }) => void
 
   // Selected stop for details view
   selectedStopId: number | null
@@ -79,11 +79,15 @@ export const useAppStore = create<AppState>()(
     (set) => ({
       // Selected vehicle
       selectedVehicleId: null,
-      setSelectedVehicleId: (id) => set({ 
-        selectedVehicleId: id,
-        selectedStopId: null, // Clear stop selection when vehicle is selected
-        isBottomSheetOpen: id !== null,
-      }),
+      setSelectedVehicleId: (id, options) =>
+        set((state) => {
+          const openPanel = options?.openPanel ?? state.isMobile
+          return {
+            selectedVehicleId: id,
+            selectedStopId: null, // Clear stop selection when vehicle is selected
+            isBottomSheetOpen: openPanel ? id !== null : false,
+          }
+        }),
 
       // Selected stop
       selectedStopId: null,

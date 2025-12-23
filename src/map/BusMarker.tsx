@@ -143,21 +143,28 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
       })
     }
 
-    // Click handler
-    marker.on('click', () => {
-      if (isMobile) {
-        setSelectedVehicleId(vehicle.id)
-      } else {
-        keepOpenRef.current = true
-        marker.openPopup()
-      }
-    })
+  // Click handler
+  marker.on('click', () => {
+    if (isMobile) {
+      setSelectedVehicleId(vehicle.id)
+    } else {
+      setSelectedVehicleId(vehicle.id, { openPanel: false })
+      keepOpenRef.current = true
+      marker.openPopup()
+    }
+  })
 
     // Track manual close
-    marker.on('popupclose', () => {
-      if (Date.now() < suppressCloseUntilRef.current) return
-      keepOpenRef.current = false
-    })
+  marker.on('popupclose', () => {
+    if (Date.now() < suppressCloseUntilRef.current) return
+    keepOpenRef.current = false
+    if (!isMobile) {
+      const currentSelectedId = useAppStore.getState().selectedVehicleId
+      if (currentSelectedId === vehicle.id) {
+        setSelectedVehicleId(null, { openPanel: false })
+      }
+    }
+  })
     marker.on('popupopen', () => {
       keepOpenRef.current = true
     })

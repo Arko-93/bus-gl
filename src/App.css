@@ -574,6 +574,31 @@
   z-index: 2105;
 }
 
+/* Selected bus path */
+.bus-path {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.bus-path--current {
+  stroke-dasharray: 8 10;
+  animation: bus-path-flow 1.4s linear infinite;
+}
+
+.bus-path--next {
+  stroke-dasharray: none;
+}
+
+@keyframes bus-path-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -36;
+  }
+}
+
 /* Bus Popup */
 .bus-popup {
   min-width: 200px;
