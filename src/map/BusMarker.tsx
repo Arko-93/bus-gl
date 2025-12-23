@@ -63,7 +63,8 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
   // Stable ref for imperative marker control
   const markerRef = useRef<L.Marker | null>(null)
   const keepOpenRef = useRef(false)
-  const suppressCloseRef = useRef(false)
+  const suppressCloseUntilRef = useRef(0)
+  const iconSignatureRef = useRef<string>('')
 
   const getTimeAgo = (ms: number): string => {
     if (ms === 0) return ''
@@ -96,6 +97,11 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
     })
   }
 
+  const getIconSignature = (current: Vehicle) => {
+    const atDepot = isAtDepot(current)
+    return `${current.route}|${current.isStale ? 1 : 0}|${atDepot ? 1 : 0}`
+  }
+
   const buildPopupContent = () => {
     const atDepot = isAtDepot(vehicle)
     const alertIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>'
@@ -126,6 +132,7 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
   useEffect(() => {
     const marker = L.marker([vehicle.lat, vehicle.lon], { icon: createIcon() })
     marker.addTo(map)
+    iconSignatureRef.current = getIconSignature(vehicle)
 
     // Bind popup for desktop - always bind it so it can be opened on click
     if (!isMobile) {
@@ -148,14 +155,10 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
 
     // Track manual close
     marker.on('popupclose', () => {
-      if (suppressCloseRef.current) {
-        suppressCloseRef.current = false
-        return
-      }
+      if (Date.now() < suppressCloseUntilRef.current) return
       keepOpenRef.current = false
     })
     marker.on('popupopen', () => {
-      suppressCloseRef.current = false
       keepOpenRef.current = true
     })
 
@@ -197,19 +200,24 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
     const marker = markerRef.current
     if (!marker) return
 
+    const wasOpen = !isMobile && marker.isPopupOpen()
     const nextLatLng: [number, number] = [vehicle.lat, vehicle.lon]
-    const shouldKeepOpen = !isMobile && keepOpenRef.current
+    const shouldKeepOpen = !isMobile && (keepOpenRef.current || wasOpen)
+
+    if (shouldKeepOpen) {
+      suppressCloseUntilRef.current = Date.now() + 300
+    }
 
     // Move marker - popup follows automatically!
     marker.setLatLng(nextLatLng)
 
-    // Update icon (this can close the popup, so we reopen after)
-    if (shouldKeepOpen) {
-      suppressCloseRef.current = true
-    }
-    marker.setIcon(createIcon())
-    if (shouldKeepOpen && marker.isPopupOpen()) {
-      suppressCloseRef.current = false
+    const iconSignature = getIconSignature(vehicle)
+    if (iconSignature !== iconSignatureRef.current) {
+      if (shouldKeepOpen) {
+        suppressCloseUntilRef.current = Date.now() + 500
+      }
+      marker.setIcon(createIcon())
+      iconSignatureRef.current = iconSignature
     }
 
     // Update popup content if it exists and keep open if user wanted
@@ -223,6 +231,16 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
           marker.openPopup()
         }
       }
+    }
+
+    if (shouldKeepOpen) {
+      const raf = requestAnimationFrame(() => {
+        const current = markerRef.current
+        if (current && keepOpenRef.current && !current.isPopupOpen()) {
+          current.openPopup()
+        }
+      })
+      return () => cancelAnimationFrame(raf)
     }
   })
 

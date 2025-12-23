@@ -92,7 +92,7 @@ export interface TranslationStrings {
 const translations: Record<Locale, TranslationStrings> = {
   // Kalaallisut (Greenlandic)
   kl: {
-    appTitle: 'Bussit',
+    appTitle: 'BUSSIT',
     loading: 'Nuisinneqalerpoq...',
     updating: 'Nutarterneqarpoq...',
     live: 'Toqqaannartoq',
@@ -142,7 +142,7 @@ const translations: Record<Locale, TranslationStrings> = {
   
   // Dansk (Danish)
   da: {
-    appTitle: 'Bussit',
+    appTitle: 'BUSSIT',
     loading: 'Indlæser...',
     updating: 'Opdaterer...',
     live: 'Live',
@@ -192,7 +192,7 @@ const translations: Record<Locale, TranslationStrings> = {
   
   // English
   en: {
-    appTitle: 'Bussit',
+    appTitle: 'BUSSIT',
     loading: 'Loading...',
     updating: 'Updating...',
     live: 'Live',

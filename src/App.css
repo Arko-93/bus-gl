@@ -147,7 +147,7 @@
   z-index: 1000;
   display: flex;
   gap: 0.5rem;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .route-filter {
@@ -257,6 +257,11 @@
   border-color: transparent;
 }
 
+.stop-filter__toggle--active:hover,
+.stop-filter__toggle--has-filters:hover {
+  color: var(--bg);
+}
+
 .stop-filter__panel {
   position: absolute;
   bottom: calc(100% + 0.5rem);
@@ -269,6 +274,13 @@
   z-index: 1001;
   min-width: 280px;
   max-width: 320px;
+}
+
+@media (min-width: 769px) {
+  .stop-filter__panel {
+    right: auto;
+    left: 0;
+  }
 }
 
 .stop-filter__header {
@@ -1038,12 +1050,23 @@
 
   .filter-bar {
     bottom: 1.5rem;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .stop-filter__toggle {
     height: 36px;
     padding: 0 0.75rem;
     font-size: 0.75rem;
+  }
+
+  .stop-filter {
+    align-self: flex-end;
+  }
+
+  .route-filter {
+    align-self: center;
   }
 
   .stop-filter__panel {
@@ -1185,19 +1208,19 @@
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   text-align: left;
   color: var(--text);
   transition: background 0.15s;
-  min-height: 48px; /* Touch target */
+  min-height: 44px;
 }
 
 .language-switcher__option .language-switcher__flag {
-  font-size: 1.125rem;
+  font-size: 1rem;
 }
 
 .language-switcher__option:hover {
@@ -1266,7 +1289,7 @@
   box-shadow: 0 4px 20px var(--shadow-lg);
   overflow: hidden;
   z-index: 1100;
-  min-width: 140px;
+  min-width: 160px;
   list-style: none;
   padding: 0.5rem 0;
 }
@@ -1276,15 +1299,15 @@
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.875rem;
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   text-align: left;
   color: var(--text);
   transition: background 0.15s;
-  min-height: 48px;
+  min-height: 44px;
 }
 
 .theme-switcher__option:hover {

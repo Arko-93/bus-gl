@@ -64,6 +64,9 @@ const MOBILE_FOLLOW_OFFSET_RATIO = 0.18
 const MOBILE_FOLLOW_ANIMATION_SEC = 0.45
 const MOBILE_FOLLOW_EASE = 0.22
 
+// Keep vehicles on the map briefly if they disappear between polls.
+const VEHICLE_GRACE_MS = 20000
+
 // Qatserisut depot - where buses are maintained/stored
 const DEPOT_BOUNDS = {
   minLat: 64.1795,
@@ -263,11 +266,53 @@ const VehicleMarkers = memo(function VehicleMarkers() {
   const { data: vehicles = [], isLoading } = useVehiclesQuery()
   const enabledRoutes = useAppStore((state) => state.enabledRoutes)
   const hasFittedBounds = useRef(false)
+  const lastVehiclesRef = useRef(new Map<string, { vehicle: Vehicle; lastSeen: number }>())
   
+  const renderVehicles = useMemo(() => {
+    const cache = lastVehiclesRef.current
+    const now = Date.now()
+    const merged = new Map<string, Vehicle>()
+
+    for (const [id, entry] of cache) {
+      if (now - entry.lastSeen <= VEHICLE_GRACE_MS) {
+        merged.set(id, entry.vehicle)
+      }
+    }
+
+    for (const vehicle of vehicles) {
+      const cached = cache.get(vehicle.id)?.vehicle
+      const mergedVehicle = (vehicle.route === 'N/A' && cached)
+        ? { ...cached, ...vehicle, route: cached.route }
+        : vehicle
+      merged.set(vehicle.id, mergedVehicle)
+    }
+
+    return Array.from(merged.values())
+  }, [vehicles])
+
   const filteredVehicles = useMemo(
-    () => filterVehiclesByRoute(vehicles, enabledRoutes),
-    [vehicles, enabledRoutes]
+    () => filterVehiclesByRoute(renderVehicles, enabledRoutes),
+    [renderVehicles, enabledRoutes]
   )
+
+  useEffect(() => {
+    const cache = lastVehiclesRef.current
+    const now = Date.now()
+
+    for (const vehicle of vehicles) {
+      const cached = cache.get(vehicle.id)?.vehicle
+      const mergedVehicle = (vehicle.route === 'N/A' && cached)
+        ? { ...cached, ...vehicle, route: cached.route }
+        : vehicle
+      cache.set(vehicle.id, { vehicle: mergedVehicle, lastSeen: now })
+    }
+
+    for (const [id, entry] of cache) {
+      if (now - entry.lastSeen > VEHICLE_GRACE_MS) {
+        cache.delete(id)
+      }
+    }
+  }, [vehicles])
 
   // Auto-fit bounds on initial data load
   useEffect(() => {
