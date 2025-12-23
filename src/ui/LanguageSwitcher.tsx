@@ -2,10 +2,18 @@
 // Language selector dropdown
 
 import { useState, useRef, useEffect } from 'react'
+import { Check } from 'lucide-react'
 import { useLocale } from '../i18n/useTranslation'
-import { LOCALE_NAMES, LOCALE_FLAGS, type Locale } from '../i18n/translations'
+import { LOCALE_NAMES, type Locale } from '../i18n/translations'
 
 const LOCALES: Locale[] = ['kl', 'da', 'en']
+
+// Map locales to flag-icons country codes
+const FLAG_CODES: Record<Locale, string> = {
+  kl: 'gl', // Greenland
+  da: 'dk', // Denmark
+  en: 'gb', // United Kingdom
+}
 
 export default function LanguageSwitcher() {
   const { locale, setLocale } = useLocale()
@@ -40,9 +48,7 @@ export default function LanguageSwitcher() {
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <span className="language-switcher__flag">{LOCALE_FLAGS[locale]}</span>
-        <span className="language-switcher__code">{locale.toUpperCase()}</span>
-        <span className="language-switcher__arrow">{isOpen ? '▲' : '▼'}</span>
+        <span className={`fi fi-${FLAG_CODES[locale]} language-switcher__flag`} />
       </button>
 
       {isOpen && (
@@ -55,9 +61,9 @@ export default function LanguageSwitcher() {
                 role="option"
                 aria-selected={loc === locale}
               >
-                <span className="language-switcher__flag">{LOCALE_FLAGS[loc]}</span>
+                <span className={`fi fi-${FLAG_CODES[loc]} language-switcher__flag`} />
                 <span className="language-switcher__name">{LOCALE_NAMES[loc]}</span>
-                {loc === locale && <span className="language-switcher__check">✓</span>}
+                {loc === locale && <span className="language-switcher__check"><Check size={14} /></span>}
               </button>
             </li>
           ))}

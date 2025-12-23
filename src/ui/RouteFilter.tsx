@@ -3,7 +3,7 @@
 
 import { useAppStore } from '../state/appStore'
 import { KNOWN_ROUTES } from '../data/ridangoRealtime'
-import { useTranslation } from '../i18n/useTranslation'
+import { useTranslation, useLocale } from '../i18n/useTranslation'
 
 /**
  * Route color mapping - matches Nuup Bussii official branding
@@ -15,7 +15,7 @@ function getRouteColor(route: string): string {
     '3': '#4CAF50',  // Green (Rute 3)
     'X2': '#808080', // Gray (Rute X2)
     'E2': '#0066CC', // Blue (Rute E2)
-    'X3': '#8BC34A', // Light Green (Rute X3)
+    'X3': '#00b047', // Green with stripes (Rute X3)
   }
   return colors[route] || '#6b7280'
 }
@@ -25,11 +25,12 @@ export default function RouteFilter() {
   const toggleRoute = useAppStore((state) => state.toggleRoute)
   const setAllRoutes = useAppStore((state) => state.setAllRoutes)
   const t = useTranslation()
+  const { locale } = useLocale()
 
   const allEnabled = enabledRoutes.size === KNOWN_ROUTES.length
 
   return (
-    <div className="route-filter" role="group" aria-label={t.filterByRoute}>
+    <div className="route-filter" role="group" aria-label={t.filterByRoute} data-lang={locale}>
       <button
         className={`route-filter__btn route-filter__btn--all ${allEnabled ? 'route-filter__btn--active' : ''}`}
         onClick={() => setAllRoutes(!allEnabled)}
@@ -44,7 +45,7 @@ export default function RouteFilter() {
         return (
           <button
             key={route}
-            className={`route-filter__btn ${isActive ? 'route-filter__btn--active' : 'route-filter__btn--inactive'}`}
+            className={`route-filter__btn ${isActive ? 'route-filter__btn--active' : 'route-filter__btn--inactive'} ${route === 'X3' ? 'route-filter__btn--x3' : ''}`}
             style={{
               '--route-color': color,
               backgroundColor: isActive ? color : '#e5e7eb',

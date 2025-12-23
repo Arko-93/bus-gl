@@ -218,14 +218,35 @@ body {
 }
 
 .leaflet-popup-close-button {
-  top: 8px !important;
-  right: 8px !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--popup-bg);
+  border: 1px solid var(--border);
   color: var(--text-muted) !important;
-  font-size: 20px !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  padding: 0 !important;
+  box-shadow: 0 1px 2px var(--shadow);
 }
 
 .leaflet-popup-close-button:hover {
   color: var(--text) !important;
+  background: var(--bg);
+}
+
+@media (min-width: 769px) {
+  .leaflet-popup-close-button {
+    top: 14px !important;
+    right: 14px !important;
+  }
 }
 
 /* Marker icon styling */

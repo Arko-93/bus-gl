@@ -23,9 +23,41 @@ export const RawVehicleSchema = z.object({
   current_bus_speed: z.union([z.string(), z.number(), z.null()]).optional().transform(v => v ? Number(v) : 0),
   at_stop: z.union([z.string(), z.boolean(), z.null()]).optional().transform(v => v === 'true' || v === true),
   trip_headsign: z.union([z.string(), z.null()]).optional().transform(v => v ?? ''),
+  // Additional fields for stop tracking
+  location_id: z.union([z.string(), z.null()]).optional().transform(v => v ?? ''),
+  trip_id: z.union([z.string(), z.number(), z.null()]).optional().transform(v => v?.toString() ?? ''),
+  stop_departure_time: z.union([z.string(), z.null()]).optional().transform(v => v ?? ''),
 }).passthrough() // Allow additional unknown fields without failing
 
 export type RawVehicle = z.infer<typeof RawVehicleSchema>
+
+/**
+ * Parsed stop field result
+ * The API returns stop names in format "ID: Name" (e.g., "54: Atuarfik Hans Lynge")
+ */
+export interface ParsedStop {
+  id: number
+  name: string
+}
+
+/**
+ * Parse a stop field from the API format "ID: Name" to separate id and name
+ * @param raw - Raw stop string from API (e.g., "54: Atuarfik Hans Lynge")
+ * @returns Parsed stop with id and name, or null if format doesn't match
+ */
+export function parseStopField(raw: string | null | undefined): ParsedStop | null {
+  if (!raw || typeof raw !== 'string') return null
+  
+  const match = raw.match(/^(\d+):\s*(.+)$/)
+  if (!match) return null
+  
+  const id = parseInt(match[1], 10)
+  const name = match[2].trim()
+  
+  if (isNaN(id) || !name) return null
+  
+  return { id, name }
+}
 
 /**
  * Normalized vehicle model for the app
@@ -39,9 +71,27 @@ export interface Vehicle {
   updatedAtMs: number
   speed: number
   atStop: boolean
-  stopName: string
-  nextStopName: string
+  
+  // Raw stop fields as returned by API (format: "ID: Name")
+  stopNameRaw: string
+  nextStopNameRaw: string
+  headsignRaw: string
+  
+  // Parsed stop info (null if parsing failed)
+  stopId: number | null
+  stopName: string | null
+  nextStopId: number | null
+  nextStopName: string | null
+  
+  // Vehicle identifiers
+  busId: string          // location_id from API (e.g., "NK-28")
+  deviceId: string       // device_id from API
+  tripId: string         // trip_id from API
+  
+  // Legacy fields for backward compatibility
+  /** @deprecated Use stopNameRaw instead */
   headsign: string
+  
   isStale: boolean
 }
 
@@ -72,9 +122,14 @@ export function normalizeVehicles(rawData: Record<string, unknown>): Vehicle[] {
     try {
       const parsed = RawVehicleSchema.parse(rawVehicle)
       const updatedAtMs = parseTimestamp(parsed.updated_at)
+      const stableId = parsed.location_id || parsed.device_id || parsed.trip_id || id
+      
+      // Parse stop fields
+      const currentStop = parseStopField(parsed.stop_name)
+      const nextStop = parseStopField(parsed.next_stop_name)
       
       vehicles.push({
-        id,
+        id: stableId,
         route: parsed.route_short_name || 'N/A',
         routeLongName: parsed.route_long_name,
         lat: parsed.current_gps_latitude,
@@ -82,9 +137,26 @@ export function normalizeVehicles(rawData: Record<string, unknown>): Vehicle[] {
         updatedAtMs,
         speed: parsed.current_bus_speed,
         atStop: parsed.at_stop,
-        stopName: parsed.stop_name,
-        nextStopName: parsed.next_stop_name,
+        
+        // Raw fields
+        stopNameRaw: parsed.stop_name,
+        nextStopNameRaw: parsed.next_stop_name,
+        headsignRaw: parsed.trip_headsign,
+        
+        // Parsed stop info
+        stopId: currentStop?.id ?? null,
+        stopName: currentStop?.name ?? null,
+        nextStopId: nextStop?.id ?? null,
+        nextStopName: nextStop?.name ?? null,
+        
+        // Vehicle identifiers
+        busId: parsed.location_id,
+        deviceId: parsed.device_id ?? '',
+        tripId: parsed.trip_id,
+        
+        // Legacy
         headsign: parsed.trip_headsign,
+        
         isStale: isVehicleStale(updatedAtMs),
       })
     } catch (error) {

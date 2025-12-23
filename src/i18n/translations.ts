@@ -25,6 +25,7 @@ export interface TranslationStrings {
   live: string
   buses: string
   bus: string
+  busesCount: string // Template with {count} placeholder
   updated: string
   stale: string
   
@@ -41,7 +42,14 @@ export interface TranslationStrings {
   inTransit: string
   unknown: string
   atStop: string
+  atDepot: string
   dataOutdated: string
+  
+  // Stop details
+  busHere: string
+  arriving: string
+  stopDetails: string
+  noBusesAtStop: string
   
   // Time
   secondsAgo: string
@@ -63,6 +71,14 @@ export interface TranslationStrings {
   // Search
   searchStops: string
   
+  // Stop filter
+  filterStops: string
+  busStops: string
+  showAllStops: string
+  hideAllStops: string
+  clearFilters: string
+  stopsFiltered: string
+  
   // Language
   language: string
 
@@ -77,39 +93,51 @@ const translations: Record<Locale, TranslationStrings> = {
   // Kalaallisut (Greenlandic)
   kl: {
     appTitle: 'Bussit',
-    loading: 'Aajuitsilluni...',
-    updating: 'Nutarterneq...',
-    live: 'Sunaaffik',
+    loading: 'Nuisinneqalerpoq...',
+    updating: 'Nutarterneqarpoq...',
+    live: 'Toqqaannartoq',
     buses: 'bussit',
     bus: 'bussi',
-    updated: 'Nutarterneqarpoq',
-    stale: 'utoqqaq',
-    filterByRoute: 'Bussilersortaq toqqaruk',
+    busesCount: 'Bussit {count}-t ingerlapput',
+    updated: 'Nutarterneqarfia',
+    stale: 'attaviluttoq',
+    filterByRoute: 'Bussit ingerlaviat toqqaruk',
     allRoutes: 'Tamarmik',
-    route: 'Bussilersortaq',
-    speed: 'Sukkanersoq',
+    route: 'Bussit ingerlaviat',
+    speed: 'Sukkassusaa',
     kmh: 'km/t',
-    currentStop: 'Maannakkut uninnga',
-    nextStop: 'Tulleq uninnga',
-    inTransit: 'Angallasarpoq',
+    currentStop: 'Massakkut ornitaq',
+    nextStop: 'Uniffissaq tulleq',
+    inTransit: 'Ingerlavoq',
     unknown: 'Nalunaarsorneqanngilaq',
-    atStop: 'Uninngami',
-    dataOutdated: 'Paasissutissat utoqqaapput',
+    atStop: 'Unittarfimmi',
+    atDepot: 'Qatserisuni',
+    dataOutdated: 'Paasissutissat nutartingassaapput',
+    busHere: 'Bussi maaniippoq',
+    arriving: 'Piffissaq apuuffissaq',
+    stopDetails: 'Unittarfimmut paasissutissat',
+    noBusesAtStop: 'Bussinik maani uninngasoqanngilaq',
     secondsAgo: 's matuma siorna',
     minutesAgo: 'm matuma siorna',
-    hoursAgo: 't matuma siorna',
-    close: 'Matusuk',
-    closePopup: 'Ilanngussaq matuk',
+    hoursAgo: ' ak. matuma siorna',
+    close: 'Matujuk',
+    closePopup: 'Paasissutissaq matujuk',
     detailsFor: 'Paasissutissat',
-    connectionError: 'Attaveqarnermut ajutoorneq',
-    retrying: 'Misileqqaarpoq...',
-    loadingBuses: 'Bussit aajuitsillugit...',
-    searchStops: 'Uninngat ujaruk',
+    connectionError: 'Attaveeqaatit ajutoorput',
+    retrying: 'Attavit misileqqinneqarput...',
+    loadingBuses: 'Bussit attaveqaatitigut nuisinneqalerput...',
+    searchStops: 'Unittarfiit ujakkit',
+    filterStops: 'Unittarfiit toqqaruk',
+    busStops: 'Unittarfiit',
+    showAllStops: 'Tamarmik',
+    hideAllStops: 'Tarrisuk',
+    clearFilters: 'Tamarmik peeruk',
+    stopsFiltered: 'unittarfiit toqqakkat',
     language: 'Oqaatsit',
-    theme: 'Qaammat',
-    themeLight: 'Qaammat',
+    theme: 'Qaamasoq',
+    themeLight: 'Qaamasoq',
     themeDark: 'Taartoq',
-    themeSystem: 'Systemimi',
+    themeSystem: 'Systemip qaamassusaa',
   },
   
   // Dansk (Danish)
@@ -120,6 +148,7 @@ const translations: Record<Locale, TranslationStrings> = {
     live: 'Live',
     buses: 'busser',
     bus: 'bus',
+    busesCount: '{count} busser i drift',
     updated: 'Opdateret',
     stale: 'forældet',
     filterByRoute: 'Filtrer efter rute',
@@ -127,12 +156,17 @@ const translations: Record<Locale, TranslationStrings> = {
     route: 'Rute',
     speed: 'Hastighed',
     kmh: 'km/t',
-    currentStop: 'Nuværende stop',
+    currentStop: 'Nuværende destination',
     nextStop: 'Næste stop',
     inTransit: 'Undervejs',
     unknown: 'Ukendt',
     atStop: 'Ved stoppested',
+    atDepot: 'I depot',
     dataOutdated: 'Data kan være forældet',
+    busHere: 'Bussen er her',
+    arriving: 'ankommer',
+    stopDetails: 'Stopsted info',
+    noBusesAtStop: 'Ingen busser ved dette stop',
     secondsAgo: 's siden',
     minutesAgo: 'm siden',
     hoursAgo: 't siden',
@@ -143,6 +177,12 @@ const translations: Record<Locale, TranslationStrings> = {
     retrying: 'Prøver igen...',
     loadingBuses: 'Indlæser busser...',
     searchStops: 'Søg stoppesteder',
+    filterStops: 'Filtrer stoppesteder',
+    busStops: 'Stoppesteder',
+    showAllStops: 'Vis alle',
+    hideAllStops: 'Skjul alle',
+    clearFilters: 'Ryd alle',
+    stopsFiltered: 'stop valgt',
     language: 'Sprog',
     theme: 'Tema',
     themeLight: 'Lys',
@@ -158,6 +198,7 @@ const translations: Record<Locale, TranslationStrings> = {
     live: 'Live',
     buses: 'buses',
     bus: 'bus',
+    busesCount: '{count} buses operating',
     updated: 'Updated',
     stale: 'stale',
     filterByRoute: 'Filter buses by route',
@@ -165,12 +206,17 @@ const translations: Record<Locale, TranslationStrings> = {
     route: 'Route',
     speed: 'Speed',
     kmh: 'km/h',
-    currentStop: 'Current stop',
+    currentStop: 'Current destination',
     nextStop: 'Next stop',
     inTransit: 'In transit',
     unknown: 'Unknown',
     atStop: 'At stop',
+    atDepot: 'At depot',
     dataOutdated: 'Data may be outdated',
+    busHere: 'Bus is here',
+    arriving: 'arriving',
+    stopDetails: 'Stop details',
+    noBusesAtStop: 'No buses at this stop',
     secondsAgo: 's ago',
     minutesAgo: 'm ago',
     hoursAgo: 'h ago',
@@ -181,6 +227,12 @@ const translations: Record<Locale, TranslationStrings> = {
     retrying: 'Retrying...',
     loadingBuses: 'Loading buses...',
     searchStops: 'Search stops',
+    filterStops: 'Filter stops',
+    busStops: 'Bus stops',
+    showAllStops: 'Show all',
+    hideAllStops: 'Hide all',
+    clearFilters: 'Clear all',
+    stopsFiltered: 'stops selected',
     language: 'Language',
     theme: 'Theme',
     themeLight: 'Light',

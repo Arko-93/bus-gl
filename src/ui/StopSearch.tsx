@@ -2,6 +2,7 @@
 // Stop search input using Fuse.js (works with stops.geojson fixture)
 
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { MapPin } from 'lucide-react'
 import Fuse from 'fuse.js'
 
 interface Stop {
@@ -105,7 +106,7 @@ export default function StopSearch() {
               className="stop-search__result"
               onClick={() => handleSelect(stop)}
             >
-              <span className="stop-search__icon">🚏</span>
+              <span className="stop-search__icon"><MapPin size={14} /></span>
               {stop.name}
             </button>
           ))}

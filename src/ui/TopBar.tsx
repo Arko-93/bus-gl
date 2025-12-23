@@ -13,18 +13,12 @@ const ENABLE_STATIC_LAYERS = import.meta.env.VITE_ENABLE_STATIC_LAYERS === 'true
 /**
  * Format time for display based on locale
  */
-function formatTime(ms: number, locale: string): string {
+function formatTime(ms: number): string {
   const date = new Date(ms)
-  const localeMap: Record<string, string> = {
-    kl: 'da-DK', // Use Danish locale for Greenlandic (closest match)
-    da: 'da-DK',
-    en: 'en-GB',
-  }
-  return date.toLocaleTimeString(localeMap[locale] || 'en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  })
+  const hours = date.getHours().toString().padStart(2, '0')
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+  const seconds = date.getSeconds().toString().padStart(2, '0')
+  return `${hours}:${minutes}:${seconds}`
 }
 
 export default function TopBar() {
@@ -41,13 +35,13 @@ export default function TopBar() {
     <div className="top-bar">
       <div className="top-bar__left">
         <h1 className="top-bar__title">
-          <span className="top-bar__icon">🚌</span>
+          <span className="top-bar__icon"><img src="/bussit.svg" alt="Bussit" /></span>
           {t.appTitle}
         </h1>
         {ENABLE_STATIC_LAYERS && <StopSearch />}
       </div>
       
-      <div className="top-bar__right">
+      <div className="top-bar__center">
         <div className="top-bar__status">
           <span 
             className={`top-bar__indicator ${isFetching ? 'top-bar__indicator--fetching' : ''}`} 
@@ -60,7 +54,10 @@ export default function TopBar() {
           ) : (
             <>
               <span className="top-bar__vehicle-count">
-                {filteredVehicles.length} {filteredVehicles.length !== 1 ? t.buses : t.bus}
+                {filteredVehicles.length === 1 
+                  ? `1 ${t.bus}`
+                  : t.busesCount.replace('{count}', String(filteredVehicles.length))
+                }
               </span>
               {staleCount > 0 && (
                 <span className="top-bar__stale-count" title={`${staleCount} ${staleCount !== 1 ? t.buses : t.bus} ${t.stale}`}>
@@ -72,9 +69,12 @@ export default function TopBar() {
         </div>
         {lastSuccessTime && (
           <div className="top-bar__update-time">
-            {t.updated}: {formatTime(lastSuccessTime, locale)}
+            {t.updated}: {formatTime(lastSuccessTime)}
           </div>
         )}
+      </div>
+
+      <div className="top-bar__right">
         <LanguageSwitcher />
         <ThemeSwitcher />
       </div>

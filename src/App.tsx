@@ -6,12 +6,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import MapView from './map/MapView'
 import TopBar from './ui/TopBar'
 import RouteFilter from './ui/RouteFilter'
+import StopFilter from './ui/StopFilter'
 import BottomSheet from './ui/BottomSheet'
 import ErrorBanner from './ui/ErrorBanner'
 import LoadingSkeleton from './ui/LoadingSkeleton'
 import { useAppStore } from './state/appStore'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import './App.css'
+
+const ENABLE_STATIC_LAYERS = import.meta.env.VITE_ENABLE_STATIC_LAYERS === 'true'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,7 +57,10 @@ function AppContent() {
       <ErrorBanner />
       <LoadingSkeleton />
       <MapView />
-      <RouteFilter />
+      <div className="filter-bar">
+        <RouteFilter />
+        <StopFilter />
+      </div>
       <BottomSheet />
     </div>
   )

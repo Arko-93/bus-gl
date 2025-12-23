@@ -1,7 +1,8 @@
 // src/map/MapView.tsx
 // Main map component with Leaflet
 
-import { useEffect, useMemo, memo, useRef } from 'react'
+import { useEffect, useMemo, memo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { useAppStore } from '../state/appStore'
@@ -11,6 +12,7 @@ import { useResolvedTheme } from '../hooks/useResolvedTheme'
 import BusMarker from './BusMarker'
 import StopsLayer from './StopsLayer'
 import RoutesLayer from './RoutesLayer'
+import type { Vehicle } from '../data/ridangoRealtime'
 
 // Nuuk, Greenland coordinates
 const NUUK_CENTER: [number, number] = [64.1814, -51.6941]
@@ -55,7 +57,41 @@ const TILE_SUBDOMAINS = import.meta.env.VITE_TILE_SUBDOMAINS || 'abcd'
 const TILE_MAX_ZOOM = parseInt(import.meta.env.VITE_TILE_MAX_ZOOM || '19', 10)
 
 // Feature flags
-const ENABLE_STATIC_LAYERS = import.meta.env.VITE_ENABLE_STATIC_LAYERS === 'true'
+const ENABLE_ROUTES_LAYER = import.meta.env.VITE_ENABLE_ROUTES_LAYER === 'true'
+
+// Mobile follow settings
+const MOBILE_FOLLOW_OFFSET_RATIO = 0.18
+const MOBILE_FOLLOW_ANIMATION_SEC = 0.45
+const MOBILE_FOLLOW_EASE = 0.22
+
+// Qatserisut depot - where buses are maintained/stored
+const DEPOT_BOUNDS = {
+  minLat: 64.1795,
+  maxLat: 64.1825,
+  minLon: -51.7200,
+  maxLon: -51.7130,
+}
+
+function isAtDepot(vehicle: Vehicle): boolean {
+  return (
+    vehicle.lat >= DEPOT_BOUNDS.minLat &&
+    vehicle.lat <= DEPOT_BOUNDS.maxLat &&
+    vehicle.lon >= DEPOT_BOUNDS.minLon &&
+    vehicle.lon <= DEPOT_BOUNDS.maxLon
+  )
+}
+
+function getRouteColor(route: string): string {
+  const colors: Record<string, string> = {
+    '1': '#E91E8C',
+    '2': '#FFD700',
+    '3': '#4CAF50',
+    'X2': '#808080',
+    'E2': '#0066CC',
+    'X3': '#00b047',
+  }
+  return colors[route] || '#6b7280'
+}
 
 /**
  * Get tile URL based on theme, with fallback
@@ -98,6 +134,124 @@ function MapResizer() {
   }, [map])
 
   return null
+}
+
+/**
+ * Keep the selected bus centered on mobile as it moves.
+ */
+function MobileFollowSelectedVehicle() {
+  const map = useMap()
+  const { data: vehicles = [] } = useVehiclesQuery()
+  const isMobile = useAppStore((state) => state.isMobile)
+  const selectedVehicleId = useAppStore((state) => state.selectedVehicleId)
+
+  const selectedVehicle = useMemo(
+    () => vehicles.find((v) => v.id === selectedVehicleId) ?? null,
+    [vehicles, selectedVehicleId]
+  )
+  const targetLat = selectedVehicle?.lat
+  const targetLon = selectedVehicle?.lon
+
+  useEffect(() => {
+    if (!isMobile || targetLat == null || targetLon == null) return
+
+    const zoom = map.getZoom()
+    const size = map.getSize()
+    const verticalOffset = Math.round(size.y * MOBILE_FOLLOW_OFFSET_RATIO)
+    const busPoint = map.project([targetLat, targetLon], zoom)
+    const targetCenter = map.unproject(busPoint.add([0, verticalOffset]), zoom)
+
+    map.panTo(targetCenter, {
+      animate: true,
+      duration: MOBILE_FOLLOW_ANIMATION_SEC,
+      easeLinearity: MOBILE_FOLLOW_EASE,
+    })
+  }, [map, isMobile, targetLat, targetLon])
+
+  return null
+}
+
+/**
+ * Render the selected bus above the mobile overlay.
+ */
+function MobileSelectedVehicleOverlayMarker() {
+  const map = useMap()
+  const { data: vehicles = [] } = useVehiclesQuery()
+  const isMobile = useAppStore((state) => state.isMobile)
+  const isBottomSheetOpen = useAppStore((state) => state.isBottomSheetOpen)
+  const selectedVehicleId = useAppStore((state) => state.selectedVehicleId)
+  const [position, setPosition] = useState<{ left: number; top: number } | null>(null)
+
+  const lastVehicleRef = useRef<Vehicle | null>(null)
+  const currentVehicle = useMemo(
+    () => vehicles.find((v) => v.id === selectedVehicleId) ?? null,
+    [vehicles, selectedVehicleId]
+  )
+
+  if (currentVehicle) {
+    lastVehicleRef.current = currentVehicle
+  }
+
+  const selectedVehicle = currentVehicle ?? (selectedVehicleId ? lastVehicleRef.current : null)
+  const targetLat = selectedVehicle?.lat
+  const targetLon = selectedVehicle?.lon
+
+  useEffect(() => {
+    if (!isMobile || !isBottomSheetOpen || targetLat == null || targetLon == null) {
+      setPosition(null)
+      return
+    }
+
+    const updatePosition = () => {
+      const container = map.getContainer()
+      const rect = container.getBoundingClientRect()
+      const point = map.latLngToContainerPoint([targetLat, targetLon])
+      setPosition({
+        left: rect.left + point.x,
+        top: rect.top + point.y,
+      })
+    }
+
+    updatePosition()
+    map.on('move zoom resize', updatePosition)
+    window.addEventListener('resize', updatePosition)
+
+    return () => {
+      map.off('move zoom resize', updatePosition)
+      window.removeEventListener('resize', updatePosition)
+    }
+  }, [map, isMobile, isBottomSheetOpen, targetLat, targetLon])
+
+  if (!isMobile || !isBottomSheetOpen || !position || !selectedVehicle) return null
+
+  const atDepot = isAtDepot(selectedVehicle)
+  const color = getRouteColor(selectedVehicle.route)
+  const staleClass = selectedVehicle.isStale ? 'bus-marker--stale' : ''
+  const depotClass = atDepot ? 'bus-marker--depot' : ''
+  const x3Class = selectedVehicle.route === 'X3' ? 'bus-marker--x3' : ''
+
+  return createPortal(
+    <div
+      className={`bus-marker selected-bus-overlay ${staleClass} ${depotClass}`}
+      style={{ left: position.left, top: position.top }}
+    >
+      <div
+        className={`bus-marker__inner ${x3Class} ${depotClass}`}
+        style={{ backgroundColor: atDepot ? '#6b7280' : color }}
+      >
+        <span className="bus-marker__label">{selectedVehicle.route}</span>
+        {selectedVehicle.isStale && <span className="bus-marker__stale-badge">!</span>}
+        {atDepot && !selectedVehicle.isStale && (
+          <span className="bus-marker__depot-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="white">
+              <path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+            </svg>
+          </span>
+        )}
+      </div>
+    </div>,
+    document.body
+  )
 }
 
 /**
@@ -154,6 +308,8 @@ export default function MapView() {
       zoomControl={true}
     >
       <MapResizer />
+      <MobileFollowSelectedVehicle />
+      <MobileSelectedVehicleOverlayMarker />
       
       {/* Key forces TileLayer to remount on theme change */}
       <TileLayer
@@ -169,13 +325,11 @@ export default function MapView() {
         crossOrigin="anonymous"
       />
 
-      {/* Static layers (behind feature flag) */}
-      {ENABLE_STATIC_LAYERS && (
-        <>
-          <RoutesLayer />
-          <StopsLayer />
-        </>
-      )}
+      {/* Static route lines (behind feature flag) */}
+      {ENABLE_ROUTES_LAYER && <RoutesLayer />}
+
+      {/* Bus stops layer - always enabled */}
+      <StopsLayer />
 
       {/* Live vehicle markers */}
       <VehicleMarkers />

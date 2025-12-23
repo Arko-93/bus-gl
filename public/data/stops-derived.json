@@ -1,0 +1,493 @@
+{
+  "version": 1,
+  "generatedAt": "2025-12-21T23:35:06.621Z",
+  "totalCollectionRuns": 4,
+  "stops": [
+    {
+      "id": 3,
+      "name": "Illorput",
+      "originalName": "Illorput",
+      "firstSeenAt": "2025-12-21T23:35:05.433Z",
+      "lastSeenAt": "2025-12-21T23:35:06.620Z",
+      "seenCount": 3,
+      "priorityScore": 9007199254740991
+    },
+    {
+      "id": 4,
+      "name": "Nigerleq",
+      "originalName": "Nigerleq",
+      "firstSeenAt": "2025-12-21T23:35:05.433Z",
+      "lastSeenAt": "2025-12-21T23:35:06.620Z",
+      "seenCount": 3,
+      "priorityScore": 9007199254740991
+    },
+    {
+      "id": 50,
+      "name": "Tikiusaaq",
+      "originalName": "Tikiusaaq",
+      "firstSeenAt": "2025-12-21T23:35:05.433Z",
+      "lastSeenAt": "2025-12-21T23:35:06.620Z",
+      "seenCount": 3,
+      "priorityScore": 3
+    },
+    {
+      "id": 54,
+      "name": "Atuarfik Hans Lynge",
+      "originalName": "Atuarfik Hans Lynge",
+      "firstSeenAt": "2025-12-21T23:35:05.433Z",
+      "lastSeenAt": "2025-12-21T23:35:06.620Z",
+      "seenCount": 3,
+      "priorityScore": 3
+    },
+    {
+      "id": 101,
+      "name": "Eqalugalinnguit",
+      "originalName": "Eqalugalinnguit",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 102,
+      "name": "Katersortafik",
+      "originalName": "Katersortafik",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 103,
+      "name": "Qatserisut",
+      "originalName": "Qatserisut",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 104,
+      "name": "Atertaq",
+      "originalName": "Atertaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 105,
+      "name": "Rasmuuseeqqap Aqqutaa",
+      "originalName": "Rasmuuseeqqap Aqqutaa",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 106,
+      "name": "Eqalugalinnguit Tasiat",
+      "originalName": "Eqalugalinnguit Tasiat",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 107,
+      "name": "Akunnerit",
+      "originalName": "Akunnerit",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 108,
+      "name": "Røde etagehuse",
+      "originalName": "Røde etagehuse",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 109,
+      "name": "Qattaaq",
+      "originalName": "Qattaaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 110,
+      "name": "Qajaasat",
+      "originalName": "Qajaasat",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 111,
+      "name": "Nigerleq",
+      "originalName": "Nigerleq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 112,
+      "name": "Qernertunnguanut",
+      "originalName": "Qernertunnguanut",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 113,
+      "name": "Tuujuk",
+      "originalName": "Tuujuk",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 114,
+      "name": "Mannguaraq",
+      "originalName": "Mannguaraq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 115,
+      "name": "Paarnat",
+      "originalName": "Paarnat",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 116,
+      "name": "Narsarsuaq",
+      "originalName": "Narsarsuaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 117,
+      "name": "H.J. Rinksvej",
+      "originalName": "H.J. Rinksvej",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 118,
+      "name": "Aqqaluks plads",
+      "originalName": "Aqqaluks plads",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 119,
+      "name": "N.I.",
+      "originalName": "N.I.",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 120,
+      "name": "Sarfaannguit",
+      "originalName": "Sarfaannguit",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 121,
+      "name": "400-rtalik",
+      "originalName": "400-rtalik",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 122,
+      "name": "Aqqusinersuaq Arsiffik",
+      "originalName": "Aqqusinersuaq Arsiffik",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 123,
+      "name": "Nunngarut",
+      "originalName": "Nunngarut",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 124,
+      "name": "Illorput",
+      "originalName": "Illorput",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 125,
+      "name": "Nuniaffik",
+      "originalName": "Nuniaffik",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 126,
+      "name": "Sangoriaq",
+      "originalName": "Sangoriaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 127,
+      "name": "Ilimmarfik",
+      "originalName": "Ilimmarfik",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 128,
+      "name": "Tikiusaaq",
+      "originalName": "Tikiusaaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 129,
+      "name": "Nuup Qeqqa",
+      "originalName": "Nuup Qeqqa",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 130,
+      "name": "Atuarfik Hans Lyngip",
+      "originalName": "Atuarfik Hans Lyngip",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 131,
+      "name": "Kommuneqarfik",
+      "originalName": "Kommuneqarfik",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 132,
+      "name": "Narsarviaq",
+      "originalName": "Narsarviaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 133,
+      "name": "Kuussuaq",
+      "originalName": "Kuussuaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 134,
+      "name": "Unaaq",
+      "originalName": "Unaaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 135,
+      "name": "Suloraq",
+      "originalName": "Suloraq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 136,
+      "name": "Igimaq",
+      "originalName": "Igimaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 137,
+      "name": "Siaqqinneq Nukappiakkuluk",
+      "originalName": "Siaqqinneq Nukappiakkuluk",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 138,
+      "name": "Nuuk Center",
+      "originalName": "Nuuk Center",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 139,
+      "name": "Air Greenland Adm.",
+      "originalName": "Air Greenland Adm.",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 140,
+      "name": "400-rtalik Majuartarfiit",
+      "originalName": "400-rtalik Majuartarfiit",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 141,
+      "name": "Naluttarfik Malik",
+      "originalName": "Naluttarfik Malik",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 142,
+      "name": "Asiarpak",
+      "originalName": "Asiarpak",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 143,
+      "name": "Munck Camp",
+      "originalName": "Munck Camp",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 144,
+      "name": "Nuuk Lufthavn",
+      "originalName": "Nuuk Lufthavn",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 145,
+      "name": "Unaaq Kitaa",
+      "originalName": "Unaaq Kitaa",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 146,
+      "name": "Pukuffik",
+      "originalName": "Pukuffik",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 147,
+      "name": "Maligiaq",
+      "originalName": "Maligiaq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 148,
+      "name": "Nukalloq",
+      "originalName": "Nukalloq",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 149,
+      "name": "Isertitsiviit",
+      "originalName": "Isertitsiviit",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    },
+    {
+      "id": 150,
+      "name": "Rød Kirke",
+      "originalName": "Rød Kirke",
+      "firstSeenAt": "2025-12-21T23:33:57.156Z",
+      "lastSeenAt": "2025-12-21T23:33:57.156Z",
+      "seenCount": 1,
+      "priorityScore": 1
+    }
+  ]
+}

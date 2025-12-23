@@ -1,59 +1,1163 @@
 {
   "type": "FeatureCollection",
+  "generatedAt": "2025-12-21T23:35:17.228Z",
+  "matchStats": {
+    "total": 50,
+    "matched": 50,
+    "unmatched": 0,
+    "coveragePercent": 100,
+    "ridangoStops": 4,
+    "osmOnlyStops": 46
+  },
   "features": [
     {
       "type": "Feature",
       "properties": {
-        "id": "stop-1",
-        "name": "Nuuk Center"
+        "id": 3,
+        "name": "Illorput",
+        "osmId": 2629249261,
+        "osmName": "Illorput",
+        "matchScore": 1,
+        "matchMethod": "exact",
+        "seenCount": 3,
+        "priorityScore": 9007199254740991,
+        "firstSeenAt": "2025-12-21T23:35:05.433Z",
+        "lastSeenAt": "2025-12-21T23:35:06.620Z",
+        "source": "ridango"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-51.6941, 64.1814]
+        "coordinates": [
+          -51.7064831,
+          64.1807825
+        ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": "stop-2",
-        "name": "Nuuk Airport"
+        "id": 4,
+        "name": "Nigerleq",
+        "osmId": 1678188130,
+        "osmName": "Nigerleq",
+        "matchScore": 1,
+        "matchMethod": "exact",
+        "seenCount": 3,
+        "priorityScore": 9007199254740991,
+        "firstSeenAt": "2025-12-21T23:35:05.433Z",
+        "lastSeenAt": "2025-12-21T23:35:06.620Z",
+        "source": "ridango"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-51.6781, 64.1909]
+        "coordinates": [
+          -51.7123103,
+          64.177881
+        ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": "stop-3",
-        "name": "Nuussuaq"
+        "id": 50,
+        "name": "Tikiusaaq",
+        "osmId": 2664154540,
+        "osmName": "Tikiusaaq",
+        "matchScore": 1,
+        "matchMethod": "exact",
+        "seenCount": 3,
+        "priorityScore": 3,
+        "firstSeenAt": "2025-12-21T23:35:05.433Z",
+        "lastSeenAt": "2025-12-21T23:35:06.620Z",
+        "source": "ridango"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-51.7200, 64.1950]
+        "coordinates": [
+          -51.6677254,
+          64.1731236
+        ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": "stop-4",
-        "name": "Qinngorput"
+        "id": 54,
+        "name": "Atuarfik Hans Lynge",
+        "osmId": 3200767862,
+        "osmName": "Atuarfik Hans Lyngip",
+        "matchScore": 1,
+        "matchMethod": "exact",
+        "seenCount": 3,
+        "priorityScore": 3,
+        "firstSeenAt": "2025-12-21T23:35:05.433Z",
+        "lastSeenAt": "2025-12-21T23:35:06.620Z",
+        "source": "ridango"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-51.6500, 64.1650]
+        "coordinates": [
+          -51.6686891,
+          64.1693759
+        ]
       }
     },
     {
       "type": "Feature",
       "properties": {
-        "id": "stop-5",
-        "name": "Kolonihavnen"
+        "id": 119,
+        "name": "400-rtalik",
+        "osmId": 2626553372,
+        "osmName": "400-rtalik",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
       },
       "geometry": {
         "type": "Point",
-        "coordinates": [-51.7100, 64.1750]
+        "coordinates": [
+          -51.7227096,
+          64.1790225
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 135,
+        "name": "400-rtalik Majuartarfiit",
+        "osmId": 6823984226,
+        "osmName": "400-rtalik Majuartarfiit",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7096815,
+          64.1779776
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 134,
+        "name": "Air Greenland Adm.",
+        "osmId": 6123201921,
+        "osmName": "Air Greenland Adm.",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6713471,
+          64.1902768
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 106,
+        "name": "Akunnerit",
+        "osmId": 1292473857,
+        "osmName": "Akunnerit",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7213191,
+          64.1853893
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 116,
+        "name": "Aqqaluks plads",
+        "osmId": 2598335002,
+        "osmName": "Aqqaluks plads",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7404525,
+          64.181605
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 120,
+        "name": "Aqqusinersuaq Arsiffik",
+        "osmId": 2626556509,
+        "osmName": "Aqqusinersuaq Arsiffik",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7349564,
+          64.1770897
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 137,
+        "name": "Asiarpak",
+        "osmId": 6992316663,
+        "osmName": "Asiarpak",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6685965,
+          64.1740078
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 103,
+        "name": "Atertaq",
+        "osmId": 320407406,
+        "osmName": "Atertaq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7034039,
+          64.1890918
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 100,
+        "name": "Eqalugalinnguit",
+        "osmId": 320401880,
+        "osmName": "Eqalugalinnguit",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7116169,
+          64.1887262
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 105,
+        "name": "Eqalugalinnguit Tasiat",
+        "osmId": 1292473855,
+        "osmName": "Eqalugalinnguit Tasiat",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7218734,
+          64.1853149
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 115,
+        "name": "H.J. Rinksvej",
+        "osmId": 2595725312,
+        "osmName": "H.J. Rinksvej",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7310545,
+          64.1774154
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 131,
+        "name": "Igimaq",
+        "osmId": 3211601476,
+        "osmName": "Igimaq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6773795,
+          64.1679209
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 124,
+        "name": "Ilimmarfik",
+        "osmId": 2635220079,
+        "osmName": "Ilimmarfik",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6955558,
+          64.1917532
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 144,
+        "name": "Isertitsiviit",
+        "osmId": 12921993758,
+        "osmName": "Isertitsiviit",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6641745,
+          64.2005526
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 101,
+        "name": "Katersortafik",
+        "osmId": 320406427,
+        "osmName": "Katersortafik",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7380604,
+          64.1735117
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 126,
+        "name": "Kommuneqarfik",
+        "osmId": 3200861645,
+        "osmName": "Kommuneqarfik",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.737174,
+          64.1764232
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 128,
+        "name": "Kuussuaq",
+        "osmId": 3203748262,
+        "osmName": "Kuussuaq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.74169,
+          64.1770262
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 142,
+        "name": "Maligiaq",
+        "osmId": 11072053702,
+        "osmName": "Maligiaq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6981606,
+          64.1839382
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 112,
+        "name": "Mannguaraq",
+        "osmId": 1956522830,
+        "osmName": "Mannguaraq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6969013,
+          64.1887837
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 138,
+        "name": "Munck Camp",
+        "osmId": 10272011273,
+        "osmName": "Munck Camp",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6756185,
+          64.1860202
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 117,
+        "name": "N.I.",
+        "osmId": 2620407931,
+        "osmName": "N.I.",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7353307,
+          64.1719853
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 136,
+        "name": "Naluttarfik Malik",
+        "osmId": 6881753721,
+        "osmName": "Naluttarfik Malik",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7029129,
+          64.1851908
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 114,
+        "name": "Narsarsuaq",
+        "osmId": 2595725311,
+        "osmName": "Narsarsuaq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7299424,
+          64.1772336
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 127,
+        "name": "Narsarviaq",
+        "osmId": 3203336684,
+        "osmName": "Narsarviaq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7044483,
+          64.1830444
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 143,
+        "name": "Nukalloq",
+        "osmId": 11072053704,
+        "osmName": "Nukalloq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7032575,
+          64.1858748
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 122,
+        "name": "Nuniaffik",
+        "osmId": 2632689510,
+        "osmName": "Nuniaffik",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7088414,
+          64.186184
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 121,
+        "name": "Nunngarut",
+        "osmId": 2629063820,
+        "osmName": "Nunngarut",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7042035,
+          64.1848662
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 133,
+        "name": "Nuuk Center",
+        "osmId": 6053541833,
+        "osmName": "Nuuk Center",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7401462,
+          64.1787224
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 139,
+        "name": "Nuuk Lufthavn",
+        "osmId": 10272011302,
+        "osmName": "Nuuk Lufthavn",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6759993,
+          64.1840605
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 125,
+        "name": "Nuup Qeqqa",
+        "osmId": 3200739765,
+        "osmName": "Nuup Qeqqa",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7366058,
+          64.1750824
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 113,
+        "name": "Paarnat",
+        "osmId": 2587030633,
+        "osmName": "Paarnat",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7138806,
+          64.1888137
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 141,
+        "name": "Pukuffik",
+        "osmId": 11072053701,
+        "osmName": "Pukuffik",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6965073,
+          64.1834714
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 109,
+        "name": "Qajaasat",
+        "osmId": 1678181138,
+        "osmName": "Qajaasat",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7101358,
+          64.1917657
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 102,
+        "name": "Qatserisut",
+        "osmId": 320406437,
+        "osmName": "Qatserisut",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7311672,
+          64.1705101
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 108,
+        "name": "Qattaaq",
+        "osmId": 1678174320,
+        "osmName": "Qattaaq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.702637,
+          64.1853369
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 110,
+        "name": "Qernertunnguanut",
+        "osmId": 1678190066,
+        "osmName": "Qernertunnguanut",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7243329,
+          64.1886735
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 104,
+        "name": "Rasmuuseeqqap Aqqutaa",
+        "osmId": 992046804,
+        "osmName": "Rasmuuseeqqap Aqqutaa",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7401014,
+          64.1788366
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 145,
+        "name": "Rød Kirke",
+        "osmId": 13248274121,
+        "osmName": "Rød Kirke",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7433762,
+          64.1793959
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 107,
+        "name": "Røde etagehuse",
+        "osmId": 1491228474,
+        "osmName": "Røde etagehuse",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7313186,
+          64.1707106
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 123,
+        "name": "Sangoriaq",
+        "osmId": 2632900699,
+        "osmName": "Sangoriaq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.710891,
+          64.1818086
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 118,
+        "name": "Sarfaannguit",
+        "osmId": 2626553369,
+        "osmName": "Sarfaannguit",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7225136,
+          64.1794338
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 132,
+        "name": "Siaqqinneq Nukappiakkuluk",
+        "osmId": 3213311961,
+        "osmName": "Siaqqinneq Nukappiakkuluk",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6825897,
+          64.1949956
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 130,
+        "name": "Suloraq",
+        "osmId": 3211589364,
+        "osmName": "Suloraq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6761587,
+          64.1646822
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 111,
+        "name": "Tuujuk",
+        "osmId": 1678251522,
+        "osmName": "Tuujuk",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7347565,
+          64.1719093
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 129,
+        "name": "Unaaq",
+        "osmId": 3211575826,
+        "osmName": "Unaaq",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6676758,
+          64.1703656
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 140,
+        "name": "Unaaq Kitaa",
+        "osmId": 11072053700,
+        "osmName": "Unaaq Kitaa",
+        "matchScore": 1,
+        "matchMethod": "osm-only",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-21T23:35:17.228Z",
+        "lastSeenAt": "2025-12-21T23:35:17.228Z",
+        "source": "osm"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6789736,
+          64.1647734
+        ]
       }
     }
   ]

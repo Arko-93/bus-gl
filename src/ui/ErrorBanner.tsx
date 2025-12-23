@@ -1,6 +1,7 @@
 // src/ui/ErrorBanner.tsx
 // Banner displayed when the realtime feed is unavailable
 
+import { AlertTriangle } from 'lucide-react'
 import { useAppStore } from '../state/appStore'
 
 export default function ErrorBanner() {
@@ -10,7 +11,7 @@ export default function ErrorBanner() {
 
   return (
     <div className="error-banner" role="alert">
-      <span className="error-banner__icon">⚠️</span>
+      <span className="error-banner__icon"><AlertTriangle size={18} /></span>
       <span className="error-banner__text">
         Realtime feed unavailable. Showing last known positions.
       </span>

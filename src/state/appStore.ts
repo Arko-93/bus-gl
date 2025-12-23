@@ -9,15 +9,45 @@ import type { Theme } from '../hooks/useResolvedTheme'
 
 const STORAGE_KEY = 'nuuk-bus-preferences'
 
+function getPersistedPreferences(): { locale?: Locale; theme?: Theme } {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw)
+    const state = parsed?.state ?? {}
+    const locale = ['kl', 'da', 'en'].includes(state.locale) ? (state.locale as Locale) : undefined
+    const theme = ['light', 'dark', 'system'].includes(state.theme) ? (state.theme as Theme) : undefined
+    return { locale, theme }
+  } catch {
+    return {}
+  }
+}
+
+const persistedPreferences = getPersistedPreferences()
+
 interface AppState {
   // Selected vehicle for details view
   selectedVehicleId: string | null
   setSelectedVehicleId: (id: string | null) => void
 
+  // Selected stop for details view
+  selectedStopId: number | null
+  setSelectedStopId: (id: number | null) => void
+
   // Route filter (which routes to show)
   enabledRoutes: Set<string>
   toggleRoute: (route: string) => void
   setAllRoutes: (enabled: boolean) => void
+
+  // Stop filter (which stops to show - empty means show all)
+  filteredStopIds: Set<number>
+  showAllStops: boolean
+  addStopFilter: (stopId: number, stopName: string) => void
+  removeStopFilter: (stopId: number) => void
+  clearStopFilters: () => void
+  setShowAllStops: (show: boolean) => void
+  filteredStopNames: Map<number, string>
 
   // Mobile detection
   isMobile: boolean
@@ -51,6 +81,15 @@ export const useAppStore = create<AppState>()(
       selectedVehicleId: null,
       setSelectedVehicleId: (id) => set({ 
         selectedVehicleId: id,
+        selectedStopId: null, // Clear stop selection when vehicle is selected
+        isBottomSheetOpen: id !== null,
+      }),
+
+      // Selected stop
+      selectedStopId: null,
+      setSelectedStopId: (id) => set({
+        selectedStopId: id,
+        selectedVehicleId: null, // Clear vehicle selection when stop is selected
         isBottomSheetOpen: id !== null,
       }),
 
@@ -83,6 +122,44 @@ export const useAppStore = create<AppState>()(
           enabledRoutes: enabled ? new Set(KNOWN_ROUTES) : new Set([KNOWN_ROUTES[0]]),
         }),
 
+      // Stop filter - empty means show all stops
+      filteredStopIds: new Set<number>(),
+      filteredStopNames: new Map<number, string>(),
+      showAllStops: true,
+      addStopFilter: (stopId, stopName) =>
+        set((state) => {
+          const newIds = new Set(state.filteredStopIds)
+          const newNames = new Map(state.filteredStopNames)
+          newIds.add(stopId)
+          newNames.set(stopId, stopName)
+          return { 
+            filteredStopIds: newIds, 
+            filteredStopNames: newNames,
+            showAllStops: false 
+          }
+        }),
+      removeStopFilter: (stopId) =>
+        set((state) => {
+          const newIds = new Set(state.filteredStopIds)
+          const newNames = new Map(state.filteredStopNames)
+          newIds.delete(stopId)
+          newNames.delete(stopId)
+          // If no filters left, show all stops
+          return { 
+            filteredStopIds: newIds, 
+            filteredStopNames: newNames,
+            showAllStops: newIds.size === 0 
+          }
+        }),
+      clearStopFilters: () =>
+        set({ 
+          filteredStopIds: new Set<number>(), 
+          filteredStopNames: new Map<number, string>(),
+          showAllStops: true 
+        }),
+      setShowAllStops: (show) =>
+        set({ showAllStops: show }),
+
       // Mobile detection
       isMobile: false,
       setIsMobile: (isMobile) => set({ isMobile }),
@@ -100,11 +177,11 @@ export const useAppStore = create<AppState>()(
       setBottomSheetOpen: (open) => set({ isBottomSheetOpen: open }),
 
       // Locale - detect from browser or default to English
-      locale: detectBrowserLocale(),
+      locale: persistedPreferences.locale ?? detectBrowserLocale(),
       setLocale: (locale) => set({ locale }),
 
       // Theme - default to system preference
-      theme: 'system',
+      theme: persistedPreferences.theme ?? 'system',
       setTheme: (theme) => set({ theme }),
     }),
     {

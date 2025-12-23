@@ -1,17 +1,18 @@
 // src/ui/ThemeSwitcher.tsx
 // Theme selector dropdown (Light / Dark / System)
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, type ReactNode } from 'react'
+import { Sun, Moon, Monitor, Check } from 'lucide-react'
 import { useAppStore } from '../state/appStore'
 import { useResolvedTheme, type Theme } from '../hooks/useResolvedTheme'
 import { useTranslation } from '../i18n/useTranslation'
 
 const THEMES: Theme[] = ['light', 'dark', 'system']
 
-const THEME_ICONS: Record<Theme, string> = {
-  light: '☀️',
-  dark: '🌙',
-  system: '💻',
+const THEME_ICONS: Record<Theme, ReactNode> = {
+  light: <Sun size={16} />,
+  dark: <Moon size={16} />,
+  system: <Monitor size={16} />,
 }
 
 export default function ThemeSwitcher() {
@@ -53,7 +54,6 @@ export default function ThemeSwitcher() {
         <span className="theme-switcher__icon">
           {theme === 'system' ? THEME_ICONS[resolvedTheme] : THEME_ICONS[theme]}
         </span>
-        <span className="theme-switcher__arrow">{isOpen ? '▼' : '▼'}</span>
       </button>
 
       {isOpen && (
@@ -72,7 +72,7 @@ export default function ThemeSwitcher() {
                   {themeOption === 'dark' && t.themeDark}
                   {themeOption === 'system' && t.themeSystem}
                 </span>
-                {themeOption === theme && <span className="theme-switcher__check">✓</span>}
+                {themeOption === theme && <span className="theme-switcher__check"><Check size={14} /></span>}
               </button>
             </li>
           ))}
