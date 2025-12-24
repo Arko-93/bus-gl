@@ -44,7 +44,7 @@ export default function TopBar() {
       <div className="top-bar__center">
         <div className="top-bar__status">
           <span 
-            className={`top-bar__indicator ${isFetching ? 'top-bar__indicator--fetching' : ''}`} 
+            className={`top-bar__indicator ${isFetching ? 'top-bar__indicator--fetching' : ''} ${filteredVehicles.length === 0 && !isLoading ? 'top-bar__indicator--inactive' : ''}`} 
             title={isFetching ? t.updating : t.live}
           />
           {isLoading ? (

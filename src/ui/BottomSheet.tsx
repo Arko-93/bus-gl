@@ -6,6 +6,7 @@ import { Gauge, MapPin, ArrowRight, Clock, CircleDot, Bus, Timer, AlertTriangle,
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import { useStopsData, getStopById, createStopLookup } from '../data/useStopsData'
+import { useRoute1Schedule, getUpcomingTimes } from '../data/route1Schedule'
 import { useTranslation } from '../i18n/useTranslation'
 import type { Vehicle } from '../data/ridangoRealtime'
 import type { StopFeature } from '../data/useStopsData'
@@ -128,6 +129,11 @@ interface StopDetailsProps {
 
 function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProps) {
   const t = useTranslation()
+  const { data: route1Schedule } = useRoute1Schedule()
+  const scheduleInfo = getUpcomingTimes(route1Schedule, stop.properties.id, new Date(), 6)
+  const scheduleLabel = scheduleInfo
+    ? `${t.route} 1 · ${scheduleInfo.service === 'weekdays' ? t.scheduleWeekdays : t.scheduleWeekends}`
+    : null
   
   return (
     <div className="bottom-sheet__content">
@@ -178,9 +184,19 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
           </div>
         )}
 
-        {vehiclesAtStop.length === 0 && vehiclesArriving.length === 0 && (
-          <div className="bottom-sheet__empty">
-            {t.noBusesAtStop}
+        {scheduleInfo && scheduleLabel && (
+          <div className="bottom-sheet__section">
+            <h3 className="bottom-sheet__section-title">{scheduleLabel}</h3>
+            <div className="stop-schedule">
+              {scheduleInfo.times.map((time) => (
+                <span
+                  key={`${stop.properties.id}-${time.raw}`}
+                  className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}`}
+                >
+                  {time.label}
+                </span>
+              ))}
+            </div>
           </div>
         )}
       </div>

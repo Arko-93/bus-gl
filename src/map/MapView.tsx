@@ -13,11 +13,13 @@ import BusMarker from './BusMarker'
 import StopsLayer from './StopsLayer'
 import RoutesLayer from './RoutesLayer'
 import SelectedBusPath from './SelectedBusPath'
+import SelectedRoutePath from './SelectedRoutePath'
 import type { Vehicle } from '../data/ridangoRealtime'
 
 // Nuuk, Greenland coordinates
 const NUUK_CENTER: [number, number] = [64.1814, -51.6941]
 const DEFAULT_ZOOM = 13
+const NUUK_BOUNDS = L.latLngBounds([64.1497, -51.7634], [64.2156, -51.6442])
 
 /**
  * Tile Provider Configuration
@@ -135,6 +137,29 @@ function MapResizer() {
     setTimeout(handleResize, 100)
 
     return () => window.removeEventListener('resize', handleResize)
+  }, [map])
+
+  return null
+}
+
+/**
+ * Constrain the map to the Nuuk area and prevent zooming out beyond it.
+ */
+function MapBoundsLimiter() {
+  const map = useMap()
+
+  useEffect(() => {
+    const applyBounds = () => {
+      const minZoom = map.getBoundsZoom(NUUK_BOUNDS, false)
+      map.setMinZoom(minZoom)
+      if (map.getZoom() < minZoom) {
+        map.setZoom(minZoom)
+      }
+    }
+
+    applyBounds()
+    map.on('resize', applyBounds)
+    return () => map.off('resize', applyBounds)
   }, [map])
 
   return null
@@ -350,10 +375,13 @@ export default function MapView() {
     <MapContainer
       center={NUUK_CENTER}
       zoom={DEFAULT_ZOOM}
+      maxBounds={NUUK_BOUNDS}
+      maxBoundsViscosity={1.0}
       className="map-container"
       zoomControl={true}
     >
       <MapResizer />
+      <MapBoundsLimiter />
       <MobileFollowSelectedVehicle />
       <MobileSelectedVehicleOverlayMarker />
       
@@ -373,6 +401,9 @@ export default function MapView() {
 
       {/* Static route lines (behind feature flag) */}
       {ENABLE_ROUTES_LAYER && <RoutesLayer />}
+
+      {/* Selected route path from stop filters */}
+      <SelectedRoutePath />
 
       {/* Selected bus path towards current destination */}
       <SelectedBusPath />

@@ -33,7 +33,7 @@ interface AppState {
 
   // Selected stop for details view
   selectedStopId: number | null
-  setSelectedStopId: (id: number | null) => void
+  setSelectedStopId: (id: number | null, options?: { openPanel?: boolean }) => void
 
   // Route filter (which routes to show)
   enabledRoutes: Set<string>
@@ -46,8 +46,16 @@ interface AppState {
   addStopFilter: (stopId: number, stopName: string) => void
   removeStopFilter: (stopId: number) => void
   clearStopFilters: () => void
+  setStopFilters: (stops: Array<{ id: number; name: string }>) => void
   setShowAllStops: (show: boolean) => void
   filteredStopNames: Map<number, string>
+  selectedStopRoute: string | null
+  setSelectedStopRoute: (route: string | null) => void
+  selectedStopRouteTripEnabled: boolean
+  setSelectedStopRouteTripEnabled: (enabled: boolean) => void
+  selectedStopRouteFromId: number | null
+  selectedStopRouteToId: number | null
+  setSelectedStopRouteRange: (fromId: number | null, toId: number | null) => void
 
   // Mobile detection
   isMobile: boolean
@@ -91,11 +99,15 @@ export const useAppStore = create<AppState>()(
 
       // Selected stop
       selectedStopId: null,
-      setSelectedStopId: (id) => set({
-        selectedStopId: id,
-        selectedVehicleId: null, // Clear vehicle selection when stop is selected
-        isBottomSheetOpen: id !== null,
-      }),
+      setSelectedStopId: (id, options) =>
+        set((state) => {
+          const openPanel = options?.openPanel ?? state.isMobile
+          return {
+            selectedStopId: id,
+            selectedVehicleId: null, // Clear vehicle selection when stop is selected
+            isBottomSheetOpen: openPanel ? id !== null : false,
+          }
+        }),
 
       // Route filter - all routes enabled by default
       enabledRoutes: new Set(KNOWN_ROUTES),
@@ -159,10 +171,36 @@ export const useAppStore = create<AppState>()(
         set({ 
           filteredStopIds: new Set<number>(), 
           filteredStopNames: new Map<number, string>(),
-          showAllStops: true 
+          showAllStops: true,
+          selectedStopRoute: null,
+          selectedStopRouteTripEnabled: false,
+          selectedStopRouteFromId: null,
+          selectedStopRouteToId: null,
+        }),
+      setStopFilters: (stops) =>
+        set(() => {
+          const newIds = new Set<number>()
+          const newNames = new Map<number, string>()
+          for (const stop of stops) {
+            newIds.add(stop.id)
+            newNames.set(stop.id, stop.name)
+          }
+          return {
+            filteredStopIds: newIds,
+            filteredStopNames: newNames,
+            showAllStops: newIds.size === 0,
+          }
         }),
       setShowAllStops: (show) =>
         set({ showAllStops: show }),
+      selectedStopRoute: null,
+      setSelectedStopRoute: (route) => set({ selectedStopRoute: route }),
+      selectedStopRouteTripEnabled: false,
+      setSelectedStopRouteTripEnabled: (enabled) => set({ selectedStopRouteTripEnabled: enabled }),
+      selectedStopRouteFromId: null,
+      selectedStopRouteToId: null,
+      setSelectedStopRouteRange: (fromId, toId) =>
+        set({ selectedStopRouteFromId: fromId, selectedStopRouteToId: toId }),
 
       // Mobile detection
       isMobile: false,

@@ -1,96 +1,126 @@
 // src/ui/StopFilter.tsx
-// Stop filter - pill button that opens a dropdown with search and stop selection
+// Stop filter - pill button that opens a dropdown with route-based stop filters
 
-import { useState, useEffect, useMemo, useRef } from 'react'
-import { Search, X, MapPin } from 'lucide-react'
-import Fuse from 'fuse.js'
+import { useState, useEffect, useMemo, useRef, useCallback, type ChangeEvent } from 'react'
+import { X, MapPin, Route } from 'lucide-react'
 import { useAppStore } from '../state/appStore'
 import { useTranslation, useLocale } from '../i18n/useTranslation'
+import { useStopsData } from '../data/useStopsData'
+import { useRoute1Schedule, getStopOrderForDate, getScheduleServiceForDate } from '../data/route1Schedule'
 
 interface Stop {
   id: number
   name: string
-  lat: number
-  lon: number
 }
+
+const ROUTE_1_COLOR = '#E91E8C'
 
 export default function StopFilter() {
   const t = useTranslation()
   const { locale } = useLocale()
-  const [stops, setStops] = useState<Stop[]>([])
-  const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+
+  const { data: stopsData, isLoading: stopsLoading } = useStopsData()
+  const { data: route1Schedule, isLoading: scheduleLoading } = useRoute1Schedule()
 
   const filteredStopIds = useAppStore((state) => state.filteredStopIds)
-  const filteredStopNames = useAppStore((state) => state.filteredStopNames)
-  const addStopFilter = useAppStore((state) => state.addStopFilter)
-  const removeStopFilter = useAppStore((state) => state.removeStopFilter)
   const clearStopFilters = useAppStore((state) => state.clearStopFilters)
+  const setStopFilters = useAppStore((state) => state.setStopFilters)
+  const selectedStopRoute = useAppStore((state) => state.selectedStopRoute)
+  const setSelectedStopRoute = useAppStore((state) => state.setSelectedStopRoute)
+  const selectedStopRouteTripEnabled = useAppStore((state) => state.selectedStopRouteTripEnabled)
+  const setSelectedStopRouteTripEnabled = useAppStore((state) => state.setSelectedStopRouteTripEnabled)
+  const selectedStopRouteFromId = useAppStore((state) => state.selectedStopRouteFromId)
+  const selectedStopRouteToId = useAppStore((state) => state.selectedStopRouteToId)
+  const setSelectedStopRouteRange = useAppStore((state) => state.setSelectedStopRouteRange)
 
   const hasFilters = filteredStopIds.size > 0
-  const isLoading = stops.length === 0
+  const isLoading = stopsLoading || scheduleLoading
+  const scheduleService = getScheduleServiceForDate(new Date())
 
-  // Load stops from GeoJSON
-  useEffect(() => {
-    fetch('/data/stops.geojson')
-      .then((res) => {
-        if (!res.ok) throw new Error('Stops data not found')
-        return res.json()
-      })
-      .then((geojson) => {
-        const parsed: Stop[] = geojson.features
-          .filter((feature: { geometry: { coordinates: [number, number] | null } }) => 
-            feature.geometry.coordinates !== null
-          )
-          .map((feature: {
-            properties: { name: string; id: number }
-            geometry: { coordinates: [number, number] }
-          }) => ({
-            id: feature.properties.id,
-            name: feature.properties.name,
-            lon: feature.geometry.coordinates[0],
-            lat: feature.geometry.coordinates[1],
-          }))
-        setStops(parsed)
-      })
-      .catch((err) => {
-        console.warn('Failed to load stops for filter:', err)
-      })
-  }, [])
-
-  // Initialize Fuse.js for fuzzy search
-  const fuse = useMemo(() => {
-    if (stops.length === 0) return null
-    return new Fuse(stops, {
-      keys: ['name'],
-      threshold: 0.4,
-      includeScore: true,
-    })
-  }, [stops])
-
-  // Compute search results
-  const searchResults = useMemo(() => {
-    if (!fuse || query.length < 1) {
-      // Show all stops when no query, excluding already selected
-      return stops
-        .filter((stop) => !filteredStopIds.has(stop.id))
-        .slice(0, 8)
+  const route1StopOrder = useMemo(() => {
+    if (!route1Schedule) return []
+    const order = getStopOrderForDate(route1Schedule, new Date())
+    if (order.length > 0) return order
+    const ids = new Set<number>()
+    for (const key of Object.keys(route1Schedule.weekdays)) {
+      const id = Number(key)
+      if (Number.isFinite(id)) ids.add(id)
     }
-    return fuse
-      .search(query)
-      .slice(0, 8)
-      .map((r) => r.item)
-      .filter((stop) => !filteredStopIds.has(stop.id))
-  }, [query, fuse, filteredStopIds, stops])
+    for (const key of Object.keys(route1Schedule.weekends)) {
+      const id = Number(key)
+      if (Number.isFinite(id)) ids.add(id)
+    }
+    return Array.from(ids)
+  }, [route1Schedule, scheduleService])
+
+  const route1Stops = useMemo<Stop[]>(() => {
+    if (!stopsData || route1StopOrder.length === 0) return []
+    const byId = new Map(
+      stopsData.features
+        .filter((feature) => feature.geometry.coordinates)
+        .map((feature) => [feature.properties.id, feature.properties.name])
+    )
+    const ordered: Stop[] = []
+    for (const id of route1StopOrder) {
+      const name = byId.get(id)
+      if (name) ordered.push({ id, name })
+    }
+    return ordered
+  }, [stopsData, route1StopOrder])
+
+  const isRoute1Active = selectedStopRoute === '1' && route1Stops.length > 0
+  const isRoute1Disabled = route1Stops.length === 0 && !isRoute1Active
+
+  const route1Index = useMemo(() => {
+    return new Map(route1Stops.map((stop, index) => [stop.id, index]))
+  }, [route1Stops])
+
+  const getStopsForward = useCallback(
+    (fromId: number, toId: number) => {
+      if (route1Stops.length === 0) return route1Stops
+      const fromIndex = route1Index.get(fromId)
+      const toIndex = route1Index.get(toId)
+      if (fromIndex == null || toIndex == null) return route1Stops
+      if (fromIndex <= toIndex) {
+        return route1Stops.slice(fromIndex, toIndex + 1)
+      }
+      return route1Stops.slice(fromIndex).concat(route1Stops.slice(0, toIndex + 1))
+    },
+    [route1Index, route1Stops]
+  )
+
+  const syncStopFilters = useCallback(() => {
+    if (!isRoute1Active || route1Stops.length === 0) return
+    if (!selectedStopRouteTripEnabled) {
+      setStopFilters(route1Stops)
+      return
+    }
+    if (!selectedStopRouteFromId || !selectedStopRouteToId) {
+      setStopFilters(route1Stops)
+      return
+    }
+    setStopFilters(getStopsForward(selectedStopRouteFromId, selectedStopRouteToId))
+  }, [
+    getStopsForward,
+    isRoute1Active,
+    route1Stops,
+    selectedStopRouteFromId,
+    selectedStopRouteToId,
+    selectedStopRouteTripEnabled,
+    setStopFilters,
+  ])
+
+  useEffect(() => {
+    syncStopFilters()
+  }, [syncStopFilters])
 
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false)
-        setQuery('')
       }
     }
 
@@ -100,35 +130,45 @@ export default function StopFilter() {
     }
   }, [isOpen])
 
-  // Focus input when opening
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [isOpen])
-
   const handleToggle = () => {
     setIsOpen(!isOpen)
   }
 
-  const handleSelectAll = () => {
-    // Add all stops to the filter
-    stops.forEach((stop) => {
-      addStopFilter(stop.id, stop.name)
-    })
+  const handleRemoveAll = () => clearStopFilters()
+
+  const handleRoute1Select = () => {
+    if (isRoute1Active) {
+      clearStopFilters()
+      return
+    }
+    if (route1Stops.length === 0) return
+    setSelectedStopRoute('1')
+    setSelectedStopRouteTripEnabled(false)
+    setSelectedStopRouteRange(null, null)
+    setStopFilters(route1Stops)
   }
 
-  const handleRemoveAll = () => {
-    clearStopFilters()
+  const handleFromChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value
+    const nextFrom = value ? Number(value) : null
+    setSelectedStopRouteRange(nextFrom, selectedStopRouteToId)
   }
 
-  const handleSelect = (stop: Stop) => {
-    addStopFilter(stop.id, stop.name)
-    setQuery('')
+  const handleToChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value
+    const nextTo = value ? Number(value) : null
+    setSelectedStopRouteRange(selectedStopRouteFromId, nextTo)
   }
 
-  const handleRemoveTag = (stopId: number) => {
-    removeStopFilter(stopId)
+  const handleModeSelect = (mode: 'full' | 'trip') => {
+    if (!isRoute1Active) return
+    if (mode === 'trip') {
+      setSelectedStopRouteTripEnabled(true)
+      setSelectedStopRouteRange(null, null)
+      return
+    }
+    setSelectedStopRouteTripEnabled(false)
+    setSelectedStopRouteRange(null, null)
   }
 
   return (
@@ -154,25 +194,17 @@ export default function StopFilter() {
               {t.busStops}
             </span>
             <div className="stop-filter__header-actions">
-              {hasFilters ? (
+              {hasFilters && (
                 <button 
                   className="stop-filter__action-btn stop-filter__action-btn--remove"
                   onClick={handleRemoveAll}
                 >
                   {t.clearFilters}
                 </button>
-              ) : (
-                <button 
-                  className="stop-filter__action-btn"
-                  onClick={handleSelectAll}
-                  disabled={isLoading}
-                >
-                  {t.showAllStops}
-                </button>
               )}
               <button 
                 className="stop-filter__close" 
-                onClick={() => { setIsOpen(false); setQuery(''); }}
+                onClick={() => { setIsOpen(false); }}
                 aria-label={t.close}
               >
                 <X size={16} />
@@ -180,66 +212,86 @@ export default function StopFilter() {
             </div>
           </div>
 
-          {/* Search input */}
-          <div className="stop-filter__search-box">
-            <Search size={14} className="stop-filter__search-icon" />
-            <input
-              ref={inputRef}
-              type="text"
-              className="stop-filter__input"
-              placeholder={t.searchStops}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            {query && (
-              <button 
-                className="stop-filter__clear-input"
-                onClick={() => setQuery('')}
-              >
-                <X size={12} />
-              </button>
-            )}
-          </div>
-
-          {/* Selected stops tags */}
-          {hasFilters && (
-            <div className="stop-filter__tags">
-              {Array.from(filteredStopIds).map((stopId) => (
-                <span key={stopId} className="stop-filter__tag">
-                  <MapPin size={10} />
-                  <span className="stop-filter__tag-name">
-                    {filteredStopNames.get(stopId) || `Stop ${stopId}`}
-                  </span>
-                  <button
-                    className="stop-filter__tag-remove"
-                    onClick={() => handleRemoveTag(stopId)}
-                    aria-label={`Remove ${filteredStopNames.get(stopId)}`}
-                  >
-                    <X size={10} />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Results list */}
-          <div className="stop-filter__results">
+          <div className="stop-filter__routes">
+            <div className="stop-filter__section-label">{t.filterByRoute}</div>
             {isLoading ? (
               <div className="stop-filter__loading">{t.loading}</div>
-            ) : searchResults.length > 0 ? (
-              searchResults.map((stop) => (
-                <button
-                  key={stop.id}
-                  className="stop-filter__result"
-                  onClick={() => handleSelect(stop)}
-                >
-                  <MapPin size={14} />
-                  <span>{stop.name}</span>
-                </button>
-              ))
             ) : (
-              <div className="stop-filter__empty">
-                {query ? t.noBusesAtStop : t.loading}
+              <button
+                className={`stop-filter__route-btn${isRoute1Active ? ' stop-filter__route-btn--active' : ''}`}
+                style={{ '--route-color': ROUTE_1_COLOR } as React.CSSProperties}
+                onClick={handleRoute1Select}
+                disabled={isRoute1Disabled}
+                aria-pressed={isRoute1Active}
+              >
+                <span className="stop-filter__route-badge">
+                  <Route size={14} />
+                  <span>1</span>
+                </span>
+                <span className="stop-filter__route-text">
+                  <span className="stop-filter__route-title">{t.route} 1</span>
+                  <span className="stop-filter__route-subtitle">
+                    {route1Stops.length} {t.busStops}
+                  </span>
+                </span>
+              </button>
+            )}
+            {isRoute1Active && (
+              <div className="stop-filter__mode">
+                <button
+                  className={`stop-filter__mode-btn${!selectedStopRouteTripEnabled ? ' stop-filter__mode-btn--active' : ''}`}
+                  onClick={() => handleModeSelect('full')}
+                  type="button"
+                  aria-pressed={!selectedStopRouteTripEnabled}
+                >
+                  {t.fullRoute}
+                </button>
+                <button
+                  className={`stop-filter__mode-btn${selectedStopRouteTripEnabled ? ' stop-filter__mode-btn--active' : ''}`}
+                  onClick={() => handleModeSelect('trip')}
+                  type="button"
+                  aria-pressed={selectedStopRouteTripEnabled}
+                >
+                  {t.chooseTrip}
+                </button>
+              </div>
+            )}
+            {isRoute1Active && selectedStopRouteTripEnabled && route1Stops.length > 1 && (
+              <div className="stop-filter__range">
+                <label className="stop-filter__range-field">
+                  <span className="stop-filter__range-label">{t.fromStop}</span>
+                  <select
+                    className="stop-filter__range-select"
+                    value={selectedStopRouteFromId ?? ''}
+                    onChange={handleFromChange}
+                  >
+                    <option value="" disabled>
+                      {t.chooseStop}
+                    </option>
+                    {route1Stops.map((stop) => (
+                      <option key={`from-${stop.id}`} value={stop.id}>
+                        {stop.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="stop-filter__range-field">
+                  <span className="stop-filter__range-label">{t.toStop}</span>
+                  <select
+                    className="stop-filter__range-select"
+                    value={selectedStopRouteToId ?? ''}
+                    onChange={handleToChange}
+                  >
+                    <option value="" disabled>
+                      {t.chooseStop}
+                    </option>
+                    {route1Stops.map((stop) => (
+                      <option key={`to-${stop.id}`} value={stop.id}>
+                        {stop.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
             )}
           </div>

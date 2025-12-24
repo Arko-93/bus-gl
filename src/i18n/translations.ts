@@ -50,6 +50,8 @@ export interface TranslationStrings {
   arriving: string
   stopDetails: string
   noBusesAtStop: string
+  scheduleWeekdays: string
+  scheduleWeekends: string
   
   // Time
   secondsAgo: string
@@ -78,6 +80,11 @@ export interface TranslationStrings {
   hideAllStops: string
   clearFilters: string
   stopsFiltered: string
+  fromStop: string
+  toStop: string
+  fullRoute: string
+  chooseTrip: string
+  chooseStop: string
   
   // Language
   language: string
@@ -117,6 +124,8 @@ const translations: Record<Locale, TranslationStrings> = {
     arriving: 'Piffissaq apuuffissaq',
     stopDetails: 'Unittarfimmut paasissutissat',
     noBusesAtStop: 'Bussinik maani uninngasoqanngilaq',
+    scheduleWeekdays: 'Ulluinnarni',
+    scheduleWeekends: 'Sapaatip naanerani',
     secondsAgo: 's matuma siorna',
     minutesAgo: 'm matuma siorna',
     hoursAgo: ' ak. matuma siorna',
@@ -133,8 +142,13 @@ const translations: Record<Locale, TranslationStrings> = {
     hideAllStops: 'Tarrisuk',
     clearFilters: 'Tamarmik peeruk',
     stopsFiltered: 'unittarfiit toqqakkat',
+    fromStop: 'Aallariarfik',
+    toStop: 'Tikiffik',
+    fullRoute: 'Tamarmiusoq',
+    chooseTrip: 'Angalanerup toqqaruk',
+    chooseStop: 'Unittarfik toqqaruk',
     language: 'Oqaatsit',
-    theme: 'Qaamasoq',
+    theme: 'Qaamassusaa',
     themeLight: 'Qaamasoq',
     themeDark: 'Taartoq',
     themeSystem: 'Systemip qaamassusaa',
@@ -167,6 +181,8 @@ const translations: Record<Locale, TranslationStrings> = {
     arriving: 'ankommer',
     stopDetails: 'Stopsted info',
     noBusesAtStop: 'Ingen busser ved dette stop',
+    scheduleWeekdays: 'Hverdage',
+    scheduleWeekends: 'Weekend & helligdage',
     secondsAgo: 's siden',
     minutesAgo: 'm siden',
     hoursAgo: 't siden',
@@ -183,6 +199,11 @@ const translations: Record<Locale, TranslationStrings> = {
     hideAllStops: 'Skjul alle',
     clearFilters: 'Ryd alle',
     stopsFiltered: 'stop valgt',
+    fromStop: 'Fra',
+    toStop: 'Til',
+    fullRoute: 'Hele ruten',
+    chooseTrip: 'Vælg tur',
+    chooseStop: 'Vælg stop',
     language: 'Sprog',
     theme: 'Tema',
     themeLight: 'Lys',
@@ -217,6 +238,8 @@ const translations: Record<Locale, TranslationStrings> = {
     arriving: 'arriving',
     stopDetails: 'Stop details',
     noBusesAtStop: 'No buses at this stop',
+    scheduleWeekdays: 'Weekdays',
+    scheduleWeekends: 'Weekends & holidays',
     secondsAgo: 's ago',
     minutesAgo: 'm ago',
     hoursAgo: 'h ago',
@@ -233,6 +256,11 @@ const translations: Record<Locale, TranslationStrings> = {
     hideAllStops: 'Hide all',
     clearFilters: 'Clear all',
     stopsFiltered: 'stops selected',
+    fromStop: 'From',
+    toStop: 'To',
+    fullRoute: 'Full route',
+    chooseTrip: 'Choose trip',
+    chooseStop: 'Choose stop',
     language: 'Language',
     theme: 'Theme',
     themeLight: 'Light',
