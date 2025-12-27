@@ -10,6 +10,7 @@ import { useStopsData, type StopFeature } from '../data/useStopsData'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import { useRoute1Schedule, getUpcomingTimes } from '../data/route1Schedule'
+import { useRoute2Schedule } from '../data/route2Schedule'
 import { useTranslation } from '../i18n/useTranslation'
 
 /**
@@ -209,12 +210,14 @@ export default function StopsLayer() {
   const { data: stopsData, isLoading, error } = useStopsData()
   const { data: vehicles = [] } = useVehiclesQuery()
   const { data: route1Schedule } = useRoute1Schedule()
+  const { data: route2Schedule } = useRoute2Schedule()
   
   const selectedVehicleId = useAppStore((state) => state.selectedVehicleId)
   const selectedStopId = useAppStore((state) => state.selectedStopId)
   const setSelectedStopId = useAppStore((state) => state.setSelectedStopId)
   const filteredStopIds = useAppStore((state) => state.filteredStopIds)
   const isMobile = useAppStore((state) => state.isMobile)
+  const selectedStopRoute = useAppStore((state) => state.selectedStopRoute)
   
   const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId)
 
@@ -257,10 +260,32 @@ export default function StopsLayer() {
         const arrivingCount = vehicles.filter((v) => v.nextStopId === id).length
         const atStopCount = vehicles.filter((v) => v.stopId === id).length
 
-        const scheduleInfo = getUpcomingTimes(route1Schedule, id, now, 6)
-        const scheduleLabel = scheduleInfo
-          ? `${t.route} 1 · ${scheduleInfo.service === 'weekdays' ? t.scheduleWeekdays : t.scheduleWeekends}`
+        const scheduleCandidates = [
+          { route: '1', schedule: route1Schedule },
+          { route: '2', schedule: route2Schedule },
+        ]
+
+        const resolvedSchedule =
+          scheduleCandidates.find(
+            (candidate) => candidate.route === selectedStopRoute && candidate.schedule
+          ) ||
+          scheduleCandidates.find(
+            (candidate) =>
+              candidate.schedule &&
+              (candidate.schedule.weekdays[String(id)] || candidate.schedule.weekends[String(id)])
+          ) ||
+          null
+
+        const scheduleInfo = resolvedSchedule
+          ? getUpcomingTimes(resolvedSchedule.schedule, id, now, 6)
           : null
+
+        const scheduleLabel =
+          scheduleInfo && resolvedSchedule
+            ? `${t.route} ${resolvedSchedule.route} · ${
+                scheduleInfo.service === 'weekdays' ? t.scheduleWeekdays : t.scheduleWeekends
+              }`
+            : null
 
         return (
           <CircleMarker

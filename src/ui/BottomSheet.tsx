@@ -7,6 +7,7 @@ import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import { useStopsData, getStopById, createStopLookup } from '../data/useStopsData'
 import { useRoute1Schedule, getUpcomingTimes } from '../data/route1Schedule'
+import { useRoute2Schedule } from '../data/route2Schedule'
 import { useTranslation } from '../i18n/useTranslation'
 import type { Vehicle } from '../data/ridangoRealtime'
 import type { StopFeature } from '../data/useStopsData'
@@ -130,10 +131,36 @@ interface StopDetailsProps {
 function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProps) {
   const t = useTranslation()
   const { data: route1Schedule } = useRoute1Schedule()
-  const scheduleInfo = getUpcomingTimes(route1Schedule, stop.properties.id, new Date(), 6)
-  const scheduleLabel = scheduleInfo
-    ? `${t.route} 1 · ${scheduleInfo.service === 'weekdays' ? t.scheduleWeekdays : t.scheduleWeekends}`
+  const { data: route2Schedule } = useRoute2Schedule()
+  const selectedStopRoute = useAppStore((state) => state.selectedStopRoute)
+
+  const scheduleCandidates = [
+    { route: '1', schedule: route1Schedule },
+    { route: '2', schedule: route2Schedule },
+  ]
+
+  const resolvedSchedule =
+    scheduleCandidates.find(
+      (candidate) => candidate.route === selectedStopRoute && candidate.schedule
+    ) ||
+    scheduleCandidates.find(
+      (candidate) =>
+        candidate.schedule &&
+        (candidate.schedule.weekdays[String(stop.properties.id)] ||
+          candidate.schedule.weekends[String(stop.properties.id)])
+    ) ||
+    null
+
+  const scheduleInfo = resolvedSchedule
+    ? getUpcomingTimes(resolvedSchedule.schedule, stop.properties.id, new Date(), 6)
     : null
+
+  const scheduleLabel =
+    scheduleInfo && resolvedSchedule
+      ? `${t.route} ${resolvedSchedule.route} · ${
+          scheduleInfo.service === 'weekdays' ? t.scheduleWeekdays : t.scheduleWeekends
+        }`
+      : null
   
   return (
     <div className="bottom-sheet__content">

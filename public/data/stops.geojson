@@ -520,9 +520,9 @@
       "type": "Feature",
       "properties": {
         "id": 112,
-        "name": "Mannguaraq",
+        "name": "Manguaraq",
         "osmId": 1956522830,
-        "osmName": "Mannguaraq",
+        "osmName": "Manguaraq",
         "matchScore": 1,
         "matchMethod": "osm-only",
         "seenCount": 0,

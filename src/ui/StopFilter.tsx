@@ -7,13 +7,17 @@ import { useAppStore } from '../state/appStore'
 import { useTranslation, useLocale } from '../i18n/useTranslation'
 import { useStopsData } from '../data/useStopsData'
 import { useRoute1Schedule, getStopOrderForDate, getScheduleServiceForDate } from '../data/route1Schedule'
+import { useRoute2Schedule } from '../data/route2Schedule'
 
 interface Stop {
   id: number
   name: string
 }
 
-const ROUTE_1_COLOR = '#E91E8C'
+const ROUTE_COLORS: Record<string, string> = {
+  '1': '#E91E8C',
+  '2': '#FFD700',
+}
 
 export default function StopFilter() {
   const t = useTranslation()
@@ -22,7 +26,8 @@ export default function StopFilter() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const { data: stopsData, isLoading: stopsLoading } = useStopsData()
-  const { data: route1Schedule, isLoading: scheduleLoading } = useRoute1Schedule()
+  const { data: route1Schedule, isLoading: schedule1Loading } = useRoute1Schedule()
+  const { data: route2Schedule, isLoading: schedule2Loading } = useRoute2Schedule()
 
   const filteredStopIds = useAppStore((state) => state.filteredStopIds)
   const clearStopFilters = useAppStore((state) => state.clearStopFilters)
@@ -36,80 +41,97 @@ export default function StopFilter() {
   const setSelectedStopRouteRange = useAppStore((state) => state.setSelectedStopRouteRange)
 
   const hasFilters = filteredStopIds.size > 0
-  const isLoading = stopsLoading || scheduleLoading
+  const isLoading = stopsLoading || schedule1Loading || schedule2Loading
   const scheduleService = getScheduleServiceForDate(new Date())
 
-  const route1StopOrder = useMemo(() => {
-    if (!route1Schedule) return []
-    const order = getStopOrderForDate(route1Schedule, new Date())
-    if (order.length > 0) return order
-    const ids = new Set<number>()
-    for (const key of Object.keys(route1Schedule.weekdays)) {
-      const id = Number(key)
-      if (Number.isFinite(id)) ids.add(id)
-    }
-    for (const key of Object.keys(route1Schedule.weekends)) {
-      const id = Number(key)
-      if (Number.isFinite(id)) ids.add(id)
-    }
-    return Array.from(ids)
-  }, [route1Schedule, scheduleService])
+  const buildStopOrder = useCallback(
+    (schedule: ReturnType<typeof useRoute1Schedule>['data']) => {
+      if (!schedule) return []
+      const order = getStopOrderForDate(schedule, new Date())
+      if (order.length > 0) return order
+      const ids = new Set<number>()
+      for (const key of Object.keys(schedule.weekdays)) {
+        const id = Number(key)
+        if (Number.isFinite(id)) ids.add(id)
+      }
+      for (const key of Object.keys(schedule.weekends)) {
+        const id = Number(key)
+        if (Number.isFinite(id)) ids.add(id)
+      }
+      return Array.from(ids)
+    },
+    []
+  )
 
-  const route1Stops = useMemo<Stop[]>(() => {
-    if (!stopsData || route1StopOrder.length === 0) return []
+  const routeStopOrders = useMemo(() => {
+    return {
+      '1': buildStopOrder(route1Schedule),
+      '2': buildStopOrder(route2Schedule),
+    }
+  }, [buildStopOrder, route1Schedule, route2Schedule, scheduleService])
+
+  const routeStopsById = useMemo(() => {
+    const map = new Map<string, Stop[]>()
+    if (!stopsData) return map
     const byId = new Map(
       stopsData.features
         .filter((feature) => feature.geometry.coordinates)
         .map((feature) => [feature.properties.id, feature.properties.name])
     )
-    const ordered: Stop[] = []
-    for (const id of route1StopOrder) {
-      const name = byId.get(id)
-      if (name) ordered.push({ id, name })
+    for (const [routeId, order] of Object.entries(routeStopOrders)) {
+      const ordered: Stop[] = []
+      for (const id of order) {
+        const name = byId.get(id)
+        if (name) ordered.push({ id, name })
+      }
+      map.set(routeId, ordered)
     }
-    return ordered
-  }, [stopsData, route1StopOrder])
+    return map
+  }, [routeStopOrders, stopsData])
 
-  const isRoute1Active = selectedStopRoute === '1' && route1Stops.length > 0
-  const isRoute1Disabled = route1Stops.length === 0 && !isRoute1Active
+  const selectedRouteStops = useMemo(() => {
+    if (!selectedStopRoute) return []
+    return routeStopsById.get(selectedStopRoute) ?? []
+  }, [routeStopsById, selectedStopRoute])
 
-  const route1Index = useMemo(() => {
-    return new Map(route1Stops.map((stop, index) => [stop.id, index]))
-  }, [route1Stops])
+  const selectedRouteIndex = useMemo(() => {
+    return new Map(selectedRouteStops.map((stop, index) => [stop.id, index]))
+  }, [selectedRouteStops])
 
   const getStopsForward = useCallback(
     (fromId: number, toId: number) => {
-      if (route1Stops.length === 0) return route1Stops
-      const fromIndex = route1Index.get(fromId)
-      const toIndex = route1Index.get(toId)
-      if (fromIndex == null || toIndex == null) return route1Stops
+      if (selectedRouteStops.length === 0) return selectedRouteStops
+      const fromIndex = selectedRouteIndex.get(fromId)
+      const toIndex = selectedRouteIndex.get(toId)
+      if (fromIndex == null || toIndex == null) return selectedRouteStops
       if (fromIndex <= toIndex) {
-        return route1Stops.slice(fromIndex, toIndex + 1)
+        return selectedRouteStops.slice(fromIndex, toIndex + 1)
       }
-      return route1Stops.slice(fromIndex).concat(route1Stops.slice(0, toIndex + 1))
+      return selectedRouteStops.slice(fromIndex).concat(selectedRouteStops.slice(0, toIndex + 1))
     },
-    [route1Index, route1Stops]
+    [selectedRouteIndex, selectedRouteStops]
   )
 
   const syncStopFilters = useCallback(() => {
-    if (!isRoute1Active || route1Stops.length === 0) return
+    if (!selectedStopRoute) return
+    if (selectedRouteStops.length === 0) return
     if (!selectedStopRouteTripEnabled) {
-      setStopFilters(route1Stops)
+      setStopFilters(selectedRouteStops)
       return
     }
     if (!selectedStopRouteFromId || !selectedStopRouteToId) {
-      setStopFilters(route1Stops)
+      setStopFilters(selectedRouteStops)
       return
     }
     setStopFilters(getStopsForward(selectedStopRouteFromId, selectedStopRouteToId))
   }, [
     getStopsForward,
-    isRoute1Active,
-    route1Stops,
+    selectedRouteStops,
     selectedStopRouteFromId,
     selectedStopRouteToId,
     selectedStopRouteTripEnabled,
     setStopFilters,
+    selectedStopRoute,
   ])
 
   useEffect(() => {
@@ -136,16 +158,17 @@ export default function StopFilter() {
 
   const handleRemoveAll = () => clearStopFilters()
 
-  const handleRoute1Select = () => {
-    if (isRoute1Active) {
+  const handleRouteSelect = (routeId: '1' | '2') => {
+    const stops = routeStopsById.get(routeId) ?? []
+    if (selectedStopRoute === routeId) {
       clearStopFilters()
       return
     }
-    if (route1Stops.length === 0) return
-    setSelectedStopRoute('1')
+    if (stops.length === 0) return
+    setSelectedStopRoute(routeId)
     setSelectedStopRouteTripEnabled(false)
     setSelectedStopRouteRange(null, null)
-    setStopFilters(route1Stops)
+    setStopFilters(stops)
   }
 
   const handleFromChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -161,7 +184,7 @@ export default function StopFilter() {
   }
 
   const handleModeSelect = (mode: 'full' | 'trip') => {
-    if (!isRoute1Active) return
+    if (!selectedStopRoute || selectedRouteStops.length === 0) return
     if (mode === 'trip') {
       setSelectedStopRouteTripEnabled(true)
       setSelectedStopRouteRange(null, null)
@@ -217,26 +240,34 @@ export default function StopFilter() {
             {isLoading ? (
               <div className="stop-filter__loading">{t.loading}</div>
             ) : (
-              <button
-                className={`stop-filter__route-btn${isRoute1Active ? ' stop-filter__route-btn--active' : ''}`}
-                style={{ '--route-color': ROUTE_1_COLOR } as React.CSSProperties}
-                onClick={handleRoute1Select}
-                disabled={isRoute1Disabled}
-                aria-pressed={isRoute1Active}
-              >
-                <span className="stop-filter__route-badge">
-                  <Route size={14} />
-                  <span>1</span>
-                </span>
-                <span className="stop-filter__route-text">
-                  <span className="stop-filter__route-title">{t.route} 1</span>
-                  <span className="stop-filter__route-subtitle">
-                    {route1Stops.length} {t.busStops}
-                  </span>
-                </span>
-              </button>
+              ['1', '2'].map((routeId) => {
+                const isActive = selectedStopRoute === routeId && selectedRouteStops.length > 0
+                const stops = routeStopsById.get(routeId) ?? []
+                const isDisabled = stops.length === 0 && !isActive
+                return (
+                  <button
+                    key={routeId}
+                    className={`stop-filter__route-btn${isActive ? ' stop-filter__route-btn--active' : ''}`}
+                    style={{ '--route-color': ROUTE_COLORS[routeId] } as React.CSSProperties}
+                    onClick={() => handleRouteSelect(routeId as '1' | '2')}
+                    disabled={isDisabled}
+                    aria-pressed={isActive}
+                  >
+                    <span className="stop-filter__route-badge">
+                      <Route size={14} />
+                      <span>{routeId}</span>
+                    </span>
+                    <span className="stop-filter__route-text">
+                      <span className="stop-filter__route-title">{t.route} {routeId}</span>
+                      <span className="stop-filter__route-subtitle">
+                        {stops.length} {t.busStops}
+                      </span>
+                    </span>
+                  </button>
+                )
+              })
             )}
-            {isRoute1Active && (
+            {selectedStopRoute && selectedRouteStops.length > 0 && (
               <div className="stop-filter__mode">
                 <button
                   className={`stop-filter__mode-btn${!selectedStopRouteTripEnabled ? ' stop-filter__mode-btn--active' : ''}`}
@@ -256,7 +287,7 @@ export default function StopFilter() {
                 </button>
               </div>
             )}
-            {isRoute1Active && selectedStopRouteTripEnabled && route1Stops.length > 1 && (
+            {selectedStopRoute && selectedRouteStops.length > 1 && selectedStopRouteTripEnabled && (
               <div className="stop-filter__range">
                 <label className="stop-filter__range-field">
                   <span className="stop-filter__range-label">{t.fromStop}</span>
@@ -268,7 +299,7 @@ export default function StopFilter() {
                     <option value="" disabled>
                       {t.chooseStop}
                     </option>
-                    {route1Stops.map((stop) => (
+                    {selectedRouteStops.map((stop) => (
                       <option key={`from-${stop.id}`} value={stop.id}>
                         {stop.name}
                       </option>
@@ -285,7 +316,7 @@ export default function StopFilter() {
                     <option value="" disabled>
                       {t.chooseStop}
                     </option>
-                    {route1Stops.map((stop) => (
+                    {selectedRouteStops.map((stop) => (
                       <option key={`to-${stop.id}`} value={stop.id}>
                         {stop.name}
                       </option>

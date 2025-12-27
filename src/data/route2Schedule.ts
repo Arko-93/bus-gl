@@ -1,25 +1,12 @@
-// src/data/route1Schedule.ts
-// Route 1 schedule parsing from CSV timecodes.
+// src/data/route2Schedule.ts
+// Route 2 schedule parsing from CSV timecodes.
 
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useStopsData } from './useStopsData'
+import type { RouteSchedule, ScheduleService, ScheduleTime } from './route1Schedule'
 
-export type ScheduleService = 'weekdays' | 'weekends'
-
-export type ScheduleTime = {
-  label: string
-  seconds: number
-  raw: string
-}
-
-export type RouteSchedule = {
-  weekdays: Record<string, ScheduleTime[]>
-  weekends: Record<string, ScheduleTime[]>
-  stopOrder: Record<ScheduleService, number[]>
-}
-
-const ROUTE_1_SCHEDULE_URL = '/data/timecodes_bus_1.csv'
+const ROUTE_2_SCHEDULE_URL = '/data/timecodes_bus_2.csv'
 
 function normalizeStopName(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '')
@@ -54,6 +41,20 @@ function createStopLookup(stops: ReturnType<typeof useStopsData>['data']): Map<s
     const osmName = feature.properties.osmName
     if (name) lookup.set(normalizeStopName(name), feature.properties.id)
     if (osmName) lookup.set(normalizeStopName(osmName), feature.properties.id)
+  }
+
+  // Manual aliases for slight spelling differences between GTFS/CSV and OSM stop names
+  const aliasTargets: Record<string, string> = {
+    mannguaraq: 'manguaraq',
+    rasmuuseeqqapaqq: 'rasmuuseeqqapaqqutaa',
+    katersortarfik: 'katersortafik',
+  }
+
+  for (const [alias, target] of Object.entries(aliasTargets)) {
+    const targetId = lookup.get(normalizeStopName(target))
+    if (targetId) {
+      lookup.set(alias, targetId)
+    }
   }
 
   return lookup
@@ -145,45 +146,14 @@ function parseScheduleCsv(csv: string, stopLookup: Map<string, number>): RouteSc
   return schedule
 }
 
-export function getScheduleServiceForDate(date: Date): ScheduleService {
-  const day = date.getDay()
-  return day === 0 || day === 6 ? 'weekends' : 'weekdays'
-}
-
-export function getStopOrderForDate(schedule: RouteSchedule | null, date: Date): number[] {
-  if (!schedule) return []
-  const service = getScheduleServiceForDate(date)
-  return schedule.stopOrder[service] ?? []
-}
-
-export function getUpcomingTimes(
-  schedule: RouteSchedule | null,
-  stopId: number,
-  date: Date,
-  limit = 6
-): { service: ScheduleService; times: Array<ScheduleTime & { isNext: boolean }> } | null {
-  if (!schedule) return null
-  const service = getScheduleServiceForDate(date)
-  const nowSeconds = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds()
-  const times = (schedule[service][String(stopId)] ?? []).filter(
-    (time) => time.seconds >= nowSeconds
-  )
-  if (times.length === 0) return null
-  const upcoming = times.slice(0, limit).map((time, index) => ({
-    ...time,
-    isNext: index === 0,
-  }))
-  return { service, times: upcoming }
-}
-
-export function useRoute1Schedule() {
+export function useRoute2Schedule() {
   const { data: stopsData } = useStopsData()
   const csvQuery = useQuery({
-    queryKey: ['route-1-schedule'],
+    queryKey: ['route-2-schedule'],
     queryFn: async () => {
-      const response = await fetch(ROUTE_1_SCHEDULE_URL)
+      const response = await fetch(ROUTE_2_SCHEDULE_URL)
       if (!response.ok) {
-        throw new Error(`Failed to load route 1 schedule: ${response.status}`)
+        throw new Error(`Failed to load route 2 schedule: ${response.status}`)
       }
       return response.text()
     },

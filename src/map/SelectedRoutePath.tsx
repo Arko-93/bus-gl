@@ -1,11 +1,12 @@
 // src/map/SelectedRoutePath.tsx
 // Highlight a selected route path across all its stops.
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { Polyline } from 'react-leaflet'
 import { useAppStore } from '../state/appStore'
 import { useStopsData } from '../data/useStopsData'
-import { useRoute1Schedule, getStopOrderForDate, getScheduleServiceForDate } from '../data/route1Schedule'
+import { useRoute1Schedule, getStopOrderForDate } from '../data/route1Schedule'
+import { useRoute2Schedule } from '../data/route2Schedule'
 
 type LatLng = [number, number]
 
@@ -23,8 +24,20 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
     {
       fromName: 'Naluttarfik Malik',
       toName: 'Maligiaq',
-      // Forces the path via Borgmester Aniita Aqqusernga (OSM way 314293859).
-      via: [64.1824822, -51.6949691],
+      // Keep the link on Borgmester Aniita Aqqusernga without detouring into Stanislawip Issikivia.
+      via: [64.1839326, -51.6978638],
+    },
+    {
+      fromName: 'Maligiaq',
+      toName: 'Tikiusaaq',
+      // Stay on Borgmester Aniita Aqqusernga when heading back; avoid Stanislawip Issikivia.
+      via: [
+        [64.1835419, -51.6971834],
+        [64.1824822, -51.6949691],
+        [64.1812975, -51.6940293],
+        [64.1808209, -51.6935036],
+        [64.1797812, -51.6897324],
+      ],
     },
     {
       fromName: 'Tuujuk',
@@ -62,6 +75,7 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
       ],
     },
   ],
+  '2': [],
 }
 
 const ROUTE_STOP_COORD_OVERRIDES: Record<string, Array<{ stopName: string; coord: LatLng }>> = {
@@ -97,6 +111,7 @@ const ROUTE_STOP_COORD_OVERRIDES: Record<string, Array<{ stopName: string; coord
       coord: [64.1833869, -51.6966426],
     },
   ],
+  '2': [],
 }
 
 function getRouteColor(route: string): string {
@@ -148,6 +163,7 @@ export default function SelectedRoutePath() {
   const selectedStopRouteFromId = useAppStore((state) => state.selectedStopRouteFromId)
   const selectedStopRouteToId = useAppStore((state) => state.selectedStopRouteToId)
   const { data: route1Schedule } = useRoute1Schedule()
+  const { data: route2Schedule } = useRoute2Schedule()
   const { data: stopsData } = useStopsData()
   const [routePaths, setRoutePaths] = useState<{ base: LatLng[] | null; pulse: LatLng[] | null }>({
     base: null,
@@ -155,12 +171,18 @@ export default function SelectedRoutePath() {
   })
   const lastRouteKeyRef = useRef<string | null>(null)
   const routeAbortRef = useRef<AbortController | null>(null)
-  const scheduleService = getScheduleServiceForDate(new Date())
+
+  const activeSchedule = useMemo(() => {
+    if (selectedStopRoute === '1') return route1Schedule
+    if (selectedStopRoute === '2') return route2Schedule
+    return null
+  }, [route1Schedule, route2Schedule, selectedStopRoute])
 
   const stopOrder = useMemo(() => {
-    if (!route1Schedule || selectedStopRoute !== '1') return []
-    return getStopOrderForDate(route1Schedule, new Date())
-  }, [route1Schedule, selectedStopRoute, scheduleService])
+    if (!activeSchedule) return []
+    if (!selectedStopRoute) return []
+    return getStopOrderForDate(activeSchedule, new Date())
+  }, [activeSchedule, selectedStopRoute])
 
   const stopNameIndex = useMemo(() => {
     if (!stopsData) return new Map<string, number>()
@@ -237,7 +259,7 @@ export default function SelectedRoutePath() {
     return byId
   }, [stopsData, stopCoordOverrides])
 
-  const buildCoordsWithOverrides = (order: number[]) => {
+  const buildCoordsWithOverrides = useCallback((order: number[]): LatLng[] => {
     if (order.length === 0) return []
     const points: LatLng[] = []
     for (let i = 0; i < order.length; i += 1) {
@@ -249,7 +271,7 @@ export default function SelectedRoutePath() {
         const override = overrideByPair.get(`${id}|${nextId}`)
         if (override) {
           if (Array.isArray(override) && Array.isArray(override[0])) {
-            points.push(...override)
+            points.push(...(override as LatLng[]))
           } else {
             points.push(override as LatLng)
           }
@@ -257,17 +279,17 @@ export default function SelectedRoutePath() {
       }
     }
     return points
-  }
+  }, [coordIndex, overrideByPair])
 
   const baseCoords = useMemo(() => {
     if (activeStopOrder.length === 0) return []
     return buildCoordsWithOverrides(activeStopOrder)
-  }, [activeStopOrder, coordIndex, overrideByPair])
+  }, [activeStopOrder, buildCoordsWithOverrides])
 
   const pulseCoords = useMemo(() => {
     if (activeStopOrder.length === 0) return []
     return buildCoordsWithOverrides(activeStopOrder)
-  }, [activeStopOrder, coordIndex, overrideByPair])
+  }, [activeStopOrder, buildCoordsWithOverrides])
 
   const baseKey = useMemo(
     () => (baseCoords.length > 1 ? buildRouteKey(baseCoords) : null),
@@ -284,11 +306,14 @@ export default function SelectedRoutePath() {
     return `${baseKey}|${pulseKey ?? ''}`
   }, [baseKey, pulseKey])
 
+  // Determine if route should be shown
+  const shouldFetchRoute =
+    !!selectedStopRoute && ['1', '2'].includes(selectedStopRoute) && routeKey && baseCoords.length >= 2
+
   useEffect(() => {
-    if (selectedStopRoute !== '1' || !routeKey || baseCoords.length < 2) {
+    if (!shouldFetchRoute) {
       routeAbortRef.current?.abort()
       routeAbortRef.current = null
-      setRoutePaths({ base: null, pulse: null })
       lastRouteKeyRef.current = null
       return
     }
@@ -332,17 +357,23 @@ export default function SelectedRoutePath() {
     return () => {
       controller.abort()
     }
-  }, [selectedStopRoute, routeKey, baseCoords, pulseCoords, baseKey, pulseKey])
+  }, [shouldFetchRoute, routeKey, baseCoords, pulseCoords, baseKey, pulseKey])
+
+  // Compute effective paths - null when route shouldn't be shown
+  const effectiveRoutePaths = useMemo(() => {
+    if (!shouldFetchRoute) return { base: null, pulse: null }
+    return routePaths
+  }, [shouldFetchRoute, routePaths])
 
   const baseSegments = useMemo(() => {
-    if (!routePaths.base || routePaths.base.length < 2) return null
+    if (!effectiveRoutePaths.base || effectiveRoutePaths.base.length < 2) return null
     const seen = new Set<string>()
     const segments: LatLng[][] = []
     let current: LatLng[] = []
 
-    for (let i = 0; i < routePaths.base.length - 1; i += 1) {
-      const a = routePaths.base[i]
-      const b = routePaths.base[i + 1]
+    for (let i = 0; i < effectiveRoutePaths.base.length - 1; i += 1) {
+      const a = effectiveRoutePaths.base[i]
+      const b = effectiveRoutePaths.base[i + 1]
       const aKey = `${roundCoord(a[0])},${roundCoord(a[1])}`
       const bKey = `${roundCoord(b[0])},${roundCoord(b[1])}`
       const key = aKey < bKey ? `${aKey}|${bKey}` : `${bKey}|${aKey}`
@@ -360,9 +391,15 @@ export default function SelectedRoutePath() {
 
     if (current.length >= 2) segments.push(current)
     return segments
-  }, [routePaths.base])
+  }, [effectiveRoutePaths.base])
 
-  if (selectedStopRoute !== '1' || !routePaths.base || routePaths.base.length < 2) return null
+  if (
+    !selectedStopRoute ||
+    !['1', '2'].includes(selectedStopRoute) ||
+    !effectiveRoutePaths.base ||
+    effectiveRoutePaths.base.length < 2
+  )
+    return null
 
   const routeColor = getRouteColor(selectedStopRoute)
 
@@ -379,9 +416,9 @@ export default function SelectedRoutePath() {
           }}
         />
       )}
-      {routePaths.pulse && routePaths.pulse.length > 1 && (
+      {effectiveRoutePaths.pulse && effectiveRoutePaths.pulse.length > 1 && (
         <Polyline
-          positions={routePaths.pulse}
+          positions={effectiveRoutePaths.pulse}
           pathOptions={{
             className: 'route-path route-path--pulse',
             color: routeColor,
