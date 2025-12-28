@@ -4,7 +4,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { GeoJSON } from 'react-leaflet'
 import { useResolvedTheme } from '../hooks/useResolvedTheme'
-import { getRouteColor } from '../data/routeColors'
+import { getRouteLineColor } from '../data/routeColors'
 
 interface RouteFeature {
   type: 'Feature'
@@ -94,7 +94,7 @@ export default function RoutesLayer() {
         style={(feature) => {
           const props = feature?.properties as RouteFeature['properties']
           return {
-            color: getRouteColor(props?.route || ''),
+            color: getRouteLineColor(props?.route || ''),
             weight: ROUTE_WIDTH,
             opacity: 0.6,
             dashArray: '10, 5',

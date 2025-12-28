@@ -7,6 +7,7 @@ import L from 'leaflet'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import { useStopsData, createStopLookup, getStopCoordinates, type StopFeature } from '../data/useStopsData'
+import { getRouteLineColor } from '../data/routeColors'
 import type { Vehicle } from '../data/ridangoRealtime'
 
 type LatLng = [number, number]
@@ -28,18 +29,6 @@ interface RouteFeature {
 interface RoutesGeoJSON {
   type: 'FeatureCollection'
   features: RouteFeature[]
-}
-
-function getRouteColor(route: string): string {
-  const colors: Record<string, string> = {
-    '1': '#E91E8C',
-    '2': '#FFD700',
-    '3': '#4CAF50',
-    'X2': '#808080',
-    'E2': '#0066CC',
-    'X3': '#00b047',
-  }
-  return colors[route] || '#6b7280'
 }
 
 function projectPoint(latlng: LatLng): L.Point {
@@ -445,7 +434,7 @@ export default function SelectedBusPath() {
   const nextFallback = secondaryStop ? buildSegment(routeLine, primaryStop, secondaryStop) : null
   const primarySegment = roadSegments.primary ?? primaryFallback
   const nextSegment = roadSegments.next ?? nextFallback
-  const routeColor = getRouteColor(selectedVehicle.route)
+  const routeColor = getRouteLineColor(selectedVehicle.route)
 
   return (
     <>

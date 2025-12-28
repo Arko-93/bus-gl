@@ -11,7 +11,7 @@ import { useRoute3Schedule } from '../data/route3Schedule'
 import { useRouteX2Schedule } from '../data/routeX2Schedule'
 import { useRouteE2Schedule } from '../data/routeE2Schedule'
 import { useRouteX3Schedule } from '../data/routeX3Schedule'
-import { getRouteColor } from '../data/routeColors'
+import { getRouteLineColor } from '../data/routeColors'
 
 type LatLng = [number, number]
 
@@ -187,10 +187,24 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
       via: [...QAJAASAT_EAST_LOOP, ...NERNGALLAA_WAYPOINTS.slice(1)],
     },
   ],
-  '3': [],
+  '3': [
+    {
+      fromName: 'Ilimmarfik',
+      toName: 'Siaqqinneq Nukappiakkuluk',
+      // U-turn at university entrance before continuing to next stop
+      via: [64.1916837851373, -51.69477566525993] as LatLng,
+    },
+  ],
   'X2': [],
   'E2': [],
-  'X3': [],
+  'X3': [
+    {
+      fromName: 'Ilimmarfik',
+      toName: 'Siaqqinneq Nukappiakkuluk',
+      // Route from university to next stop
+      via: [64.1916837851373, -51.69477566525993] as LatLng,
+    },
+  ],
 }
 
 const ROUTE_STOP_COORD_OVERRIDES: Record<string, Array<{ stopName: string; coord: LatLng }>> = {
@@ -227,10 +241,22 @@ const ROUTE_STOP_COORD_OVERRIDES: Record<string, Array<{ stopName: string; coord
     },
   ],
   '2': [],
-  '3': [],
+  '3': [
+    {
+      stopName: 'Ilimmarfik',
+      // Route to the U-turn point on the road instead of deep into university parking
+      coord: [64.1916837851373, -51.69477566525993],
+    },
+  ],
   'X2': [],
   'E2': [],
-  'X3': [],
+  'X3': [
+    {
+      stopName: 'Ilimmarfik',
+      // Route to the U-turn point on the road instead of deep into university parking
+      coord: [64.1916837851373, -51.69477566525993],
+    },
+  ],
 }
 
 type RouteChunk = {
@@ -647,7 +673,7 @@ export default function SelectedRoutePath() {
   )
     return null
 
-  const routeColor = getRouteColor(selectedStopRoute)
+  const routeColor = getRouteLineColor(selectedStopRoute)
 
   return (
     <>
