@@ -11,6 +11,10 @@ import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import { useRoute1Schedule, getUpcomingTimes } from '../data/route1Schedule'
 import { useRoute2Schedule } from '../data/route2Schedule'
+import { useRoute3Schedule } from '../data/route3Schedule'
+import { useRouteX2Schedule } from '../data/routeX2Schedule'
+import { useRouteE2Schedule } from '../data/routeE2Schedule'
+import { useRouteX3Schedule } from '../data/routeX3Schedule'
 import { useTranslation } from '../i18n/useTranslation'
 
 /**
@@ -211,6 +215,10 @@ export default function StopsLayer() {
   const { data: vehicles = [] } = useVehiclesQuery()
   const { data: route1Schedule } = useRoute1Schedule()
   const { data: route2Schedule } = useRoute2Schedule()
+  const { data: route3Schedule } = useRoute3Schedule()
+  const { data: routeX2Schedule } = useRouteX2Schedule()
+  const { data: routeE2Schedule } = useRouteE2Schedule()
+  const { data: routeX3Schedule } = useRouteX3Schedule()
   
   const selectedVehicleId = useAppStore((state) => state.selectedVehicleId)
   const selectedStopId = useAppStore((state) => state.selectedStopId)
@@ -263,6 +271,10 @@ export default function StopsLayer() {
         const scheduleCandidates = [
           { route: '1', schedule: route1Schedule },
           { route: '2', schedule: route2Schedule },
+          { route: '3', schedule: route3Schedule },
+          { route: 'X2', schedule: routeX2Schedule },
+          { route: 'E2', schedule: routeE2Schedule },
+          { route: 'X3', schedule: routeX3Schedule },
         ]
 
         const resolvedSchedule =

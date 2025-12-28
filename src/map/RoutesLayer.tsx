@@ -4,6 +4,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { GeoJSON } from 'react-leaflet'
 import { useResolvedTheme } from '../hooks/useResolvedTheme'
+import { getRouteColor } from '../data/routeColors'
 
 interface RouteFeature {
   type: 'Feature'
@@ -21,21 +22,6 @@ interface RouteFeature {
 interface RoutesGeoJSON {
   type: 'FeatureCollection'
   features: RouteFeature[]
-}
-
-/**
- * Route color mapping - matches Nuup Bussii official branding
- */
-function getRouteColor(route: string): string {
-  const colors: Record<string, string> = {
-    '1': '#E91E8C',  // Pink/Magenta (Rute 1)
-    '2': '#FFD700',  // Yellow (Rute 2)
-    '3': '#4CAF50',  // Green (Rute 3)
-    'X2': '#808080', // Gray (Rute X2)
-    'E2': '#0066CC', // Blue (Rute E2)
-    'X3': '#8BC34A', // Light Green (Rute X3)
-  }
-  return colors[route] || '#6b7280'
 }
 
 /**
@@ -108,7 +94,7 @@ export default function RoutesLayer() {
         style={(feature) => {
           const props = feature?.properties as RouteFeature['properties']
           return {
-            color: props?.color || getRouteColor(props?.route || ''),
+            color: getRouteColor(props?.route || ''),
             weight: ROUTE_WIDTH,
             opacity: 0.6,
             dashArray: '10, 5',

@@ -380,8 +380,18 @@ export default function SelectedBusPath() {
     return `${primaryKey}|${nextKey}`
   }, [busPosition, primaryStop, secondaryStop])
 
+  const shouldSnapWithOsrm = selectedVehicle?.route !== '2' || !routeLine
+
   useEffect(() => {
     if (!selectedVehicle || selectedVehicle.atStop || !busPosition || !routeKey || !primaryStop) {
+      routeAbortRef.current?.abort()
+      routeAbortRef.current = null
+      setRoadSegments({ primary: null, next: null })
+      lastRouteKeyRef.current = null
+      return
+    }
+
+    if (!shouldSnapWithOsrm) {
       routeAbortRef.current?.abort()
       routeAbortRef.current = null
       setRoadSegments({ primary: null, next: null })
@@ -419,7 +429,15 @@ export default function SelectedBusPath() {
     return () => {
       controller.abort()
     }
-  }, [routeKey, busPosition, primaryStop, secondaryStop, selectedVehicle?.atStop, selectedVehicle?.id])
+  }, [
+    routeKey,
+    busPosition,
+    primaryStop,
+    secondaryStop,
+    selectedVehicle?.atStop,
+    selectedVehicle?.id,
+    shouldSnapWithOsrm,
+  ])
 
   if (!selectedVehicle || selectedVehicle.atStop || !primaryStop || !busPosition) return null
 

@@ -7,6 +7,11 @@ import { useAppStore } from '../state/appStore'
 import { useStopsData } from '../data/useStopsData'
 import { useRoute1Schedule, getStopOrderForDate } from '../data/route1Schedule'
 import { useRoute2Schedule } from '../data/route2Schedule'
+import { useRoute3Schedule } from '../data/route3Schedule'
+import { useRouteX2Schedule } from '../data/routeX2Schedule'
+import { useRouteE2Schedule } from '../data/routeE2Schedule'
+import { useRouteX3Schedule } from '../data/routeX3Schedule'
+import { getRouteColor } from '../data/routeColors'
 
 type LatLng = [number, number]
 
@@ -15,6 +20,83 @@ const OSRM_BASE_URL = (import.meta.env.VITE_OSRM_BASE_URL || 'https://router.pro
   ''
 )
 const OSRM_PROFILE = import.meta.env.VITE_OSRM_PROFILE || 'driving'
+
+const QAJAASAT_EAST_LOOP: LatLng[] = [
+  [64.1916104, -51.7101013],
+  [64.1915567, -51.7100176],
+  [64.1915258, -51.7099315],
+  [64.1914999, -51.7098143],
+  [64.1913766, -51.7092791],
+  [64.1914114, -51.7091295],
+  [64.1914857, -51.7090327],
+  [64.1916717, -51.7087882],
+  [64.1918344, -51.7085711],
+  [64.1919080, -51.7084621],
+  [64.1920090, -51.7087980],
+  [64.1921290, -51.7093130],
+  [64.1922100, -51.7097960],
+  [64.1922270, -51.7100139],
+]
+
+const QAJAASAT_EAST_LOOP_REVERSE: LatLng[] = [...QAJAASAT_EAST_LOOP].reverse()
+
+const NERNGALLAA_WAYPOINTS: LatLng[] = [
+  [64.1922270, -51.7100139],
+  [64.1922296, -51.7101225],
+  [64.1922317, -51.7103159],
+  [64.1922245, -51.7105423],
+  [64.1922016, -51.7107892],
+  [64.1921497, -51.7111533],
+  [64.1920994, -51.7113554],
+  [64.1920459, -51.7115349],
+  [64.1919944, -51.7116747],
+  [64.1919623, -51.7117587],
+  [64.1918730, -51.7119578],
+  [64.1917070, -51.7121840],
+  [64.1916413, -51.7122480],
+  [64.1915540, -51.7123149],
+  [64.1914255, -51.7123629],
+  [64.1913337, -51.7123608],
+  [64.1912056, -51.7123431],
+  [64.1911195, -51.7123036],
+  [64.1908911, -51.7120748],
+  [64.1907749, -51.7119366],
+  [64.1907070, -51.7118602],
+  [64.1906927, -51.7118444],
+  [64.1906501, -51.7117979],
+  [64.1904646, -51.7117090],
+  [64.1902684, -51.7116964],
+  [64.1900784, -51.7117777],
+  [64.1899671, -51.7118770],
+  [64.1898116, -51.7120599],
+  [64.1896582, -51.7122542],
+  [64.1895480, -51.7124279],
+  [64.1893676, -51.7127198],
+  [64.1892176, -51.7128853],
+  [64.1890976, -51.7129902],
+  [64.1890190, -51.7130288],
+  [64.1889932, -51.7130354],
+]
+
+const NERNGALLAA_WAYPOINTS_REVERSE: LatLng[] = [...NERNGALLAA_WAYPOINTS].reverse()
+
+const QAJAASAT_SOUTH_ENTRY: LatLng = [64.1916104, -51.7101013]
+
+const NERNGALLAA_TO_QAJAASAT_SOUTH: LatLng[] = [
+  ...NERNGALLAA_WAYPOINTS_REVERSE.filter(([lat]) => lat <= QAJAASAT_SOUTH_ENTRY[0]),
+  QAJAASAT_SOUTH_ENTRY,
+]
+
+const NERNGALLAA_TO_EQALUGALINNGUIT: LatLng[] = [
+  [64.1889932, -51.7130354],
+  [64.1889390, -51.7129902],
+  [64.1888742, -51.7129718],
+  [64.1887966, -51.7129002],
+  [64.1887705, -51.7128333],
+  [64.1887538, -51.7126324],
+  [64.1887401, -51.7120590],
+  [64.1887350, -51.7117861],
+]
 
 const ROUTE_WAYPOINT_OVERRIDES: Record<
   string,
@@ -75,7 +157,40 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
       ],
     },
   ],
-  '2': [],
+  '2': [
+    {
+      fromName: 'Akunnerit',
+      toName: 'Qajaasat',
+      // Enter Qajaasat at the first right turn, then loop to the exit.
+      via: [...NERNGALLAA_TO_QAJAASAT_SOUTH, ...QAJAASAT_EAST_LOOP.slice(1)],
+    },
+    {
+      fromName: 'Nuniaffik',
+      toName: 'Qajaasat',
+      // Stay on Nerngallaa then follow Qajaasat to avoid the pedestrian shortcut.
+      via: [...NERNGALLAA_WAYPOINTS_REVERSE, ...QAJAASAT_EAST_LOOP_REVERSE.slice(1)],
+    },
+    {
+      fromName: 'Qajaasat',
+      toName: 'Eqalugalinnguit',
+      // Keep routing on Qajaasat then Nerngallaa (avoid the pedestrian shortcut).
+      via: [
+        ...QAJAASAT_EAST_LOOP,
+        ...NERNGALLAA_WAYPOINTS.slice(1),
+        ...NERNGALLAA_TO_EQALUGALINNGUIT.slice(1),
+      ],
+    },
+    {
+      fromName: 'Qajaasat',
+      toName: 'Paarnat',
+      // Follow Qajaasat loop and Nerngallaa before turning toward Paarnat.
+      via: [...QAJAASAT_EAST_LOOP, ...NERNGALLAA_WAYPOINTS.slice(1)],
+    },
+  ],
+  '3': [],
+  'X2': [],
+  'E2': [],
+  'X3': [],
 }
 
 const ROUTE_STOP_COORD_OVERRIDES: Record<string, Array<{ stopName: string; coord: LatLng }>> = {
@@ -112,22 +227,84 @@ const ROUTE_STOP_COORD_OVERRIDES: Record<string, Array<{ stopName: string; coord
     },
   ],
   '2': [],
+  '3': [],
+  'X2': [],
+  'E2': [],
+  'X3': [],
 }
 
-function getRouteColor(route: string): string {
-  const colors: Record<string, string> = {
-    '1': '#E91E8C',
-    '2': '#FFD700',
-    '3': '#4CAF50',
-    'X2': '#808080',
-    'E2': '#0066CC',
-    'X3': '#00b047',
-  }
-  return colors[route] || '#6b7280'
+type RouteChunk = {
+  type: 'osrm' | 'manual'
+  points: LatLng[]
 }
 
 function roundCoord(value: number): number {
   return Math.round(value * 1e5) / 1e5
+}
+
+function coordsKey(point: LatLng): string {
+  return `${roundCoord(point[0])},${roundCoord(point[1])}`
+}
+
+function normalizeOverridePoints(override: LatLng | LatLng[]): LatLng[] {
+  if (Array.isArray(override) && Array.isArray(override[0])) {
+    return override as LatLng[]
+  }
+  return [override as LatLng]
+}
+
+function mergeRouteChunks(chunks: LatLng[][]): LatLng[] {
+  const merged: LatLng[] = []
+  let lastKey: string | null = null
+  for (const chunk of chunks) {
+    for (const point of chunk) {
+      const key = coordsKey(point)
+      if (lastKey === key) continue
+      merged.push(point)
+      lastKey = key
+    }
+  }
+  return merged
+}
+
+function buildRouteChunks(
+  order: number[],
+  coordIndex: Map<number, LatLng>,
+  overrideByPair: Map<string, LatLng | LatLng[]>
+): RouteChunk[] {
+  const chunks: RouteChunk[] = []
+  let currentOsrm: LatLng[] = []
+
+  const flushOsrm = () => {
+    if (currentOsrm.length > 1) {
+      chunks.push({ type: 'osrm', points: currentOsrm })
+    }
+    currentOsrm = []
+  }
+
+  for (let i = 0; i < order.length - 1; i += 1) {
+    const fromId = order[i]
+    const toId = order[i + 1]
+    const fromCoord = coordIndex.get(fromId)
+    const toCoord = coordIndex.get(toId)
+    if (!fromCoord || !toCoord) continue
+
+    const override = overrideByPair.get(`${fromId}|${toId}`)
+    if (override) {
+      flushOsrm()
+      const viaPoints = normalizeOverridePoints(override)
+      chunks.push({ type: 'osrm', points: [fromCoord, ...viaPoints, toCoord] })
+      continue
+    }
+
+    if (currentOsrm.length === 0) {
+      currentOsrm.push(fromCoord)
+    }
+    currentOsrm.push(toCoord)
+  }
+
+  flushOsrm()
+  return chunks
 }
 
 function buildRouteKey(points: LatLng[]): string {
@@ -138,6 +315,31 @@ function buildRouteKey(points: LatLng[]): string {
 
 function normalizeStopName(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '')
+}
+
+function applyStopOrderOverrides(
+  route: string | null,
+  order: number[],
+  stopNameIndex: Map<string, number>
+): number[] {
+  if (!route || order.length === 0) return order
+
+  if (route === '2') {
+    // Route 2 revisits Qajaasat later; reinsert it to avoid a shortcut across the school area.
+    const nuniaffikId = stopNameIndex.get(normalizeStopName('Nuniaffik'))
+    const qajaasatId = stopNameIndex.get(normalizeStopName('Qajaasat'))
+    if (!nuniaffikId || !qajaasatId) return order
+
+    const nuniaffikIndex = order.indexOf(nuniaffikId)
+    if (nuniaffikIndex === -1) return order
+    if (order[nuniaffikIndex + 1] === qajaasatId) return order
+
+    const updated = [...order]
+    updated.splice(nuniaffikIndex + 1, 0, qajaasatId)
+    return updated
+  }
+
+  return order
 }
 
 async function fetchOsrmRoute(points: LatLng[], signal: AbortSignal): Promise<LatLng[] | null> {
@@ -164,6 +366,10 @@ export default function SelectedRoutePath() {
   const selectedStopRouteToId = useAppStore((state) => state.selectedStopRouteToId)
   const { data: route1Schedule } = useRoute1Schedule()
   const { data: route2Schedule } = useRoute2Schedule()
+  const { data: route3Schedule } = useRoute3Schedule()
+  const { data: routeX2Schedule } = useRouteX2Schedule()
+  const { data: routeE2Schedule } = useRouteE2Schedule()
+  const { data: routeX3Schedule } = useRouteX3Schedule()
   const { data: stopsData } = useStopsData()
   const [routePaths, setRoutePaths] = useState<{ base: LatLng[] | null; pulse: LatLng[] | null }>({
     base: null,
@@ -175,10 +381,14 @@ export default function SelectedRoutePath() {
   const activeSchedule = useMemo(() => {
     if (selectedStopRoute === '1') return route1Schedule
     if (selectedStopRoute === '2') return route2Schedule
+    if (selectedStopRoute === '3') return route3Schedule
+    if (selectedStopRoute === 'X2') return routeX2Schedule
+    if (selectedStopRoute === 'E2') return routeE2Schedule
+    if (selectedStopRoute === 'X3') return routeX3Schedule
     return null
-  }, [route1Schedule, route2Schedule, selectedStopRoute])
+  }, [route1Schedule, route2Schedule, route3Schedule, routeX2Schedule, routeE2Schedule, routeX3Schedule, selectedStopRoute])
 
-  const stopOrder = useMemo(() => {
+  const rawStopOrder = useMemo(() => {
     if (!activeSchedule) return []
     if (!selectedStopRoute) return []
     return getStopOrderForDate(activeSchedule, new Date())
@@ -195,6 +405,11 @@ export default function SelectedRoutePath() {
     }
     return index
   }, [stopsData])
+
+  const stopOrder = useMemo(
+    () => applyStopOrderOverrides(selectedStopRoute, rawStopOrder, stopNameIndex),
+    [rawStopOrder, selectedStopRoute, stopNameIndex]
+  )
 
   const stopCoordOverrides = useMemo(() => {
     const overrides = ROUTE_STOP_COORD_OVERRIDES[selectedStopRoute ?? ''] ?? []
@@ -291,6 +506,11 @@ export default function SelectedRoutePath() {
     return buildCoordsWithOverrides(activeStopOrder)
   }, [activeStopOrder, buildCoordsWithOverrides])
 
+  const routeChunks: RouteChunk[] = useMemo(
+    () => buildRouteChunks(activeStopOrder, coordIndex, overrideByPair),
+    [activeStopOrder, coordIndex, overrideByPair]
+  )
+
   const baseKey = useMemo(
     () => (baseCoords.length > 1 ? buildRouteKey(baseCoords) : null),
     [baseCoords]
@@ -308,7 +528,7 @@ export default function SelectedRoutePath() {
 
   // Determine if route should be shown
   const shouldFetchRoute =
-    !!selectedStopRoute && ['1', '2'].includes(selectedStopRoute) && routeKey && baseCoords.length >= 2
+    !!selectedStopRoute && !!activeSchedule && routeKey && baseCoords.length >= 2
 
   useEffect(() => {
     if (!shouldFetchRoute) {
@@ -327,18 +547,36 @@ export default function SelectedRoutePath() {
 
     const load = async () => {
       try {
-        const basePromise = fetchOsrmRoute(baseCoords, controller.signal)
         const canPulse = pulseCoords.length > 1
+        const resolveChunks = async (): Promise<LatLng[]> => {
+          if (routeChunks.length === 0) return []
+          const resolvedChunks = await Promise.all(
+            routeChunks.map(async (chunk) => {
+              if (chunk.type === 'manual') return chunk.points
+              try {
+                const routed = await fetchOsrmRoute(chunk.points, controller.signal)
+                return routed ?? chunk.points
+              } catch (error) {
+                console.warn('OSRM segment failed, using fallback points:', error)
+                return chunk.points
+              }
+            })
+          )
+          return mergeRouteChunks(resolvedChunks)
+        }
+        const basePromise = resolveChunks()
         const pulsePromise = canPulse
           ? pulseKey && pulseKey !== baseKey
-            ? fetchOsrmRoute(pulseCoords, controller.signal)
+            ? resolveChunks()
             : basePromise
           : Promise.resolve(null)
         const [base, pulse] = await Promise.all([basePromise, pulsePromise])
         if (!controller.signal.aborted) {
+          const resolvedBase = base.length > 1 ? base : baseCoords
+          const resolvedPulse = canPulse ? (pulse && pulse.length > 1 ? pulse : pulseCoords) : null
           setRoutePaths({
-            base: base ?? baseCoords,
-            pulse: canPulse ? (pulse ?? pulseCoords) : null,
+            base: resolvedBase,
+            pulse: resolvedPulse,
           })
         }
       } catch (error) {
@@ -357,7 +595,15 @@ export default function SelectedRoutePath() {
     return () => {
       controller.abort()
     }
-  }, [shouldFetchRoute, routeKey, baseCoords, pulseCoords, baseKey, pulseKey])
+  }, [
+    shouldFetchRoute,
+    routeKey,
+    baseCoords,
+    pulseCoords,
+    baseKey,
+    pulseKey,
+    routeChunks,
+  ])
 
   // Compute effective paths - null when route shouldn't be shown
   const effectiveRoutePaths = useMemo(() => {
@@ -395,7 +641,7 @@ export default function SelectedRoutePath() {
 
   if (
     !selectedStopRoute ||
-    !['1', '2'].includes(selectedStopRoute) ||
+    !activeSchedule ||
     !effectiveRoutePaths.base ||
     effectiveRoutePaths.base.length < 2
   )

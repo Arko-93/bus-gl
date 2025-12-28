@@ -3,7 +3,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { KNOWN_ROUTES } from '../data/ridangoRealtime'
+import { KNOWN_ROUTES, type KnownRoute } from '../data/ridangoRealtime'
 import { detectBrowserLocale, type Locale } from '../i18n/translations'
 import type { Theme } from '../hooks/useResolvedTheme'
 
@@ -36,8 +36,8 @@ interface AppState {
   setSelectedStopId: (id: number | null, options?: { openPanel?: boolean }) => void
 
   // Route filter (which routes to show)
-  enabledRoutes: Set<string>
-  toggleRoute: (route: string) => void
+  enabledRoutes: Set<KnownRoute>
+  toggleRoute: (route: KnownRoute) => void
   setAllRoutes: (enabled: boolean) => void
 
   // Stop filter (which stops to show - empty means show all)
@@ -49,8 +49,8 @@ interface AppState {
   setStopFilters: (stops: Array<{ id: number; name: string }>) => void
   setShowAllStops: (show: boolean) => void
   filteredStopNames: Map<number, string>
-  selectedStopRoute: string | null
-  setSelectedStopRoute: (route: string | null) => void
+  selectedStopRoute: KnownRoute | null
+  setSelectedStopRoute: (route: KnownRoute | null) => void
   selectedStopRouteTripEnabled: boolean
   setSelectedStopRouteTripEnabled: (enabled: boolean) => void
   selectedStopRouteFromId: number | null
@@ -272,7 +272,7 @@ export const useAppStore = create<AppState>()(
  */
 export function filterVehiclesByRoute<T extends { route: string }>(
   vehicles: T[],
-  enabledRoutes: Set<string>
+  enabledRoutes: Set<KnownRoute>
 ): T[] {
-  return vehicles.filter((v) => enabledRoutes.has(v.route))
+  return vehicles.filter((v) => enabledRoutes.has(v.route as KnownRoute))
 }

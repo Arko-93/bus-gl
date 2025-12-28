@@ -2,12 +2,13 @@
   "type": "FeatureCollection",
   "generatedAt": "2025-12-21T23:35:17.228Z",
   "matchStats": {
-    "total": 50,
-    "matched": 50,
+    "total": 54,
+    "matched": 54,
     "unmatched": 0,
     "coveragePercent": 100,
     "ridangoStops": 4,
-    "osmOnlyStops": 46
+    "osmOnlyStops": 46,
+    "manualStops": 4
   },
   "features": [
     {
@@ -1157,6 +1158,98 @@
         "coordinates": [
           -51.6789736,
           64.1647734
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 146,
+        "name": "Napasuliaq",
+        "osmId": null,
+        "osmName": "Napasuliaq",
+        "matchScore": 1,
+        "matchMethod": "manual",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-28T12:00:00.000Z",
+        "lastSeenAt": "2025-12-28T12:00:00.000Z",
+        "source": "manual"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6662,
+          64.1935
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 147,
+        "name": "Qeqertanut stop 1",
+        "osmId": null,
+        "osmName": "Qeqertanut stop 1",
+        "matchScore": 1,
+        "matchMethod": "manual",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-28T12:00:00.000Z",
+        "lastSeenAt": "2025-12-28T12:00:00.000Z",
+        "source": "manual"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6950,
+          64.1720
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 148,
+        "name": "Qeqertanut stop 2",
+        "osmId": null,
+        "osmName": "Qeqertanut stop 2",
+        "matchScore": 1,
+        "matchMethod": "manual",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-28T12:00:00.000Z",
+        "lastSeenAt": "2025-12-28T12:00:00.000Z",
+        "source": "manual"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6920,
+          64.1715
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 149,
+        "name": "Qeqertanut stop 3",
+        "osmId": null,
+        "osmName": "Qeqertanut stop 3",
+        "matchScore": 1,
+        "matchMethod": "manual",
+        "seenCount": 0,
+        "priorityScore": 0,
+        "firstSeenAt": "2025-12-28T12:00:00.000Z",
+        "lastSeenAt": "2025-12-28T12:00:00.000Z",
+        "source": "manual"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6890,
+          64.1710
         ]
       }
     }

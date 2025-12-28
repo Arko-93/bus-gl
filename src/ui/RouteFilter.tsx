@@ -3,22 +3,8 @@
 
 import { useAppStore } from '../state/appStore'
 import { KNOWN_ROUTES } from '../data/ridangoRealtime'
+import { getRouteColor } from '../data/routeColors'
 import { useTranslation, useLocale } from '../i18n/useTranslation'
-
-/**
- * Route color mapping - matches Nuup Bussii official branding
- */
-function getRouteColor(route: string): string {
-  const colors: Record<string, string> = {
-    '1': '#E91E8C',  // Pink/Magenta (Rute 1)
-    '2': '#FFD700',  // Yellow (Rute 2)
-    '3': '#4CAF50',  // Green (Rute 3)
-    'X2': '#808080', // Gray (Rute X2)
-    'E2': '#0066CC', // Blue (Rute E2)
-    'X3': '#00b047', // Green with stripes (Rute X3)
-  }
-  return colors[route] || '#6b7280'
-}
 
 export default function RouteFilter() {
   const enabledRoutes = useAppStore((state) => state.enabledRoutes)

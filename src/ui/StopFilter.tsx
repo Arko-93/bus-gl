@@ -8,15 +8,16 @@ import { useTranslation, useLocale } from '../i18n/useTranslation'
 import { useStopsData } from '../data/useStopsData'
 import { useRoute1Schedule, getStopOrderForDate, getScheduleServiceForDate } from '../data/route1Schedule'
 import { useRoute2Schedule } from '../data/route2Schedule'
+import { useRoute3Schedule } from '../data/route3Schedule'
+import { useRouteX2Schedule } from '../data/routeX2Schedule'
+import { useRouteE2Schedule } from '../data/routeE2Schedule'
+import { useRouteX3Schedule } from '../data/routeX3Schedule'
+import { getRouteColor } from '../data/routeColors'
+import { KNOWN_ROUTES, type KnownRoute } from '../data/ridangoRealtime'
 
 interface Stop {
   id: number
   name: string
-}
-
-const ROUTE_COLORS: Record<string, string> = {
-  '1': '#E91E8C',
-  '2': '#FFD700',
 }
 
 export default function StopFilter() {
@@ -28,6 +29,10 @@ export default function StopFilter() {
   const { data: stopsData, isLoading: stopsLoading } = useStopsData()
   const { data: route1Schedule, isLoading: schedule1Loading } = useRoute1Schedule()
   const { data: route2Schedule, isLoading: schedule2Loading } = useRoute2Schedule()
+  const { data: route3Schedule, isLoading: schedule3Loading } = useRoute3Schedule()
+  const { data: routeX2Schedule, isLoading: scheduleX2Loading } = useRouteX2Schedule()
+  const { data: routeE2Schedule, isLoading: scheduleE2Loading } = useRouteE2Schedule()
+  const { data: routeX3Schedule, isLoading: scheduleX3Loading } = useRouteX3Schedule()
 
   const filteredStopIds = useAppStore((state) => state.filteredStopIds)
   const clearStopFilters = useAppStore((state) => state.clearStopFilters)
@@ -41,7 +46,7 @@ export default function StopFilter() {
   const setSelectedStopRouteRange = useAppStore((state) => state.setSelectedStopRouteRange)
 
   const hasFilters = filteredStopIds.size > 0
-  const isLoading = stopsLoading || schedule1Loading || schedule2Loading
+  const isLoading = stopsLoading || schedule1Loading || schedule2Loading || schedule3Loading || scheduleX2Loading || scheduleE2Loading || scheduleX3Loading
   const scheduleService = getScheduleServiceForDate(new Date())
 
   const buildStopOrder = useCallback(
@@ -67,8 +72,12 @@ export default function StopFilter() {
     return {
       '1': buildStopOrder(route1Schedule),
       '2': buildStopOrder(route2Schedule),
+      '3': buildStopOrder(route3Schedule),
+      'X2': buildStopOrder(routeX2Schedule),
+      'E2': buildStopOrder(routeE2Schedule),
+      'X3': buildStopOrder(routeX3Schedule),
     }
-  }, [buildStopOrder, route1Schedule, route2Schedule, scheduleService])
+  }, [buildStopOrder, route1Schedule, route2Schedule, route3Schedule, routeX2Schedule, routeE2Schedule, routeX3Schedule, scheduleService])
 
   const routeStopsById = useMemo(() => {
     const map = new Map<string, Stop[]>()
@@ -158,7 +167,7 @@ export default function StopFilter() {
 
   const handleRemoveAll = () => clearStopFilters()
 
-  const handleRouteSelect = (routeId: '1' | '2') => {
+  const handleRouteSelect = (routeId: KnownRoute) => {
     const stops = routeStopsById.get(routeId) ?? []
     if (selectedStopRoute === routeId) {
       clearStopFilters()
@@ -240,7 +249,7 @@ export default function StopFilter() {
             {isLoading ? (
               <div className="stop-filter__loading">{t.loading}</div>
             ) : (
-              ['1', '2'].map((routeId) => {
+              KNOWN_ROUTES.map((routeId) => {
                 const isActive = selectedStopRoute === routeId && selectedRouteStops.length > 0
                 const stops = routeStopsById.get(routeId) ?? []
                 const isDisabled = stops.length === 0 && !isActive
@@ -248,8 +257,8 @@ export default function StopFilter() {
                   <button
                     key={routeId}
                     className={`stop-filter__route-btn${isActive ? ' stop-filter__route-btn--active' : ''}`}
-                    style={{ '--route-color': ROUTE_COLORS[routeId] } as React.CSSProperties}
-                    onClick={() => handleRouteSelect(routeId as '1' | '2')}
+                    style={{ '--route-color': getRouteColor(routeId) } as React.CSSProperties}
+                    onClick={() => handleRouteSelect(routeId)}
                     disabled={isDisabled}
                     aria-pressed={isActive}
                   >

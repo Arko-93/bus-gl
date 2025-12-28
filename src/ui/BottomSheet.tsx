@@ -8,24 +8,14 @@ import { useVehiclesQuery } from '../data/vehiclesQuery'
 import { useStopsData, getStopById, createStopLookup } from '../data/useStopsData'
 import { useRoute1Schedule, getUpcomingTimes } from '../data/route1Schedule'
 import { useRoute2Schedule } from '../data/route2Schedule'
+import { useRoute3Schedule } from '../data/route3Schedule'
+import { useRouteX2Schedule } from '../data/routeX2Schedule'
+import { useRouteE2Schedule } from '../data/routeE2Schedule'
+import { useRouteX3Schedule } from '../data/routeX3Schedule'
 import { useTranslation } from '../i18n/useTranslation'
+import { getRouteColor } from '../data/routeColors'
 import type { Vehicle } from '../data/ridangoRealtime'
 import type { StopFeature } from '../data/useStopsData'
-
-/**
- * Route color mapping - matches Nuup Bussii official branding
- */
-function getRouteColor(route: string): string {
-  const colors: Record<string, string> = {
-    '1': '#E91E8C',  // Pink/Magenta (Rute 1)
-    '2': '#FFD700',  // Yellow (Rute 2)
-    '3': '#4CAF50',  // Green (Rute 3)
-    'X2': '#808080', // Gray (Rute X2)
-    'E2': '#0066CC', // Blue (Rute E2)
-    'X3': '#00b047', // Green with stripes (Rute X3)
-  }
-  return colors[route] || '#6b7280'
-}
 
 /**
  * Format timestamp for display
@@ -132,11 +122,19 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
   const t = useTranslation()
   const { data: route1Schedule } = useRoute1Schedule()
   const { data: route2Schedule } = useRoute2Schedule()
+  const { data: route3Schedule } = useRoute3Schedule()
+  const { data: routeX2Schedule } = useRouteX2Schedule()
+  const { data: routeE2Schedule } = useRouteE2Schedule()
+  const { data: routeX3Schedule } = useRouteX3Schedule()
   const selectedStopRoute = useAppStore((state) => state.selectedStopRoute)
 
   const scheduleCandidates = [
     { route: '1', schedule: route1Schedule },
     { route: '2', schedule: route2Schedule },
+    { route: '3', schedule: route3Schedule },
+    { route: 'X2', schedule: routeX2Schedule },
+    { route: 'E2', schedule: routeE2Schedule },
+    { route: 'X3', schedule: routeX3Schedule },
   ]
 
   const resolvedSchedule =

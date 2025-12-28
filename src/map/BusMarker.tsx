@@ -7,6 +7,7 @@ import L from 'leaflet'
 import type { Vehicle } from '../data/ridangoRealtime'
 import { useAppStore } from '../state/appStore'
 import { useTranslation } from '../i18n/useTranslation'
+import { getRouteColor } from '../data/routeColors'
 
 // Qatserisut depot - where buses are maintained/stored
 const DEPOT_BOUNDS = {
@@ -27,18 +28,6 @@ function isAtDepot(vehicle: Vehicle): boolean {
 
 interface BusMarkerProps {
   vehicle: Vehicle
-}
-
-function getRouteColor(route: string): string {
-  const colors: Record<string, string> = {
-    '1': '#E91E8C',
-    '2': '#FFD700',
-    '3': '#4CAF50',
-    'X2': '#808080',
-    'E2': '#0066CC',
-    'X3': '#00b047',
-  }
-  return colors[route] || '#6b7280'
 }
 
 function formatTime(ms: number, locale: string): string {
