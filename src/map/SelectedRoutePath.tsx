@@ -21,6 +21,9 @@ const OSRM_BASE_URL = (import.meta.env.VITE_OSRM_BASE_URL || 'https://router.pro
 )
 const OSRM_PROFILE = import.meta.env.VITE_OSRM_PROFILE || 'driving'
 
+// In-memory cache for OSRM route responses (persists across re-renders)
+const osrmRouteCache = new Map<string, LatLng[]>()
+
 const QAJAASAT_EAST_LOOP: LatLng[] = [
   [64.1916104, -51.7101013],
   [64.1915567, -51.7100176],
@@ -368,8 +371,17 @@ function applyStopOrderOverrides(
   return order
 }
 
+function buildCacheKey(points: LatLng[]): string {
+  return points.map(([lat, lon]) => `${lat.toFixed(5)},${lon.toFixed(5)}`).join('|')
+}
+
 async function fetchOsrmRoute(points: LatLng[], signal: AbortSignal): Promise<LatLng[] | null> {
   if (!OSRM_BASE_URL || points.length < 2) return null
+
+  // Check cache first
+  const cacheKey = buildCacheKey(points)
+  const cached = osrmRouteCache.get(cacheKey)
+  if (cached) return cached
 
   const coordParam = points.map(([lat, lon]) => `${lon},${lat}`).join(';')
   const url = `${OSRM_BASE_URL}/route/v1/${OSRM_PROFILE}/${coordParam}?overview=full&geometries=geojson&steps=false`
@@ -382,7 +394,12 @@ async function fetchOsrmRoute(points: LatLng[], signal: AbortSignal): Promise<La
   const geometry = data?.routes?.[0]?.geometry
   if (!geometry?.coordinates?.length) return null
 
-  return geometry.coordinates.map(([lon, lat]: [number, number]) => [lat, lon])
+  const result = geometry.coordinates.map(([lon, lat]: [number, number]) => [lat, lon]) as LatLng[]
+  
+  // Cache the result
+  osrmRouteCache.set(cacheKey, result)
+  
+  return result
 }
 
 export default function SelectedRoutePath() {
@@ -401,6 +418,7 @@ export default function SelectedRoutePath() {
     base: null,
     pulse: null,
   })
+  const [isLoadingOsrm, setIsLoadingOsrm] = useState(false)
   const lastRouteKeyRef = useRef<string | null>(null)
   const routeAbortRef = useRef<AbortController | null>(null)
 
@@ -561,6 +579,7 @@ export default function SelectedRoutePath() {
       routeAbortRef.current?.abort()
       routeAbortRef.current = null
       lastRouteKeyRef.current = null
+      setIsLoadingOsrm(false)
       return
     }
 
@@ -570,6 +589,12 @@ export default function SelectedRoutePath() {
     routeAbortRef.current?.abort()
     const controller = new AbortController()
     routeAbortRef.current = controller
+
+    // Immediately show straight lines while OSRM loads
+    const straightBase = baseCoords.length > 1 ? baseCoords : null
+    const straightPulse = pulseCoords.length > 1 ? pulseCoords : null
+    setRoutePaths({ base: straightBase, pulse: straightPulse })
+    setIsLoadingOsrm(true)
 
     const load = async () => {
       try {
@@ -604,6 +629,7 @@ export default function SelectedRoutePath() {
             base: resolvedBase,
             pulse: resolvedPulse,
           })
+          setIsLoadingOsrm(false)
         }
       } catch (error) {
         if (!controller.signal.aborted) {
@@ -612,6 +638,7 @@ export default function SelectedRoutePath() {
             base: baseCoords,
             pulse: pulseCoords.length > 1 ? pulseCoords : null,
           })
+          setIsLoadingOsrm(false)
         }
       }
     }
@@ -675,6 +702,11 @@ export default function SelectedRoutePath() {
 
   const routeColor = getRouteLineColor(selectedStopRoute)
 
+  // Use loading class only for instant straight lines while waiting for OSRM
+  const pulseClassName = isLoadingOsrm
+    ? 'route-path route-path--loading'
+    : 'route-path route-path--pulse'
+
   return (
     <>
       {baseSegments && (
@@ -690,9 +722,10 @@ export default function SelectedRoutePath() {
       )}
       {effectiveRoutePaths.pulse && effectiveRoutePaths.pulse.length > 1 && (
         <Polyline
+          key={isLoadingOsrm ? 'loading' : 'loaded'}
           positions={effectiveRoutePaths.pulse}
           pathOptions={{
-            className: 'route-path route-path--pulse',
+            className: pulseClassName,
             color: routeColor,
             weight: 2.8,
             opacity: 0.7,

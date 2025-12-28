@@ -15,6 +15,9 @@ type LatLng = [number, number]
 const OSRM_BASE_URL = (import.meta.env.VITE_OSRM_BASE_URL || 'https://router.project-osrm.org').replace(/\/$/, '')
 const OSRM_PROFILE = import.meta.env.VITE_OSRM_PROFILE || 'driving'
 
+// In-memory cache for OSRM route responses
+const osrmRouteCache = new Map<string, LatLng[]>()
+
 interface RouteFeature {
   type: 'Feature'
   properties: {
@@ -274,6 +277,11 @@ function buildRouteKey(points: LatLng[]): string {
 async function fetchOsrmRoute(points: LatLng[], signal: AbortSignal): Promise<LatLng[] | null> {
   if (!OSRM_BASE_URL || points.length < 2) return null
 
+  // Check cache first
+  const cacheKey = buildRouteKey(points)
+  const cached = osrmRouteCache.get(cacheKey)
+  if (cached) return cached
+
   const coordParam = points.map(([lat, lon]) => `${lon},${lat}`).join(';')
   const url = `${OSRM_BASE_URL}/route/v1/${OSRM_PROFILE}/${coordParam}?overview=full&geometries=geojson&steps=false`
   const response = await fetch(url, { signal })
@@ -285,7 +293,12 @@ async function fetchOsrmRoute(points: LatLng[], signal: AbortSignal): Promise<La
   const geometry = data?.routes?.[0]?.geometry
   if (!geometry?.coordinates?.length) return null
 
-  return geometry.coordinates.map(([lon, lat]: [number, number]) => [lat, lon])
+  const result = geometry.coordinates.map(([lon, lat]: [number, number]) => [lat, lon]) as LatLng[]
+  
+  // Cache the result
+  osrmRouteCache.set(cacheKey, result)
+  
+  return result
 }
 
 export default function SelectedBusPath() {

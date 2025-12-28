@@ -190,8 +190,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -51.7213191,
-          64.1853893
+          -51.721295949812564,
+          64.1855313057775
         ]
       }
     },
@@ -1027,9 +1027,9 @@
       "type": "Feature",
       "properties": {
         "id": 118,
-        "name": "Sarfaannguit",
+        "name": "Sarfannguit",
         "osmId": 2626553369,
-        "osmName": "Sarfaannguit",
+        "osmName": "Sarfannguit",
         "matchScore": 1,
         "matchMethod": "osm-only",
         "seenCount": 0,
@@ -1248,8 +1248,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -51.709840318868096,
-          64.16946120206966
+          -51.71050827962378,
+          64.16866816961084
         ]
       }
     }

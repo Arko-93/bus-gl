@@ -196,6 +196,11 @@
   opacity: 0.85;
 }
 
+[data-theme="dark"] .route-filter__btn--inactive {
+  background: #374151;
+  color: #d1d5db;
+}
+
 .route-filter__btn--inactive:hover {
   opacity: 1;
 }
@@ -204,6 +209,11 @@
   width: auto;
   padding: 0 1rem;
   border-radius: 9999px;
+}
+
+[data-theme="dark"] .route-filter__btn--all:not(.route-filter__btn--active) {
+  background: #374151;
+  color: #d1d5db;
 }
 
 .route-filter__btn--all.route-filter__btn--active {
@@ -446,6 +456,20 @@
   color: var(--text-muted);
 }
 
+/* Smaller text for Kalaallisut route buttons */
+.stop-filter[data-lang="kl"] .stop-filter__route-title {
+  font-size: 0.75rem;
+}
+
+.stop-filter[data-lang="kl"] .stop-filter__route-subtitle {
+  font-size: 0.625rem;
+}
+
+/* Smaller text for Kalaallisut mode buttons */
+.stop-filter[data-lang="kl"] .stop-filter__mode-btn {
+  font-size: 0.625rem;
+}
+
 .stop-filter__mode {
   display: flex;
   gap: 0.5rem;
@@ -473,6 +497,10 @@
   background: var(--text);
   color: var(--bg);
   border-color: transparent;
+}
+
+.stop-filter__mode-btn--active:hover {
+  color: var(--bg);
 }
 
 .stop-filter__range {
@@ -786,12 +814,26 @@
   animation: route-path-flow 9s linear infinite;
 }
 
+.route-path--loading {
+  stroke-dasharray: none;
+  animation: route-path-loading-pulse 1.8s ease-in-out infinite;
+}
+
 @keyframes route-path-flow {
   from {
     stroke-dashoffset: 0;
   }
   to {
     stroke-dashoffset: -160;
+  }
+}
+
+@keyframes route-path-loading-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
   }
 }
 
