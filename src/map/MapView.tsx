@@ -65,8 +65,9 @@ const ENABLE_ROUTES_LAYER = import.meta.env.VITE_ENABLE_ROUTES_LAYER === 'true'
 
 // Mobile follow settings
 const MOBILE_FOLLOW_OFFSET_RATIO = 0.18
-const MOBILE_FOLLOW_ANIMATION_SEC = 0.45
+const MOBILE_FOLLOW_ANIMATION_SEC = 0.32
 const MOBILE_FOLLOW_EASE = 0.22
+const MOBILE_FOLLOW_RESUME_MS = 500
 
 
 /**
@@ -180,9 +181,12 @@ function MobileFollowSelectedVehicle() {
   const { data: vehicles = [] } = useVehiclesQuery()
   const isMobile = useAppStore((state) => state.isMobile)
   const selectedVehicleId = useAppStore((state) => state.selectedVehicleId)
-  
-  // Track if user is currently zooming (pinch gesture)
-  const isZoomingRef = useRef(false)
+  const isBottomSheetOpen = useAppStore((state) => state.isBottomSheetOpen)
+  const setBottomSheetOpen = useAppStore((state) => state.setBottomSheetOpen)
+
+  const isUserInteractingRef = useRef(false)
+  const resumeTimeoutRef = useRef<number | null>(null)
+  const lastSelectedIdRef = useRef<string | null>(null)
   // Store user's preferred zoom level
   const userZoomRef = useRef<number | null>(null)
 
@@ -193,26 +197,57 @@ function MobileFollowSelectedVehicle() {
   const targetLat = selectedVehicle?.lat
   const targetLon = selectedVehicle?.lon
 
-  // Track zoom gestures to preserve user's zoom preference
+  // Track user interactions to pause follow mode while zooming or dragging.
   useEffect(() => {
     if (!isMobile) return
 
+    const pauseFollow = () => {
+      isUserInteractingRef.current = true
+      if (resumeTimeoutRef.current) {
+        window.clearTimeout(resumeTimeoutRef.current)
+      }
+    }
+
+    const resumeFollow = () => {
+      if (resumeTimeoutRef.current) {
+        window.clearTimeout(resumeTimeoutRef.current)
+      }
+      resumeTimeoutRef.current = window.setTimeout(() => {
+        isUserInteractingRef.current = false
+      }, MOBILE_FOLLOW_RESUME_MS)
+    }
+
     const handleZoomStart = () => {
-      isZoomingRef.current = true
+      pauseFollow()
     }
 
     const handleZoomEnd = () => {
-      isZoomingRef.current = false
-      // Store the zoom level user chose via pinch
       userZoomRef.current = map.getZoom()
+      resumeFollow()
+    }
+
+    const handleDragStart = () => {
+      pauseFollow()
+    }
+
+    const handleDragEnd = () => {
+      resumeFollow()
     }
 
     map.on('zoomstart', handleZoomStart)
     map.on('zoomend', handleZoomEnd)
+    map.on('dragstart', handleDragStart)
+    map.on('dragend', handleDragEnd)
 
     return () => {
       map.off('zoomstart', handleZoomStart)
       map.off('zoomend', handleZoomEnd)
+      map.off('dragstart', handleDragStart)
+      map.off('dragend', handleDragEnd)
+      if (resumeTimeoutRef.current) {
+        window.clearTimeout(resumeTimeoutRef.current)
+        resumeTimeoutRef.current = null
+      }
     }
   }, [map, isMobile])
 
@@ -221,10 +256,64 @@ function MobileFollowSelectedVehicle() {
     userZoomRef.current = null
   }, [selectedVehicleId])
 
+  // Focus the map and open the sheet after a new selection.
+  useEffect(() => {
+    if (!isMobile) return
+    if (!selectedVehicleId) {
+      lastSelectedIdRef.current = null
+      return
+    }
+    if (!selectedVehicle) return
+    if (lastSelectedIdRef.current === selectedVehicleId) return
+
+    lastSelectedIdRef.current = selectedVehicleId
+    isUserInteractingRef.current = false
+    if (resumeTimeoutRef.current) {
+      window.clearTimeout(resumeTimeoutRef.current)
+      resumeTimeoutRef.current = null
+    }
+
+    const zoom = userZoomRef.current ?? map.getZoom()
+    const size = map.getSize()
+    const verticalOffset = Math.round(size.y * MOBILE_FOLLOW_OFFSET_RATIO)
+    const busPoint = map.project([selectedVehicle.lat, selectedVehicle.lon], zoom)
+    const targetCenter = map.unproject(busPoint.add([0, verticalOffset]), zoom)
+
+    const openSheet = () => {
+      if (!isBottomSheetOpen) {
+        setBottomSheetOpen(true)
+      }
+    }
+
+    const distance = map.distance(map.getCenter(), targetCenter)
+    if (distance < 20) {
+      openSheet()
+    } else {
+      map.once('moveend', openSheet)
+    }
+
+    map.panTo(targetCenter, {
+      animate: true,
+      duration: MOBILE_FOLLOW_ANIMATION_SEC,
+      easeLinearity: MOBILE_FOLLOW_EASE,
+    })
+
+    return () => {
+      map.off('moveend', openSheet)
+    }
+  }, [
+    map,
+    isMobile,
+    selectedVehicleId,
+    selectedVehicle,
+    isBottomSheetOpen,
+    setBottomSheetOpen,
+  ])
+
   useEffect(() => {
     if (!isMobile || targetLat == null || targetLon == null) return
-    // Don't interrupt active zoom gesture
-    if (isZoomingRef.current) return
+    // Don't interrupt active user interaction
+    if (isUserInteractingRef.current) return
 
     // Use user's zoom level if they've pinched, otherwise current zoom
     const zoom = userZoomRef.current ?? map.getZoom()

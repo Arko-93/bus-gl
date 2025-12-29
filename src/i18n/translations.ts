@@ -111,7 +111,7 @@ const translations: Record<Locale, TranslationStrings> = {
     kmh: 'km/t',
     currentStop: 'Massakkut ornitaq',
     nextStop: 'Uniffissaq tulleq',
-    inTransit: 'Ingerlavoq',
+    inTransit: 'Aallarpoq',
     unknown: 'Nalunaarsorneqanngilaq',
     atStop: 'Unittarfimmi',
     atDepot: 'Qatserisuni',

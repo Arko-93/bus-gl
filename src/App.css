@@ -439,6 +439,11 @@
   color: #fff;
   font-weight: 700;
   font-size: 0.875rem;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35), 0 0 2px rgba(0, 0, 0, 0.25);
+}
+
+.stop-filter__route-badge svg {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
 }
 
 .stop-filter__route-text {
@@ -1399,6 +1404,30 @@
 @media (max-width: 768px) {
   .top-bar {
     padding: 0.5rem 0.75rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "left right"
+      "center center";
+    row-gap: 0.5rem;
+    align-items: center;
+  }
+
+  .top-bar__left {
+    grid-area: left;
+    min-width: 0;
+  }
+
+  .top-bar__right {
+    grid-area: right;
+    justify-self: end;
+    flex-wrap: nowrap;
+  }
+
+  .top-bar__center {
+    grid-area: center;
+    width: 100%;
+    justify-content: center;
   }
 
   .top-bar__title {
@@ -1502,26 +1531,6 @@
 }
 
 @media (max-width: 480px) {
-  .top-bar {
-    flex-wrap: wrap;
-    row-gap: 0.5rem;
-  }
-
-  .top-bar__left {
-    flex: 1 1 100%;
-    justify-content: space-between;
-  }
-
-  .top-bar__center {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .top-bar__right {
-    order: 2;
-  }
-
   .top-bar__title {
     font-size: 0.95rem;
   }

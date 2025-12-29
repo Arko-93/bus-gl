@@ -28,6 +28,7 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
   const map = useMap()
   const isMobile = useAppStore((state) => state.isMobile)
   const selectedVehicleId = useAppStore((state) => state.selectedVehicleId)
+  const isBottomSheetOpen = useAppStore((state) => state.isBottomSheetOpen)
   const locale = useAppStore((state) => state.locale)
   const setSelectedVehicleId = useAppStore((state) => state.setSelectedVehicleId)
   const t = useTranslation()
@@ -122,7 +123,15 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
   // Click handler
   marker.on('click', () => {
     if (isMobile) {
-      setSelectedVehicleId(vehicle.id)
+      const shouldRefocus = selectedVehicleId === vehicle.id && !isBottomSheetOpen
+      if (shouldRefocus) {
+        setSelectedVehicleId(null, { openPanel: false })
+        requestAnimationFrame(() => {
+          setSelectedVehicleId(vehicle.id, { openPanel: false })
+        })
+      } else {
+        setSelectedVehicleId(vehicle.id, { openPanel: false })
+      }
     } else {
       setSelectedVehicleId(vehicle.id, { openPanel: false })
       keepOpenRef.current = true
