@@ -259,7 +259,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  color: var(--text-muted);
+  color: var(--text);
   white-space: nowrap;
 }
 
@@ -268,12 +268,7 @@
   color: var(--text);
 }
 
-.stop-filter__toggle--active {
-  background: var(--text);
-  color: var(--bg);
-  border-color: transparent;
-}
-
+.stop-filter__toggle--active,
 .stop-filter__toggle--has-filters {
   background: var(--text);
   color: var(--bg);
@@ -1507,7 +1502,10 @@
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
     gap: 0.3rem;
     backdrop-filter: none !important;
-    background: var(--panel-solid) !important;
+  }
+
+  .stop-filter__toggle:not(.stop-filter__toggle--active):not(.stop-filter__toggle--has-filters) {
+    background: var(--panel-solid);
   }
 
   .stop-filter__toggle svg {
