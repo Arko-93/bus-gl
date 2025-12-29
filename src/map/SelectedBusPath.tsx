@@ -1,9 +1,10 @@
 // src/map/SelectedBusPath.tsx
 // Highlight the selected bus path towards current destination and next stop.
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { Polyline } from 'react-leaflet'
 import L from 'leaflet'
+import type { Polyline as LeafletPolyline } from 'leaflet'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import {
@@ -17,6 +18,54 @@ import {
 import { getRouteLineColor } from '../data/routeColors'
 
 type LatLng = [number, number]
+
+// Custom Polyline component that properly applies CSS classes for animations
+interface AnimatedPolylineProps {
+  positions: LatLng[]
+  color: string
+  weight: number
+  opacity: number
+  className: string
+}
+
+function AnimatedPolyline({ positions, color, weight, opacity, className }: AnimatedPolylineProps) {
+  const polylineRef = useRef<LeafletPolyline | null>(null)
+
+  // Apply the CSS class to the SVG path element after mount
+  const setClassName = useCallback((polyline: LeafletPolyline | null) => {
+    polylineRef.current = polyline
+    if (polyline) {
+      const element = polyline.getElement()
+      if (element) {
+        // Add our custom classes while preserving leaflet-interactive
+        element.classList.add(...className.split(' '))
+      }
+    }
+  }, [className])
+
+  // Re-apply class when positions change (element might be recreated)
+  useEffect(() => {
+    if (polylineRef.current) {
+      const element = polylineRef.current.getElement()
+      if (element) {
+        element.classList.add(...className.split(' '))
+      }
+    }
+  }, [positions, className])
+
+  return (
+    <Polyline
+      ref={setClassName}
+      positions={positions}
+      pathOptions={{
+        color,
+        weight,
+        opacity,
+        interactive: false,
+      }}
+    />
+  )
+}
 
 const OSRM_BASE_URL = (import.meta.env.VITE_OSRM_BASE_URL || 'https://router.project-osrm.org').replace(/\/$/, '')
 const OSRM_PROFILE = import.meta.env.VITE_OSRM_PROFILE || 'driving'
@@ -419,27 +468,21 @@ export default function SelectedBusPath() {
   return (
     <>
       {primarySegment && (
-        <Polyline
+        <AnimatedPolyline
           positions={primarySegment}
-          pathOptions={{
-            className: 'bus-path bus-path--current',
-            color: routeColor,
-            weight: 5,
-            opacity: 0.9,
-            interactive: false, // Don't capture clicks - let stop circles receive them
-          }}
+          color={routeColor}
+          weight={5}
+          opacity={0.9}
+          className="bus-path bus-path--current"
         />
       )}
       {nextSegment && (
-        <Polyline
+        <AnimatedPolyline
           positions={nextSegment}
-          pathOptions={{
-            className: 'bus-path bus-path--next',
-            color: routeColor,
-            weight: 4,
-            opacity: 0.35,
-            interactive: false, // Don't capture clicks - let stop circles receive them
-          }}
+          color={routeColor}
+          weight={4}
+          opacity={0.35}
+          className="bus-path bus-path--next"
         />
       )}
     </>

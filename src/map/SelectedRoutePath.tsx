@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { Polyline } from 'react-leaflet'
+import type { Polyline as LeafletPolyline } from 'leaflet'
 import { useAppStore } from '../state/appStore'
 import { useStopsData } from '../data/useStopsData'
 import { useRoute1Schedule, getStopOrderForDate } from '../data/route1Schedule'
@@ -14,6 +15,56 @@ import { useRouteX3Schedule } from '../data/routeX3Schedule'
 import { getRouteLineColor } from '../data/routeColors'
 
 type LatLng = [number, number]
+
+// Custom Polyline component that properly applies CSS classes for animations
+interface AnimatedPolylineProps {
+  positions: LatLng[] | LatLng[][]
+  color: string
+  weight: number
+  opacity: number
+  className: string
+  keyProp?: string
+}
+
+function AnimatedPolyline({ positions, color, weight, opacity, className, keyProp }: AnimatedPolylineProps) {
+  const polylineRef = useRef<LeafletPolyline | null>(null)
+
+  // Apply the CSS class to the SVG path element after mount
+  const setClassName = useCallback((polyline: LeafletPolyline | null) => {
+    polylineRef.current = polyline
+    if (polyline) {
+      const element = polyline.getElement()
+      if (element) {
+        // Add our custom classes while preserving leaflet-interactive
+        element.classList.add(...className.split(' '))
+      }
+    }
+  }, [className])
+
+  // Re-apply class when positions change (element might be recreated)
+  useEffect(() => {
+    if (polylineRef.current) {
+      const element = polylineRef.current.getElement()
+      if (element) {
+        element.classList.add(...className.split(' '))
+      }
+    }
+  }, [positions, className])
+
+  return (
+    <Polyline
+      key={keyProp}
+      ref={setClassName}
+      positions={positions}
+      pathOptions={{
+        color,
+        weight,
+        opacity,
+        interactive: false,
+      }}
+    />
+  )
+}
 
 const OSRM_BASE_URL = (import.meta.env.VITE_OSRM_BASE_URL || 'https://router.project-osrm.org').replace(
   /\/$/,
@@ -714,28 +765,22 @@ export default function SelectedRoutePath() {
   return (
     <>
       {baseSegments && (
-        <Polyline
+        <AnimatedPolyline
           positions={baseSegments}
-          pathOptions={{
-            className: 'route-path route-path--base',
-            color: routeColor,
-            weight: 2,
-            opacity: 0.18,
-            interactive: false, // Don't capture clicks - let stop circles receive them
-          }}
+          color={routeColor}
+          weight={2}
+          opacity={0.18}
+          className="route-path route-path--base"
         />
       )}
       {effectiveRoutePaths.pulse && effectiveRoutePaths.pulse.length > 1 && (
-        <Polyline
-          key={isLoadingOsrm ? 'loading' : 'loaded'}
+        <AnimatedPolyline
+          keyProp={isLoadingOsrm ? 'loading' : 'loaded'}
           positions={effectiveRoutePaths.pulse}
-          pathOptions={{
-            className: pulseClassName,
-            color: routeColor,
-            weight: 2.8,
-            opacity: 0.7,
-            interactive: false, // Don't capture clicks - let stop circles receive them
-          }}
+          color={routeColor}
+          weight={2.8}
+          opacity={0.7}
+          className={pulseClassName}
         />
       )}
     </>
