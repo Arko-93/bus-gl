@@ -35,7 +35,7 @@ export default function TopBar() {
     <div className="top-bar">
       <div className="top-bar__left">
         <h1 className="top-bar__title">
-          <span className="top-bar__icon"><img src="/bussit.svg" alt="Bussit" /></span>
+          <span className="top-bar__icon"><img src="/bussit.webp" alt="Bussit" /></span>
           {t.appTitle}
         </h1>
         {ENABLE_STATIC_LAYERS && <StopSearch />}

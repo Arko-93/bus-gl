@@ -161,19 +161,29 @@ export function getUpcomingTimes(
   stopId: number,
   date: Date,
   limit = 6
-): { service: ScheduleService; times: Array<ScheduleTime & { isNext: boolean }> } | null {
+): { service: ScheduleService; times: Array<ScheduleTime & { isNext: boolean }>; serviceEnded: boolean } | null {
   if (!schedule) return null
   const service = getScheduleServiceForDate(date)
+  const allTimes = schedule[service][String(stopId)] ?? []
+  if (allTimes.length === 0) return null
+  
   const nowSeconds = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds()
-  const times = (schedule[service][String(stopId)] ?? []).filter(
-    (time) => time.seconds >= nowSeconds
-  )
-  if (times.length === 0) return null
-  const upcoming = times.slice(0, limit).map((time, index) => ({
+  const upcomingTimes = allTimes.filter((time) => time.seconds >= nowSeconds)
+  
+  // If no upcoming times, service has ended - show last times of the day
+  if (upcomingTimes.length === 0) {
+    const lastTimes = allTimes.slice(-limit).map((time) => ({
+      ...time,
+      isNext: false, // No next bus when service ended
+    }))
+    return { service, times: lastTimes, serviceEnded: true }
+  }
+  
+  const upcoming = upcomingTimes.slice(0, limit).map((time, index) => ({
     ...time,
     isNext: index === 0,
   }))
-  return { service, times: upcoming }
+  return { service, times: upcoming, serviceEnded: false }
 }
 
 export function useRoute1Schedule() {

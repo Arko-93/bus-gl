@@ -50,6 +50,9 @@ function useMobileDetection() {
 function AppContent() {
   useMobileDetection()
   useKeyboardShortcuts()
+  
+  const isMobile = useAppStore((state) => state.isMobile)
+  const isBottomSheetOpen = useAppStore((state) => state.isBottomSheetOpen)
 
   return (
     <div className="app">
@@ -57,10 +60,13 @@ function AppContent() {
       <ErrorBanner />
       <LoadingSkeleton />
       <MapView />
-      <div className="filter-bar">
-        <RouteFilter />
-        <StopFilter />
-      </div>
+      {/* Hide filter bar on mobile when bottom sheet is open */}
+      {!(isMobile && isBottomSheetOpen) && (
+        <div className="filter-bar">
+          <RouteFilter />
+          <StopFilter />
+        </div>
+      )}
       <BottomSheet />
     </div>
   )

@@ -291,7 +291,7 @@
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   box-shadow: 0 4px 20px var(--shadow-lg);
-  overflow: hidden;
+  overflow: visible;
   z-index: 1001;
   min-width: 280px;
   max-width: 320px;
@@ -472,16 +472,16 @@
 
 .stop-filter__mode {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.625rem;
 }
 
 .stop-filter__mode-btn {
   flex: 1;
-  height: 32px;
+  height: 36px;
   border-radius: 9999px;
   border: 1px solid var(--border);
   background: var(--panel-solid);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
@@ -503,10 +503,27 @@
   color: var(--bg);
 }
 
+/* Selected route view */
+.stop-filter__selected-route {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.75rem 1rem 1rem;
+  overflow: visible;
+}
+
+.stop-filter__selected-route .stop-filter__route-btn {
+  cursor: default;
+}
+
+.stop-filter__selected-route .stop-filter__route-btn:hover {
+  transform: none;
+}
+
 .stop-filter__range {
   display: grid;
-  gap: 0.5rem;
-  padding: 0.25rem 0.25rem 0;
+  gap: 0.75rem;
+  overflow: visible;
 }
 
 .stop-filter__range-field {
@@ -535,6 +552,144 @@
 .stop-filter__range-select:focus {
   outline: 2px solid var(--text);
   outline-offset: 2px;
+}
+
+/* Searchable stop select */
+.stop-filter__searchable-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  position: relative;
+}
+
+.stop-filter__searchable-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--panel-solid);
+  color: var(--text);
+  font-size: 0.8125rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.stop-filter__searchable-trigger:hover {
+  border-color: var(--text-muted);
+}
+
+.stop-filter__searchable-trigger--open {
+  border-color: var(--text-muted);
+  background: var(--hover);
+}
+
+.stop-filter__placeholder {
+  color: var(--text-muted);
+}
+
+.stop-filter__chevron {
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  transform: rotate(180deg);
+}
+
+.stop-filter__chevron--open {
+  transform: rotate(0deg);
+}
+
+.stop-filter__searchable-dropdown {
+  position: absolute;
+  bottom: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  background: var(--panel-solid);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  box-shadow: 0 -4px 24px var(--shadow-lg);
+  z-index: 1100;
+  overflow: hidden;
+}
+
+.stop-filter__searchable-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.stop-filter__searchable-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.8125rem;
+  color: var(--text);
+  outline: none;
+}
+
+.stop-filter__searchable-input::placeholder {
+  color: var(--text-muted);
+}
+
+.stop-filter__searchable-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.375rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.stop-filter__searchable-option {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.5rem 0.625rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.8125rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.stop-filter__searchable-option:hover {
+  background: var(--hover);
+}
+
+.stop-filter__searchable-option--selected {
+  background: var(--hover);
+  font-weight: 600;
+}
+
+.stop-filter__stop-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--border);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.stop-filter__searchable-empty {
+  padding: 0.75rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
 }
 
 .stop-filter__loading {
@@ -1262,6 +1417,49 @@
   font-weight: 600;
 }
 
+/* Past times when service has ended for the day */
+.stop-schedule__time--ended {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.stop-schedule__ended-label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+/* Compact schedule for bottom sheet vehicle details */
+.stop-schedule--compact {
+  margin-top: 0.35rem;
+  margin-left: 1.5rem;
+  gap: 0.3rem;
+}
+
+.stop-schedule--compact .stop-schedule__time {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+}
+
+/* No schedule message */
+.stop-popup__no-schedule {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Stop section wrapper in bottom sheet */
+.bottom-sheet__stop-section {
+  margin-bottom: 0.5rem;
+}
+
+.bottom-sheet__stop-section:last-child {
+  margin-bottom: 0;
+}
+
 /* Stop Search */
 .stop-search {
   position: relative;
@@ -1337,40 +1535,144 @@
     display: none;
   }
 
+  /* Mobile filter bar - simple stacked layout */
+  .filter-bar {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    padding-bottom: max(0.5rem, calc(env(safe-area-inset-bottom, 0px) + 0.25rem));
+    width: auto;
+  }
+
+  /* Wider bar only for Kalaallisut */
+  .filter-bar:has(.route-filter[data-lang="kl"]) {
+    width: calc(100vw - 1rem);
+    max-width: 400px;
+  }
+
+  /* Route filter at bottom */
   .route-filter {
-    padding: 0.375rem;
+    padding: 0.25rem;
+    gap: 0.25rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    order: 2;
+    backdrop-filter: none !important;
+    background: var(--panel-solid) !important;
+    justify-content: center;
+  }
+
+  /* Stop filter above, aligned to right edge */
+  .stop-filter {
+    flex-shrink: 0;
+    order: 1;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .route-filter__btn {
     width: 36px;
     height: 36px;
     font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
   }
 
-  .filter-bar {
-    bottom: 1.5rem;
-    flex-direction: column-reverse;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .stop-filter__toggle {
+  .route-filter__btn--all {
+    width: auto;
+    min-width: 36px;
     height: 36px;
+    padding: 0 0.5rem;
+    font-size: 0.6rem;
+  }
+
+  /* Stop filter toggle */
+  .stop-filter__toggle {
+    height: 34px;
     padding: 0 0.75rem;
     font-size: 0.75rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    gap: 0.3rem;
+    backdrop-filter: none !important;
+    background: var(--panel-solid) !important;
   }
 
-  .stop-filter {
-    align-self: flex-end;
+  .stop-filter__toggle svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Stop filter panel - fullscreen on mobile */
+  .stop-filter__panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    min-width: 100%;
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 1rem 1rem 0 0;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Landscape phone mode */
+@media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
+  .filter-bar {
+    position: fixed;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    left: auto;
+    transform: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    width: auto;
+    max-width: none;
   }
 
   .route-filter {
-    align-self: center;
+    order: 1;
+    padding: 0.25rem;
+    gap: 0.2rem;
   }
 
-  .stop-filter__panel {
-    min-width: 260px;
-    max-width: 280px;
+  .stop-filter {
+    order: 2;
+  }
+
+  .route-filter__btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.6rem;
+  }
+
+  .route-filter__btn--all {
+    height: 28px;
+    min-width: 28px;
+    padding: 0 0.35rem;
+    font-size: 0.5rem;
+  }
+
+  /* Kalaallisut: wider "Tamarmik" button in landscape */
+  .route-filter[data-lang="kl"] .route-filter__btn--all {
+    min-width: 50px;
+    padding: 0 0.4rem;
+    font-size: 0.45rem;
+  }
+
+  .stop-filter__toggle {
+    height: 28px;
+    padding: 0 0.5rem;
+    font-size: 0.6rem;
   }
 }
 
@@ -1640,8 +1942,8 @@
   }
 }
 
-/* Mobile-specific improvements */
-@media (max-width: 768px) {
+/* Mobile touch device improvements */
+@media (max-width: 768px) and (hover: none) and (pointer: coarse) {
   /* Bottom sheet improvements */
   .bottom-sheet {
     max-height: 60vh;
@@ -1653,27 +1955,34 @@
   }
   
   .bottom-sheet__close {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     font-size: 1.25rem;
   }
   
-  /* Route filter larger buttons */
+  /* Route filter slightly larger buttons for touch */
   .route-filter__btn {
-    width: 44px;
-    height: 44px;
-    font-size: 0.875rem;
+    width: 40px;
+    height: 40px;
+    font-size: 0.8rem;
   }
   
   .route-filter__btn--all {
-    width: auto;
-    padding: 0 0.875rem;
+    height: 40px;
+    padding: 0 0.625rem;
+    font-size: 0.7rem;
   }
   
-  /* Kalaallisut: "Tamarmik" is longer, needs smaller text and wider pill */
-  .route-filter[data-lang="kl"] .route-filter__btn--all {
-    font-size: 0.65rem;
+  /* Stop filter larger for touch */
+  .stop-filter__toggle {
+    height: 40px;
     padding: 0 0.75rem;
+  }
+  
+  /* Kalaallisut: "Tamarmik" is longer, needs smaller text */
+  .route-filter[data-lang="kl"] .route-filter__btn--all {
+    font-size: 0.6rem;
+    padding: 0 0.5rem;
     min-width: max-content;
     white-space: nowrap;
   }
@@ -1702,10 +2011,6 @@
     padding-top: max(0.75rem, env(safe-area-inset-top));
     padding-left: max(1rem, env(safe-area-inset-left));
     padding-right: max(1rem, env(safe-area-inset-right));
-  }
-  
-  .filter-bar {
-    bottom: max(2rem, calc(env(safe-area-inset-bottom) + 1rem));
   }
   
   .bottom-sheet__content {

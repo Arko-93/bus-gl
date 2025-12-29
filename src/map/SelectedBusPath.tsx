@@ -382,18 +382,8 @@ export default function SelectedBusPath() {
     return `${primaryKey}|${nextKey}`
   }, [busPosition, primaryStop, secondaryStop])
 
-  const shouldSnapWithOsrm = selectedVehicle?.route !== '2' || !routeLine
-
   useEffect(() => {
     if (!selectedVehicle || selectedVehicle.atStop || !busPosition || !routeKey || !primaryStop) {
-      routeAbortRef.current?.abort()
-      routeAbortRef.current = null
-      setRoadSegments({ primary: null, next: null })
-      lastRouteKeyRef.current = null
-      return
-    }
-
-    if (!shouldSnapWithOsrm) {
       routeAbortRef.current?.abort()
       routeAbortRef.current = null
       setRoadSegments({ primary: null, next: null })
@@ -438,7 +428,6 @@ export default function SelectedBusPath() {
     secondaryStop,
     selectedVehicle?.atStop,
     selectedVehicle?.id,
-    shouldSnapWithOsrm,
   ])
 
   if (!selectedVehicle || selectedVehicle.atStop || !primaryStop || !busPosition) return null
@@ -459,6 +448,7 @@ export default function SelectedBusPath() {
             color: routeColor,
             weight: 5,
             opacity: 0.9,
+            interactive: false, // Don't capture clicks - let stop circles receive them
           }}
         />
       )}
@@ -470,6 +460,7 @@ export default function SelectedBusPath() {
             color: routeColor,
             weight: 4,
             opacity: 0.35,
+            interactive: false, // Don't capture clicks - let stop circles receive them
           }}
         />
       )}

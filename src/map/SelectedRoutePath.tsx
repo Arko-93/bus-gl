@@ -717,6 +717,7 @@ export default function SelectedRoutePath() {
             color: routeColor,
             weight: 2,
             opacity: 0.18,
+            interactive: false, // Don't capture clicks - let stop circles receive them
           }}
         />
       )}
@@ -729,6 +730,7 @@ export default function SelectedRoutePath() {
             color: routeColor,
             weight: 2.8,
             opacity: 0.7,
+            interactive: false, // Don't capture clicks - let stop circles receive them
           }}
         />
       )}

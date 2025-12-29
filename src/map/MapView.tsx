@@ -19,7 +19,8 @@ import type { Vehicle } from '../data/ridangoRealtime'
 // Nuuk, Greenland coordinates
 const NUUK_CENTER: [number, number] = [64.1814, -51.6941]
 const DEFAULT_ZOOM = 13
-const NUUK_BOUNDS = L.latLngBounds([64.1497, -51.7634], [64.2156, -51.6442])
+// Expanded bounds for better portrait mobile view
+const NUUK_BOUNDS = L.latLngBounds([64.12, -51.78], [64.23, -51.62])
 
 /**
  * Tile Provider Configuration
@@ -133,8 +134,10 @@ function MapResizer() {
     }
 
     window.addEventListener('resize', handleResize)
-    // Invalidate on mount to ensure correct sizing
-    setTimeout(handleResize, 100)
+    // Invalidate on mount to ensure correct sizing - multiple attempts
+    setTimeout(handleResize, 50)
+    setTimeout(handleResize, 200)
+    setTimeout(handleResize, 500)
 
     return () => window.removeEventListener('resize', handleResize)
   }, [map])
@@ -150,29 +153,67 @@ function MapBoundsLimiter() {
 
   useEffect(() => {
     const applyBounds = () => {
+      map.invalidateSize()
       const minZoom = map.getBoundsZoom(NUUK_BOUNDS, false)
-      map.setMinZoom(minZoom)
-      if (map.getZoom() < minZoom) {
-        map.setZoom(minZoom)
+      map.setMinZoom(Math.max(minZoom, 11)) // Ensure minimum zoom of 11
+      
+      // Reset to default view if current view is broken
+      const center = map.getCenter()
+      if (!NUUK_BOUNDS.contains(center)) {
+        map.setView(NUUK_CENTER, DEFAULT_ZOOM)
       }
     }
 
-    applyBounds()
+    // Wait for container to be properly sized before applying bounds
+    const timeout = setTimeout(applyBounds, 150)
     map.on('resize', applyBounds)
-    return () => map.off('resize', applyBounds)
+    
+    return () => {
+      clearTimeout(timeout)
+      map.off('resize', applyBounds)
+    }
   }, [map])
 
   return null
 }
 
 /**
+ * Clear stop selection when clicking elsewhere on the map.
+ */
+function MapClickHandler() {
+  const map = useMap()
+  const setSelectedStopId = useAppStore((state) => state.setSelectedStopId)
+
+  useEffect(() => {
+    const handleClick = () => {
+      // Clear the selected stop when clicking on the map background
+      const state = useAppStore.getState()
+      if (state.selectedStopId !== null) {
+        setSelectedStopId(null, { openPanel: false })
+      }
+    }
+
+    map.on('click', handleClick)
+    return () => map.off('click', handleClick)
+  }, [map, setSelectedStopId])
+
+  return null
+}
+
+/**
  * Keep the selected bus centered on mobile as it moves.
+ * Preserves user's zoom level from pinch gestures.
  */
 function MobileFollowSelectedVehicle() {
   const map = useMap()
   const { data: vehicles = [] } = useVehiclesQuery()
   const isMobile = useAppStore((state) => state.isMobile)
   const selectedVehicleId = useAppStore((state) => state.selectedVehicleId)
+  
+  // Track if user is currently zooming (pinch gesture)
+  const isZoomingRef = useRef(false)
+  // Store user's preferred zoom level
+  const userZoomRef = useRef<number | null>(null)
 
   const selectedVehicle = useMemo(
     () => vehicles.find((v) => v.id === selectedVehicleId) ?? null,
@@ -181,10 +222,41 @@ function MobileFollowSelectedVehicle() {
   const targetLat = selectedVehicle?.lat
   const targetLon = selectedVehicle?.lon
 
+  // Track zoom gestures to preserve user's zoom preference
+  useEffect(() => {
+    if (!isMobile) return
+
+    const handleZoomStart = () => {
+      isZoomingRef.current = true
+    }
+
+    const handleZoomEnd = () => {
+      isZoomingRef.current = false
+      // Store the zoom level user chose via pinch
+      userZoomRef.current = map.getZoom()
+    }
+
+    map.on('zoomstart', handleZoomStart)
+    map.on('zoomend', handleZoomEnd)
+
+    return () => {
+      map.off('zoomstart', handleZoomStart)
+      map.off('zoomend', handleZoomEnd)
+    }
+  }, [map, isMobile])
+
+  // Reset user zoom preference when vehicle selection changes
+  useEffect(() => {
+    userZoomRef.current = null
+  }, [selectedVehicleId])
+
   useEffect(() => {
     if (!isMobile || targetLat == null || targetLon == null) return
+    // Don't interrupt active zoom gesture
+    if (isZoomingRef.current) return
 
-    const zoom = map.getZoom()
+    // Use user's zoom level if they've pinched, otherwise current zoom
+    const zoom = userZoomRef.current ?? map.getZoom()
     const size = map.getSize()
     const verticalOffset = Math.round(size.y * MOBILE_FOLLOW_OFFSET_RATIO)
     const busPoint = map.project([targetLat, targetLon], zoom)
@@ -376,12 +448,13 @@ export default function MapView() {
       center={NUUK_CENTER}
       zoom={DEFAULT_ZOOM}
       maxBounds={NUUK_BOUNDS}
-      maxBoundsViscosity={1.0}
+      maxBoundsViscosity={0.85}
       className="map-container"
       zoomControl={true}
     >
       <MapResizer />
       <MapBoundsLimiter />
+      <MapClickHandler />
       <MobileFollowSelectedVehicle />
       <MobileSelectedVehicleOverlayMarker />
       

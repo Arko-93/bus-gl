@@ -1,8 +1,8 @@
 // src/ui/StopFilter.tsx
 // Stop filter - pill button that opens a dropdown with route-based stop filters
 
-import { useState, useEffect, useMemo, useRef, useCallback, type ChangeEvent } from 'react'
-import { X, MapPin, Route } from 'lucide-react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { X, MapPin, Route, Search, ChevronDown } from 'lucide-react'
 import { useAppStore } from '../state/appStore'
 import { useTranslation, useLocale } from '../i18n/useTranslation'
 import { useStopsData } from '../data/useStopsData'
@@ -18,6 +18,106 @@ import { KNOWN_ROUTES, type KnownRoute } from '../data/ridangoRealtime'
 interface Stop {
   id: number
   name: string
+}
+
+interface SearchableStopSelectProps {
+  stops: Stop[]
+  value: number | null
+  onChange: (id: number | null) => void
+  placeholder: string
+  label: string
+}
+
+function SearchableStopSelect({ stops, value, onChange, placeholder, label }: SearchableStopSelectProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const containerRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const selectedStop = useMemo(() => stops.find((s) => s.id === value), [stops, value])
+
+  const filteredStops = useMemo(() => {
+    if (!search.trim()) return stops
+    const query = search.toLowerCase()
+    return stops.filter((stop) => stop.name.toLowerCase().includes(query))
+  }, [stops, search])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+        setSearch('')
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen)
+    if (!isOpen) {
+      setSearch('')
+      setTimeout(() => inputRef.current?.focus(), 10)
+    }
+  }
+
+  const handleSelect = (stop: Stop) => {
+    onChange(stop.id)
+    setIsOpen(false)
+    setSearch('')
+  }
+
+  return (
+    <div className="stop-filter__searchable-select" ref={containerRef}>
+      <span className="stop-filter__range-label">{label}</span>
+      <button
+        type="button"
+        className={`stop-filter__searchable-trigger${isOpen ? ' stop-filter__searchable-trigger--open' : ''}`}
+        onClick={handleToggle}
+        aria-expanded={isOpen}
+      >
+        <span className={selectedStop ? '' : 'stop-filter__placeholder'}>
+          {selectedStop?.name ?? placeholder}
+        </span>
+        <ChevronDown size={16} className={`stop-filter__chevron ${isOpen ? 'stop-filter__chevron--open' : ''}`} />
+      </button>
+      {isOpen && (
+        <div className="stop-filter__searchable-dropdown">
+          <div className="stop-filter__searchable-search">
+            <Search size={14} />
+            <input
+              ref={inputRef}
+              type="text"
+              className="stop-filter__searchable-input"
+              placeholder={placeholder}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <ul className="stop-filter__searchable-list">
+            {filteredStops.length === 0 ? (
+              <li className="stop-filter__searchable-empty">—</li>
+            ) : (
+              filteredStops.map((stop, index) => (
+                <li key={stop.id}>
+                  <button
+                    type="button"
+                    className={`stop-filter__searchable-option ${stop.id === value ? 'stop-filter__searchable-option--selected' : ''}`}
+                    onClick={() => handleSelect(stop)}
+                  >
+                    <span className="stop-filter__stop-index">{stops.indexOf(stop) + 1}</span>
+                    <span>{stop.name}</span>
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function StopFilter() {
@@ -180,16 +280,12 @@ export default function StopFilter() {
     setStopFilters(stops)
   }
 
-  const handleFromChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value
-    const nextFrom = value ? Number(value) : null
-    setSelectedStopRouteRange(nextFrom, selectedStopRouteToId)
+  const handleFromChange = (id: number | null) => {
+    setSelectedStopRouteRange(id, selectedStopRouteToId)
   }
 
-  const handleToChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value
-    const nextTo = value ? Number(value) : null
-    setSelectedStopRouteRange(selectedStopRouteFromId, nextTo)
+  const handleToChange = (id: number | null) => {
+    setSelectedStopRouteRange(selectedStopRouteFromId, id)
   }
 
   const handleModeSelect = (mode: 'full' | 'trip') => {
@@ -244,39 +340,60 @@ export default function StopFilter() {
             </div>
           </div>
 
-          <div className="stop-filter__routes">
-            <div className="stop-filter__section-label">{t.filterByRoute}</div>
-            {isLoading ? (
-              <div className="stop-filter__loading">{t.loading}</div>
-            ) : (
-              KNOWN_ROUTES.map((routeId) => {
-                const isActive = selectedStopRoute === routeId && selectedRouteStops.length > 0
-                const stops = routeStopsById.get(routeId) ?? []
-                const isDisabled = stops.length === 0 && !isActive
-                return (
-                  <button
-                    key={routeId}
-                    className={`stop-filter__route-btn${isActive ? ' stop-filter__route-btn--active' : ''}`}
-                    style={{ '--route-color': getRouteColor(routeId) } as React.CSSProperties}
-                    onClick={() => handleRouteSelect(routeId)}
-                    disabled={isDisabled}
-                    aria-pressed={isActive}
-                  >
-                    <span className="stop-filter__route-badge">
-                      <Route size={14} />
-                      <span>{routeId}</span>
-                    </span>
-                    <span className="stop-filter__route-text">
-                      <span className="stop-filter__route-title">{t.route} {routeId}</span>
-                      <span className="stop-filter__route-subtitle">
-                        {stops.length} {t.busStops}
+          {/* Route list - only show when no route is selected */}
+          {!selectedStopRoute && (
+            <div className="stop-filter__routes">
+              <div className="stop-filter__section-label">{t.filterByRoute}</div>
+              {isLoading ? (
+                <div className="stop-filter__loading">{t.loading}</div>
+              ) : (
+                KNOWN_ROUTES.map((routeId) => {
+                  const stops = routeStopsById.get(routeId) ?? []
+                  const isDisabled = stops.length === 0
+                  return (
+                    <button
+                      key={routeId}
+                      className="stop-filter__route-btn"
+                      style={{ '--route-color': getRouteColor(routeId) } as React.CSSProperties}
+                      onClick={() => handleRouteSelect(routeId)}
+                      disabled={isDisabled}
+                    >
+                      <span className="stop-filter__route-badge">
+                        <Route size={14} />
+                        <span>{routeId}</span>
                       </span>
-                    </span>
-                  </button>
-                )
-              })
-            )}
-            {selectedStopRoute && selectedRouteStops.length > 0 && (
+                      <span className="stop-filter__route-text">
+                        <span className="stop-filter__route-title">{t.route} {routeId}</span>
+                        <span className="stop-filter__route-subtitle">
+                          {stops.length} {t.busStops}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })
+              )}
+            </div>
+          )}
+
+          {/* Selected route view - show when a route is selected */}
+          {selectedStopRoute && selectedRouteStops.length > 0 && (
+            <div className="stop-filter__selected-route">
+              <div 
+                className="stop-filter__route-btn stop-filter__route-btn--active"
+                style={{ '--route-color': getRouteColor(selectedStopRoute) } as React.CSSProperties}
+              >
+                <span className="stop-filter__route-badge">
+                  <Route size={14} />
+                  <span>{selectedStopRoute}</span>
+                </span>
+                <span className="stop-filter__route-text">
+                  <span className="stop-filter__route-title">{t.route} {selectedStopRoute}</span>
+                  <span className="stop-filter__route-subtitle">
+                    {selectedRouteStops.length} {t.busStops}
+                  </span>
+                </span>
+              </div>
+
               <div className="stop-filter__mode">
                 <button
                   className={`stop-filter__mode-btn${!selectedStopRouteTripEnabled ? ' stop-filter__mode-btn--active' : ''}`}
@@ -295,46 +412,27 @@ export default function StopFilter() {
                   {t.chooseTrip}
                 </button>
               </div>
-            )}
-            {selectedStopRoute && selectedRouteStops.length > 1 && selectedStopRouteTripEnabled && (
-              <div className="stop-filter__range">
-                <label className="stop-filter__range-field">
-                  <span className="stop-filter__range-label">{t.fromStop}</span>
-                  <select
-                    className="stop-filter__range-select"
-                    value={selectedStopRouteFromId ?? ''}
+
+              {selectedStopRouteTripEnabled && selectedRouteStops.length > 1 && (
+                <div className="stop-filter__range">
+                  <SearchableStopSelect
+                    stops={selectedRouteStops}
+                    value={selectedStopRouteFromId}
                     onChange={handleFromChange}
-                  >
-                    <option value="" disabled>
-                      {t.chooseStop}
-                    </option>
-                    {selectedRouteStops.map((stop) => (
-                      <option key={`from-${stop.id}`} value={stop.id}>
-                        {stop.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="stop-filter__range-field">
-                  <span className="stop-filter__range-label">{t.toStop}</span>
-                  <select
-                    className="stop-filter__range-select"
-                    value={selectedStopRouteToId ?? ''}
+                    placeholder={t.chooseStop}
+                    label={t.fromStop}
+                  />
+                  <SearchableStopSelect
+                    stops={selectedRouteStops}
+                    value={selectedStopRouteToId}
                     onChange={handleToChange}
-                  >
-                    <option value="" disabled>
-                      {t.chooseStop}
-                    </option>
-                    {selectedRouteStops.map((stop) => (
-                      <option key={`to-${stop.id}`} value={stop.id}>
-                        {stop.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-            )}
-          </div>
+                    placeholder={t.chooseStop}
+                    label={t.toStop}
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -42,6 +42,33 @@ interface VehicleDetailsProps {
 function VehicleDetails({ vehicle }: VehicleDetailsProps) {
   const t = useTranslation()
   const locale = useAppStore((state) => state.locale)
+  const { data: route1Schedule } = useRoute1Schedule()
+  const { data: route2Schedule } = useRoute2Schedule()
+  const { data: route3Schedule } = useRoute3Schedule()
+  const { data: routeX2Schedule } = useRouteX2Schedule()
+  const { data: routeE2Schedule } = useRouteE2Schedule()
+  const { data: routeX3Schedule } = useRouteX3Schedule()
+
+  // Get schedule for this vehicle's route
+  const scheduleCandidates = [
+    { route: '1', schedule: route1Schedule },
+    { route: '2', schedule: route2Schedule },
+    { route: '3', schedule: route3Schedule },
+    { route: 'X2', schedule: routeX2Schedule },
+    { route: 'E2', schedule: routeE2Schedule },
+    { route: 'X3', schedule: routeX3Schedule },
+  ]
+  const vehicleSchedule = scheduleCandidates.find((c) => c.route === vehicle.route)?.schedule ?? null
+
+  // Get upcoming times for current stop
+  const currentStopSchedule = vehicleSchedule && vehicle.stopId
+    ? getUpcomingTimes(vehicleSchedule, vehicle.stopId, new Date(), 4)
+    : null
+
+  // Get upcoming times for next stop
+  const nextStopSchedule = vehicleSchedule && vehicle.nextStopId
+    ? getUpcomingTimes(vehicleSchedule, vehicle.nextStopId, new Date(), 4)
+    : null
   
   const getTimeAgo = (ms: number): string => {
     if (ms === 0) return ''
@@ -68,15 +95,45 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
 
       <div className="bottom-sheet__details">
         <div className="bottom-sheet__group bottom-sheet__group--primary">
-          <div className="bottom-sheet__row">
-            <span className="bottom-sheet__label"><MapPin size={14} /> {t.currentStop}</span>
-            <span className="bottom-sheet__value">{vehicle.stopName || t.inTransit}</span>
+          <div className="bottom-sheet__stop-section">
+            <div className="bottom-sheet__row">
+              <span className="bottom-sheet__label"><MapPin size={14} /> {t.currentStop}</span>
+              <span className="bottom-sheet__value">{vehicle.stopName || t.inTransit}</span>
+            </div>
+            {currentStopSchedule && (
+              <div className="stop-schedule stop-schedule--compact">
+                {currentStopSchedule.serviceEnded && <span className="stop-schedule__ended-label">{t.serviceEnded}</span>}
+                {currentStopSchedule.times.map((time) => (
+                  <span
+                    key={`current-${time.raw}`}
+                    className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${currentStopSchedule.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
+                  >
+                    {time.label}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           
           {vehicle.nextStopName && (
-            <div className="bottom-sheet__row">
-              <span className="bottom-sheet__label"><ArrowRight size={14} /> {t.nextStop}</span>
-              <span className="bottom-sheet__value">{vehicle.nextStopName}</span>
+            <div className="bottom-sheet__stop-section">
+              <div className="bottom-sheet__row">
+                <span className="bottom-sheet__label"><ArrowRight size={14} /> {t.nextStop}</span>
+                <span className="bottom-sheet__value">{vehicle.nextStopName}</span>
+              </div>
+              {nextStopSchedule && (
+                <div className="stop-schedule stop-schedule--compact">
+                  {nextStopSchedule.serviceEnded && <span className="stop-schedule__ended-label">{t.serviceEnded}</span>}
+                  {nextStopSchedule.times.map((time) => (
+                    <span
+                      key={`next-${time.raw}`}
+                      className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${nextStopSchedule.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
+                    >
+                      {time.label}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -211,12 +268,15 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
 
         {scheduleInfo && scheduleLabel && (
           <div className="bottom-sheet__section">
-            <h3 className="bottom-sheet__section-title">{scheduleLabel}</h3>
+            <h3 className="bottom-sheet__section-title">
+              {scheduleInfo.serviceEnded && <em>{t.serviceEnded} · </em>}
+              {scheduleLabel}
+            </h3>
             <div className="stop-schedule">
               {scheduleInfo.times.map((time) => (
                 <span
                   key={`${stop.properties.id}-${time.raw}`}
-                  className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}`}
+                  className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${scheduleInfo.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
                 >
                   {time.label}
                 </span>

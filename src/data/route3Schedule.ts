@@ -45,13 +45,7 @@ function createStopLookup(stops: ReturnType<typeof useStopsData>['data']): Map<s
 
   // Manual aliases for slight spelling differences between GTFS/CSV and OSM stop names
   const aliasTargets: Record<string, string> = {
-    katersortarfik: 'katersortafik',
-    ni: 'ni',
-    rasmuuseeqqapaqq: 'rasmuuseeqqapaqqutaa',
-    airgreenlandadm: 'airgreenlandadm',
-    mittarfiklufthavn: 'nuuklufthavn',
-    nukappiakuluk: 'siaqqinneqnukappiakkuluk',
-    qatseritsut: 'qatserisut',
+    qatseritsut: 'qatserisut', // CSV has 't' in middle, stops.geojson doesn't
   }
 
   for (const [alias, target] of Object.entries(aliasTargets)) {

@@ -148,7 +148,11 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
     if (Date.now() < suppressCloseUntilRef.current) return
     keepOpenRef.current = false
     if (!isMobile) {
-      const currentSelectedId = useAppStore.getState().selectedVehicleId
+      const state = useAppStore.getState()
+      const currentSelectedId = state.selectedVehicleId
+      const currentSelectedStopId = state.selectedStopId
+      // Don't deselect bus if a stop popup is open (user clicked on current/next stop)
+      if (currentSelectedStopId !== null) return
       if (currentSelectedId === vehicle.id) {
         setSelectedVehicleId(null, { openPanel: false })
       }

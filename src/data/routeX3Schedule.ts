@@ -46,18 +46,7 @@ function createStopLookup(stops: ReturnType<typeof useStopsData>['data']): Map<s
   }
 
   // Manual aliases for slight spelling differences between GTFS/CSV and OSM stop names
-  const aliasTargets: Record<string, string> = {
-    airgreenlandadm: 'airgreenlandadm',
-    mittarfiklufthavn: 'nuuklufthavn',
-    nukappiakuluk: 'siaqqinneqnukappiakkuluk',
-  }
-
-  for (const [alias, target] of Object.entries(aliasTargets)) {
-    const targetId = lookup.get(normalizeStopName(target))
-    if (targetId) {
-      lookup.set(alias, targetId)
-    }
-  }
+  // (Currently none needed - CSV and stops.geojson use same spellings)
 
   return lookup
 }
