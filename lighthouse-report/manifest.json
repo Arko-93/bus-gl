@@ -1,0 +1,41 @@
+[
+  {
+    "url": "http://localhost:55900/index.html",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/iluaqut_1/bus-gl/lighthouse-report/localhost-_index_html-2025_12_29_05_22_03.report.html",
+    "jsonPath": "/Users/iluaqut_1/bus-gl/lighthouse-report/localhost-_index_html-2025_12_29_05_22_03.report.json",
+    "summary": {
+      "performance": 0.71,
+      "accessibility": 0.93,
+      "best-practices": 0.93,
+      "seo": 1,
+      "pwa": 0.75
+    }
+  },
+  {
+    "url": "http://localhost:55900/index.html",
+    "isRepresentativeRun": false,
+    "htmlPath": "/Users/iluaqut_1/bus-gl/lighthouse-report/localhost-_index_html-2025_12_29_05_22_28.report.html",
+    "jsonPath": "/Users/iluaqut_1/bus-gl/lighthouse-report/localhost-_index_html-2025_12_29_05_22_28.report.json",
+    "summary": {
+      "performance": 0.71,
+      "accessibility": 0.93,
+      "best-practices": 0.93,
+      "seo": 1,
+      "pwa": 0.75
+    }
+  },
+  {
+    "url": "http://localhost:55900/index.html",
+    "isRepresentativeRun": true,
+    "htmlPath": "/Users/iluaqut_1/bus-gl/lighthouse-report/localhost-_index_html-2025_12_29_05_22_16.report.html",
+    "jsonPath": "/Users/iluaqut_1/bus-gl/lighthouse-report/localhost-_index_html-2025_12_29_05_22_16.report.json",
+    "summary": {
+      "performance": 0.71,
+      "accessibility": 0.93,
+      "best-practices": 0.93,
+      "seo": 1,
+      "pwa": 0.75
+    }
+  }
+]
