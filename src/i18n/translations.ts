@@ -9,12 +9,6 @@ export const LOCALE_NAMES: Record<Locale, string> = {
   en: 'English',
 }
 
-export const LOCALE_FLAGS: Record<Locale, string> = {
-  kl: '🇬🇱', // Greenland
-  da: '🇩🇰', // Denmark
-  en: '🇬🇧', // UK
-}
-
 export interface TranslationStrings {
   // App title
   appTitle: string

@@ -6,7 +6,7 @@ A real-time bus tracking map for Nuuk, Greenland. Built with React, Vite, TypeSc
 
 - 🚌 **Live bus tracking** - Real-time positions updated every 8 seconds
 - 🗺️ **Interactive map** - Pan, zoom, and click on buses for details
-- 🎨 **Route filtering** - Toggle visibility of routes 1, 2, 3, and X2
+- 🎨 **Route filtering** - Toggle visibility of routes 1, 2, 3, X2, E2, and X3
 - 📱 **Mobile-friendly** - Bottom sheet details on mobile, popups on desktop
 - ⚠️ **Stale detection** - Visual indicator for outdated vehicle data
 - 🔄 **Error handling** - Graceful degradation when feed is unavailable
@@ -39,9 +39,13 @@ All configuration is via environment variables. Copy `.env.example` to `.env` an
 |----------|---------|-------------|
 | `VITE_ORG_ID` | `968` | Realtime feed organization ID |
 | `VITE_POLL_MS` | `8000` | Polling interval in milliseconds |
-| `VITE_TILE_URL` | OSM | Map tile URL template |
-| `VITE_TILE_ATTRIBUTION` | OSM | Map tile attribution HTML |
-| `VITE_ENABLE_STATIC_LAYERS` | `false` | Enable stops/routes layers |
+| `VITE_TILE_LIGHT_URL` | CARTO Voyager | Light theme tile URL template |
+| `VITE_TILE_DARK_URL` | CARTO Dark | Dark theme tile URL template |
+| `VITE_TILE_ATTRIBUTION` | CARTO | Map tile attribution HTML |
+| `VITE_TILE_SUBDOMAINS` | `abcd` | Tile subdomains for `{s}` placeholder |
+| `VITE_TILE_MAX_ZOOM` | `19` | Max zoom for tile layer |
+| `VITE_ENABLE_ROUTES_LAYER` | `false` | Enable routes GeoJSON layer |
+| `VITE_ENABLE_STATIC_LAYERS` | `false` | Enable stop search (uses static stop data) |
 | `VITE_API_BASE_URL` | (empty) | Production API base URL |
 
 ## How to Change org_id
@@ -101,7 +105,7 @@ The app detects viewport width using `matchMedia('(max-width: 768px)')`:
 
 ### Desktop (> 768px)
 - Click bus marker → Leaflet popup with details
-- Stop search visible in top bar
+- Stop search visible in top bar when `VITE_ENABLE_STATIC_LAYERS=true`
 
 ### Mobile (≤ 768px)
 - Click bus marker → Bottom sheet slides up with details
@@ -190,36 +194,9 @@ workers/nuuk-realtime/
 
 ### PWA Support
 
-The app is structured for easy PWA addition:
-
-1. Install the plugin:
-   ```bash
-   bun add -d vite-plugin-pwa
-   ```
-
-2. Add to `vite.config.ts`:
-   ```typescript
-   import { VitePWA } from 'vite-plugin-pwa'
-   
-   export default defineConfig({
-     plugins: [
-       react(),
-       VitePWA({
-         registerType: 'autoUpdate',
-         workbox: {
-           globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-           runtimeCaching: [
-             {
-               urlPattern: /^https:\/\/[abc]\.tile\.openstreetmap\.org\/.*/,
-               handler: 'CacheFirst',
-               options: { cacheName: 'tiles', expiration: { maxEntries: 500 } }
-             }
-           ]
-         }
-       })
-     ]
-   })
-   ```
+PWA support is already configured via `vite-plugin-pwa` in `vite.config.ts`.
+- Update the `VitePWA` config there to tweak caching and manifest metadata.
+- Replace icons in `public/` (e.g. `pwa-192x192.png`, `pwa-512x512.png`) if branding changes.
 
 ### Planned Features
 
@@ -227,13 +204,14 @@ The app is structured for easy PWA addition:
 - [ ] Real route polylines from GTFS shapes
 - [ ] Arrival predictions at stops
 - [ ] Offline tile caching
+- [ ] CDN-backed tile proxy (cache map tiles near users)
 - [ ] Push notifications for service alerts
 - [ ] Multi-language support (Danish, Greenlandic, English)
 
 ## Tech Stack
 
 - **Runtime:** [Bun](https://bun.sh/)
-- **Framework:** [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Framework:** [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - **Build:** [Vite](https://vitejs.dev/)
 - **Map:** [Leaflet](https://leafletjs.com/) + [react-leaflet](https://react-leaflet.js.org/)
 - **State:** [Zustand](https://zustand-demo.pmnd.rs/)

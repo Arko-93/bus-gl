@@ -1,14 +1,15 @@
 // src/ui/TopBar.tsx
 // Status bar showing feed status and vehicle count
 
+import { lazy, Suspense } from 'react'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import { useAppStore, filterVehiclesByRoute } from '../state/appStore'
 import { useTranslation } from '../i18n/useTranslation'
-import StopSearch from './StopSearch'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
 
 const ENABLE_STATIC_LAYERS = import.meta.env.VITE_ENABLE_STATIC_LAYERS === 'true'
+const StopSearch = lazy(() => import('./StopSearch'))
 
 /**
  * Format time for display based on locale
@@ -25,7 +26,6 @@ export default function TopBar() {
   const { data: vehicles = [], isFetching, isLoading } = useVehiclesQuery()
   const enabledRoutes = useAppStore((state) => state.enabledRoutes)
   const lastSuccessTime = useAppStore((state) => state.lastSuccessTime)
-  const locale = useAppStore((state) => state.locale)
   const t = useTranslation()
 
   const filteredVehicles = filterVehiclesByRoute(vehicles, enabledRoutes)
@@ -35,10 +35,16 @@ export default function TopBar() {
     <div className="top-bar">
       <div className="top-bar__left">
         <h1 className="top-bar__title">
-          <span className="top-bar__icon"><img src="/bussit.webp" alt="Bussit" /></span>
+          <span className="top-bar__icon">
+            <img src="/bussit.webp" alt="Bussit" width={28} height={28} decoding="async" />
+          </span>
           {t.appTitle}
         </h1>
-        {ENABLE_STATIC_LAYERS && <StopSearch />}
+        {ENABLE_STATIC_LAYERS && (
+          <Suspense fallback={null}>
+            <StopSearch />
+          </Suspense>
+        )}
       </div>
       
       <div className="top-bar__center">

@@ -1,7 +1,7 @@
 // src/ui/BottomSheet.tsx
 // Mobile bottom sheet for vehicle and stop details
 
-import { useEffect, useRef, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Gauge, MapPin, ArrowRight, Clock, CircleDot, Bus, Timer, AlertTriangle, X } from 'lucide-react'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
@@ -42,6 +42,7 @@ interface VehicleDetailsProps {
 function VehicleDetails({ vehicle }: VehicleDetailsProps) {
   const t = useTranslation()
   const locale = useAppStore((state) => state.locale)
+  const lastSuccessTime = useAppStore((state) => state.lastSuccessTime)
   const { data: route1Schedule } = useRoute1Schedule()
   const { data: route2Schedule } = useRoute2Schedule()
   const { data: route3Schedule } = useRoute3Schedule()
@@ -70,14 +71,15 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
     ? getUpcomingTimes(vehicleSchedule, vehicle.nextStopId, new Date(), 4)
     : null
   
-  const getTimeAgo = (ms: number): string => {
+  const referenceTime = lastSuccessTime ?? vehicle.updatedAtMs
+  const getTimeAgo = useCallback((ms: number): string => {
     if (ms === 0) return ''
-    const seconds = Math.floor((Date.now() - ms) / 1000)
+    const seconds = Math.max(0, Math.floor((referenceTime - ms) / 1000))
     if (seconds < 60) return `${seconds}${t.secondsAgo}`
     const minutes = Math.floor(seconds / 60)
     if (minutes < 60) return `${minutes}${t.minutesAgo}`
     return `${Math.floor(minutes / 60)}${t.hoursAgo}`
-  }
+  }, [referenceTime, t.hoursAgo, t.minutesAgo, t.secondsAgo])
   
   return (
     <div className="bottom-sheet__content">
@@ -95,25 +97,27 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
 
       <div className="bottom-sheet__details">
         <div className="bottom-sheet__group bottom-sheet__group--primary">
-          <div className="bottom-sheet__stop-section">
-            <div className="bottom-sheet__row">
-              <span className="bottom-sheet__label"><MapPin size={14} /> {t.currentStop}</span>
-              <span className="bottom-sheet__value">{vehicle.stopName || t.inTransit}</span>
-            </div>
-            {currentStopSchedule && (
-              <div className="stop-schedule stop-schedule--compact">
-                {currentStopSchedule.serviceEnded && <span className="stop-schedule__ended-label">{t.serviceEnded}</span>}
-                {currentStopSchedule.times.map((time) => (
-                  <span
-                    key={`current-${time.raw}`}
-                    className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${currentStopSchedule.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
-                  >
-                    {time.label}
-                  </span>
-                ))}
+          {!vehicle.atStop && (
+            <div className="bottom-sheet__stop-section">
+              <div className="bottom-sheet__row">
+                <span className="bottom-sheet__label"><MapPin size={14} /> {t.currentStop}</span>
+                <span className="bottom-sheet__value">{vehicle.stopName || t.inTransit}</span>
               </div>
-            )}
-          </div>
+              {currentStopSchedule && (
+                <div className="stop-schedule stop-schedule--compact">
+                  {currentStopSchedule.serviceEnded && <span className="stop-schedule__ended-label">{t.serviceEnded}</span>}
+                  {currentStopSchedule.times.map((time) => (
+                    <span
+                      key={`current-${time.raw}`}
+                      className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${currentStopSchedule.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
+                    >
+                      {time.label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           
           {vehicle.nextStopName && (
             <div className="bottom-sheet__stop-section">
@@ -140,7 +144,7 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
 
         {vehicle.atStop && (
           <div className="bottom-sheet__badge bottom-sheet__badge--at-stop">
-            <CircleDot size={14} /> {t.atStop}
+            {t.atStop}: {vehicle.stopName ?? t.unknown}
           </div>
         )}
         
@@ -303,17 +307,10 @@ export default function BottomSheet() {
   const { data: vehicles = [] } = useVehiclesQuery()
   const { data: stopsData } = useStopsData()
   
-  // Find current vehicle, but keep last known vehicle data if temporarily missing
-  const lastVehicleRef = useRef<Vehicle | null>(null)
-  const currentVehicle = vehicles.find((v) => v.id === selectedVehicleId)
-  
-  // Update last known vehicle when we have new data
-  if (currentVehicle) {
-    lastVehicleRef.current = currentVehicle
-  }
-  
-  // Use current vehicle if available, otherwise use last known (for brief data gaps)
-  const selectedVehicle = currentVehicle ?? (selectedVehicleId ? lastVehicleRef.current : null)
+  const selectedVehicle = useMemo(
+    () => vehicles.find((v) => v.id === selectedVehicleId) ?? null,
+    [vehicles, selectedVehicleId]
+  )
   
   // Get selected stop and vehicles at/arriving
   const stopLookup = useMemo(() => {
@@ -336,11 +333,11 @@ export default function BottomSheet() {
   }, [vehicles, selectedStopId])
 
   // Close handler
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setBottomSheetOpen(false)
     setSelectedVehicleId(null)
     setSelectedStopId(null)
-  }
+  }, [setBottomSheetOpen, setSelectedStopId, setSelectedVehicleId])
 
   // Close on escape key
   useEffect(() => {
@@ -352,7 +349,7 @@ export default function BottomSheet() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen])
+  }, [handleClose, isOpen])
 
   // Handle backdrop click
   const handleBackdropClick = (e: React.MouseEvent) => {

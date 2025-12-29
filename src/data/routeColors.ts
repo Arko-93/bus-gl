@@ -1,7 +1,7 @@
 // src/data/routeColors.ts
 // Centralized route color definitions - single source of truth for all route colors
 
-import { KNOWN_ROUTES, type KnownRoute } from './ridangoRealtime'
+import type { KnownRoute } from './ridangoRealtime'
 
 /**
  * Route color mapping - matches Nuup Bussii official branding
@@ -32,6 +32,25 @@ export const ROUTE_LINE_COLORS: Partial<Record<KnownRoute, string>> = {
 export const DEFAULT_ROUTE_COLOR = '#6b7280'
 
 /**
+ * Qatserisut depot - where buses are maintained/stored
+ */
+export const DEPOT_BOUNDS = {
+  minLat: 64.1795,
+  maxLat: 64.1825,
+  minLon: -51.7200,
+  maxLon: -51.7130,
+}
+
+export function isAtDepot(lat: number, lon: number): boolean {
+  return (
+    lat >= DEPOT_BOUNDS.minLat &&
+    lat <= DEPOT_BOUNDS.maxLat &&
+    lon >= DEPOT_BOUNDS.minLon &&
+    lon <= DEPOT_BOUNDS.maxLon
+  )
+}
+
+/**
  * Get the color for a route by its ID
  * 
  * @param route - Route ID (e.g., '1', '2', 'X2')
@@ -52,9 +71,3 @@ export function getRouteLineColor(route: string): string {
   return ROUTE_LINE_COLORS[route as KnownRoute] ?? ROUTE_COLORS[route as KnownRoute] ?? DEFAULT_ROUTE_COLOR
 }
 
-/**
- * Check if a route ID is a known route
- */
-export function isKnownRoute(route: string): route is KnownRoute {
-  return KNOWN_ROUTES.includes(route as KnownRoute)
-}

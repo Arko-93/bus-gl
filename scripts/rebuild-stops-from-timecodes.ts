@@ -45,11 +45,6 @@ interface OSMNode {
   }
 }
 
-interface StopInfo {
-  id: number
-  name: string
-}
-
 interface GeocodedStop {
   type: 'Feature'
   properties: {

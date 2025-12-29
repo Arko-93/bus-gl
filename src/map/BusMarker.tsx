@@ -1,30 +1,13 @@
 // src/map/BusMarker.tsx
 // Individual bus marker with popup that follows bus in real-time
 
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 import type { Vehicle } from '../data/ridangoRealtime'
 import { useAppStore } from '../state/appStore'
 import { useTranslation } from '../i18n/useTranslation'
-import { getRouteColor } from '../data/routeColors'
-
-// Qatserisut depot - where buses are maintained/stored
-const DEPOT_BOUNDS = {
-  minLat: 64.1795,
-  maxLat: 64.1825,
-  minLon: -51.7200,
-  maxLon: -51.7130,
-}
-
-function isAtDepot(vehicle: Vehicle): boolean {
-  return (
-    vehicle.lat >= DEPOT_BOUNDS.minLat &&
-    vehicle.lat <= DEPOT_BOUNDS.maxLat &&
-    vehicle.lon >= DEPOT_BOUNDS.minLon &&
-    vehicle.lon <= DEPOT_BOUNDS.maxLon
-  )
-}
+import { getRouteColor, isAtDepot } from '../data/routeColors'
 
 interface BusMarkerProps {
   vehicle: Vehicle
@@ -55,17 +38,17 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
   const suppressCloseUntilRef = useRef(0)
   const iconSignatureRef = useRef<string>('')
 
-  const getTimeAgo = (ms: number): string => {
+  const getTimeAgo = useCallback((ms: number): string => {
     if (ms === 0) return ''
     const seconds = Math.floor((Date.now() - ms) / 1000)
     if (seconds < 60) return `${seconds}${t.secondsAgo}`
     const minutes = Math.floor(seconds / 60)
     if (minutes < 60) return `${minutes}${t.minutesAgo}`
     return `${Math.floor(minutes / 60)}${t.hoursAgo}`
-  }
+  }, [t.hoursAgo, t.minutesAgo, t.secondsAgo])
 
   const createIcon = () => {
-    const atDepot = isAtDepot(vehicle)
+    const atDepot = isAtDepot(vehicle.lat, vehicle.lon)
     const color = getRouteColor(vehicle.route)
     const staleClass = vehicle.isStale ? 'bus-marker--stale' : ''
     const depotClass = atDepot ? 'bus-marker--depot' : ''
@@ -87,26 +70,30 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
   }
 
   const getIconSignature = (current: Vehicle) => {
-    const atDepot = isAtDepot(current)
+    const atDepot = isAtDepot(current.lat, current.lon)
     return `${current.route}|${current.isStale ? 1 : 0}|${atDepot ? 1 : 0}`
   }
 
-  const buildPopupContent = () => {
-    const atDepot = isAtDepot(vehicle)
+  const buildPopupContent = useCallback(() => {
+    const atDepot = isAtDepot(vehicle.lat, vehicle.lon)
     const alertIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>'
-    const circleIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="1"/></svg>'
     const gearIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>'
 
     let html = '<div class="bus-popup">'
     html += `<h3 class="bus-popup__route" style="color: ${getRouteColor(vehicle.route)}">${t.route} ${vehicle.route}</h3>`
     html += '<div class="bus-popup__details">'
     html += '<div class="bus-popup__section">'
-    html += `<div class="bus-popup__row"><span class="bus-popup__label">${t.currentStop}:</span><span>${vehicle.stopName || t.inTransit}</span></div>`
+    if (!vehicle.atStop) {
+      html += `<div class="bus-popup__row"><span class="bus-popup__label">${t.currentStop}:</span><span>${vehicle.stopName || t.inTransit}</span></div>`
+    }
     if (vehicle.nextStopName) {
       html += `<div class="bus-popup__row"><span class="bus-popup__label">${t.nextStop}:</span><span>${vehicle.nextStopName}</span></div>`
     }
     html += '</div>'
-    if (vehicle.atStop) html += `<div class="bus-popup__at-stop"><span>${circleIcon}</span> ${t.atStop}</div>`
+    if (vehicle.atStop) {
+      const stopLabel = vehicle.stopName || t.unknown
+      html += `<div class="bus-popup__at-stop">${t.atStop}: ${stopLabel}</div>`
+    }
     if (atDepot) html += `<div class="bus-popup__at-depot"><span>${gearIcon}</span> ${t.atDepot}</div>`
     if (vehicle.isStale) html += `<div class="bus-popup__stale-warning"><span>${alertIcon}</span> ${t.dataOutdated}</div>`
     html += '<div class="bus-popup__log">'
@@ -115,7 +102,7 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
     html += '</div>'
     html += '</div></div>'
     return html
-  }
+  }, [getTimeAgo, locale, t, vehicle])
 
   // Create marker ONCE on mount - use imperative Leaflet API
   useEffect(() => {
@@ -193,7 +180,7 @@ export default function BusMarker({ vehicle }: BusMarkerProps) {
         popup.close()
       }
     }
-  }, [selectedVehicleId, isMobile])
+  }, [selectedVehicleId, isMobile, buildPopupContent, vehicle.id])
 
   // Update marker position and content on every vehicle update
   useEffect(() => {

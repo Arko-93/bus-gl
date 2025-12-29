@@ -76,6 +76,21 @@ export default defineConfig(({ mode }) => {
         },
       }),
     ],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (!id.includes('node_modules')) return undefined
+            if (id.includes('react-dom') || id.includes('/react/')) return 'react-vendor'
+            if (id.includes('@tanstack/react-query') || id.includes('zustand')) return 'state-vendor'
+            if (id.includes('react-leaflet') || id.includes('leaflet')) return 'map-vendor'
+            if (id.includes('lucide-react')) return 'icons'
+            if (id.includes('fuse.js')) return 'search'
+            return undefined
+          },
+        },
+      },
+    },
     server: {
       proxy: {
         '/api/nuuk-realtime': {

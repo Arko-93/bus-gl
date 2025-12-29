@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useStopsData } from './useStopsData'
+import { useStopsData, type StopsGeoJSON } from './useStopsData'
 
 export type ScheduleService = 'weekdays' | 'weekends'
 
@@ -29,7 +29,7 @@ function parseStopName(raw: string): string {
   return raw.replace(/^\s*\d+\.?\s*/, '').trim()
 }
 
-function parseTimeValue(value: string): ScheduleTime | null {
+export function parseTimeValue(value: string): ScheduleTime | null {
   const trimmed = value.trim()
   if (!trimmed) return null
   const normalized = trimmed.replace('.', ':')
@@ -45,15 +45,30 @@ function parseTimeValue(value: string): ScheduleTime | null {
   }
 }
 
-function createStopLookup(stops: ReturnType<typeof useStopsData>['data']): Map<string, number> {
+type StopAliasMap = Record<string, string>
+
+type ParseRouteScheduleOptions = {
+  aliases?: StopAliasMap
+  parseTimeValue?: (value: string) => ScheduleTime | null
+}
+
+function createStopLookup(stops: StopsGeoJSON, aliases?: StopAliasMap): Map<string, number> {
   const lookup = new Map<string, number>()
-  if (!stops) return lookup
 
   for (const feature of stops.features) {
     const name = feature.properties.name
     const osmName = feature.properties.osmName
     if (name) lookup.set(normalizeStopName(name), feature.properties.id)
     if (osmName) lookup.set(normalizeStopName(osmName), feature.properties.id)
+  }
+
+  if (aliases) {
+    for (const [alias, target] of Object.entries(aliases)) {
+      const targetId = lookup.get(normalizeStopName(target))
+      if (targetId) {
+        lookup.set(normalizeStopName(alias), targetId)
+      }
+    }
   }
 
   return lookup
@@ -76,7 +91,11 @@ function buildStopOrder(header: string[], stopLookup: Map<string, number>): numb
   return order
 }
 
-function parseScheduleCsv(csv: string, stopLookup: Map<string, number>): RouteSchedule {
+function parseScheduleCsv(
+  csv: string,
+  stopLookup: Map<string, number>,
+  parseTime: (value: string) => ScheduleTime | null = parseTimeValue
+): RouteSchedule {
   const schedule: RouteSchedule = {
     weekdays: {},
     weekends: {},
@@ -115,7 +134,7 @@ function parseScheduleCsv(csv: string, stopLookup: Map<string, number>): RouteSc
 
     for (let i = 1; i < header.length; i += 1) {
       const timeValue = columns[i] ?? ''
-      const parsedTime = parseTimeValue(timeValue)
+      const parsedTime = parseTime(timeValue)
       if (!parsedTime) continue
       const stopHeader = header[i] ?? ''
       const stopName = parseStopName(stopHeader)
@@ -143,6 +162,15 @@ function parseScheduleCsv(csv: string, stopLookup: Map<string, number>): RouteSc
   }
 
   return schedule
+}
+
+export function parseRouteScheduleCsv(
+  csv: string,
+  stops: StopsGeoJSON,
+  options: ParseRouteScheduleOptions = {}
+): RouteSchedule {
+  const stopLookup = createStopLookup(stops, options.aliases)
+  return parseScheduleCsv(csv, stopLookup, options.parseTimeValue)
 }
 
 export function getScheduleServiceForDate(date: Date): ScheduleService {
@@ -204,8 +232,7 @@ export function useRoute1Schedule() {
 
   const schedule = useMemo(() => {
     if (!csvQuery.data || !stopsData) return null
-    const stopLookup = createStopLookup(stopsData)
-    return parseScheduleCsv(csvQuery.data, stopLookup)
+    return parseRouteScheduleCsv(csvQuery.data, stopsData)
   }, [csvQuery.data, stopsData])
 
   return {

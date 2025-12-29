@@ -6,6 +6,8 @@
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
+  min-height: 100dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -698,133 +700,6 @@
   color: var(--text-muted);
 }
 
-.stop-filter__search-box {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.stop-filter__search-icon {
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.stop-filter__input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 0.875rem;
-  color: var(--text);
-  outline: none;
-}
-
-.stop-filter__input::placeholder {
-  color: var(--text-muted);
-}
-
-.stop-filter__clear-input {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: color 0.2s;
-}
-
-.stop-filter__clear-input:hover {
-  color: var(--text);
-}
-
-.stop-filter__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border);
-  max-height: 100px;
-  overflow-y: auto;
-}
-
-.stop-filter__tag {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  background: var(--text);
-  color: var(--bg);
-  border-radius: 9999px;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.6875rem;
-  font-weight: 500;
-}
-
-.stop-filter__tag-name {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.stop-filter__tag-remove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  color: inherit;
-  opacity: 0.7;
-  border-radius: 50%;
-  width: 14px;
-  height: 14px;
-  transition: opacity 0.2s;
-}
-
-.stop-filter__tag-remove:hover {
-  opacity: 1;
-}
-
-.stop-filter__results {
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.stop-filter__result {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.625rem 1rem;
-  border: none;
-  background: transparent;
-  color: var(--text);
-  font-size: 0.8125rem;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s;
-}
-
-.stop-filter__result:hover {
-  background: var(--bg);
-}
-
-.stop-filter__result-icon {
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.stop-filter__empty {
-  padding: 1.5rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.8125rem;
-}
-
 /* Bus Marker */
 .bus-marker {
   display: flex;
@@ -1143,13 +1018,16 @@
 
 .bottom-sheet {
   width: 100%;
-  max-height: 50vh;
+  max-height: min(70dvh, 70vh);
   background: var(--panel-solid);
   border-radius: 1rem 1rem 0 0;
   padding: 1rem;
   padding-top: 0.5rem;
   animation: slideUp 0.3s ease-out;
   position: relative;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes slideUp {
@@ -1623,6 +1501,32 @@
   }
 }
 
+@media (max-width: 480px) {
+  .top-bar {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .top-bar__left {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .top-bar__center {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .top-bar__right {
+    order: 2;
+  }
+
+  .top-bar__title {
+    font-size: 0.95rem;
+  }
+}
+
 /* Landscape phone mode */
 @media (max-width: 900px) and (max-height: 500px) and (orientation: landscape) {
   .filter-bar {
@@ -1782,9 +1686,11 @@
 }
 
 .language-switcher__flag {
-  font-size: 0.875rem;
-  line-height: 1;
+  display: inline-block;
+  width: 18px;
+  height: 12px;
   border-radius: 2px;
+  object-fit: cover;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
@@ -1821,7 +1727,8 @@
 }
 
 .language-switcher__option .language-switcher__flag {
-  font-size: 1rem;
+  width: 20px;
+  height: 14px;
 }
 
 .language-switcher__option:hover {
@@ -1946,7 +1853,7 @@
 @media (max-width: 768px) and (hover: none) and (pointer: coarse) {
   /* Bottom sheet improvements */
   .bottom-sheet {
-    max-height: 60vh;
+    max-height: min(75dvh, 75vh);
     border-radius: 1.25rem 1.25rem 0 0;
   }
   
@@ -2002,6 +1909,12 @@
   
   .top-bar__stale-count {
     display: none;
+  }
+
+  .theme-switcher__toggle,
+  .language-switcher__toggle {
+    width: 40px;
+    height: 40px;
   }
 }
 

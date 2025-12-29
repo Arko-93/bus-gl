@@ -48,6 +48,40 @@ export interface StopsGeoJSON {
 }
 
 /**
+ * Route geometry from routes.geojson
+ */
+type RouteGeometry =
+  | {
+      type: 'LineString'
+      coordinates: number[][]
+    }
+  | {
+      type: 'MultiLineString'
+      coordinates: number[][][]
+    }
+
+/**
+ * Route feature properties from routes.geojson
+ */
+export interface RouteFeature {
+  type: 'Feature'
+  properties: {
+    name: string
+    route: string
+    color?: string
+  }
+  geometry: RouteGeometry
+}
+
+/**
+ * Full routes GeoJSON structure
+ */
+export interface RoutesGeoJSON {
+  type: 'FeatureCollection'
+  features: RouteFeature[]
+}
+
+/**
  * Fetch stops GeoJSON data
  */
 async function fetchStopsData(): Promise<StopsGeoJSON> {
@@ -61,6 +95,19 @@ async function fetchStopsData(): Promise<StopsGeoJSON> {
 }
 
 /**
+ * Fetch routes GeoJSON data
+ */
+async function fetchRoutesData(): Promise<RoutesGeoJSON> {
+  const response = await fetch('/data/routes.geojson')
+
+  if (!response.ok) {
+    throw new Error(`Failed to load routes: ${response.status}`)
+  }
+
+  return response.json()
+}
+
+/**
  * Hook to load and cache stops data
  * Data is considered stable and cached indefinitely
  */
@@ -69,6 +116,20 @@ export function useStopsData() {
     queryKey: ['stops'],
     queryFn: fetchStopsData,
     staleTime: Infinity, // Stops data doesn't change frequently
+    gcTime: Infinity,
+    retry: 2,
+  })
+}
+
+/**
+ * Hook to load and cache routes data
+ * Data is considered stable and cached indefinitely
+ */
+export function useRoutesData() {
+  return useQuery({
+    queryKey: ['routes'],
+    queryFn: fetchRoutesData,
+    staleTime: Infinity, // Routes data doesn't change frequently
     gcTime: Infinity,
     retry: 2,
   })

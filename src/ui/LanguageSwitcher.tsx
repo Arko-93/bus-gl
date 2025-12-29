@@ -3,16 +3,19 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Check } from 'lucide-react'
+import flagGl from '../assets/flags/flag-gl.svg'
+import flagDk from '../assets/flags/flag-dk.svg'
+import flagGb from '../assets/flags/flag-gb.svg'
 import { useLocale } from '../i18n/useTranslation'
 import { LOCALE_NAMES, type Locale } from '../i18n/translations'
 
 const LOCALES: Locale[] = ['kl', 'da', 'en']
 
-// Map locales to flag-icons country codes
-const FLAG_CODES: Record<Locale, string> = {
-  kl: 'gl', // Greenland
-  da: 'dk', // Denmark
-  en: 'gb', // United Kingdom
+// Map locales to minimal flag assets.
+const FLAG_SVGS: Record<Locale, string> = {
+  kl: flagGl,
+  da: flagDk,
+  en: flagGb,
 }
 
 export default function LanguageSwitcher() {
@@ -48,7 +51,12 @@ export default function LanguageSwitcher() {
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
-        <span className={`fi fi-${FLAG_CODES[locale]} language-switcher__flag`} />
+        <img
+          src={FLAG_SVGS[locale]}
+          alt=""
+          className="language-switcher__flag"
+          aria-hidden="true"
+        />
       </button>
 
       {isOpen && (
@@ -61,7 +69,12 @@ export default function LanguageSwitcher() {
                 role="option"
                 aria-selected={loc === locale}
               >
-                <span className={`fi fi-${FLAG_CODES[loc]} language-switcher__flag`} />
+                <img
+                  src={FLAG_SVGS[loc]}
+                  alt=""
+                  className="language-switcher__flag"
+                  aria-hidden="true"
+                />
                 <span className="language-switcher__name">{LOCALE_NAMES[loc]}</span>
                 {loc === locale && <span className="language-switcher__check"><Check size={14} /></span>}
               </button>

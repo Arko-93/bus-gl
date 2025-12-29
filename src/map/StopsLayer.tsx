@@ -160,7 +160,6 @@ interface StopMarkerProps {
   scheduleInfo: ReturnType<typeof getUpcomingTimes>
   scheduleLabel: string | null
   isMobile: boolean
-  selectedStopId: number | null
   setSelectedStopId: (id: number | null, options?: { openPanel?: boolean }) => void
   t: ReturnType<typeof useTranslation>
 }
@@ -180,7 +179,6 @@ function StopMarker({
   scheduleInfo,
   scheduleLabel,
   isMobile,
-  selectedStopId,
   setSelectedStopId,
   t,
 }: StopMarkerProps) {
@@ -243,7 +241,7 @@ function StopMarker({
       }}
     >
       <Tooltip direction="top" offset={[0, -8]} sticky={isVehicleStop}>
-        <div className={isVehicleStop ? 'stop-tooltip--vehicle' : ''}>
+        <div>
           <strong>{name}</strong>
           {isCurrentStop && <div><span dangerouslySetInnerHTML={{ __html: renderToStaticMarkup(<Bus size={12} />) }} /> {t.busHere}</div>}
           {isNextStop && <div><span dangerouslySetInnerHTML={{ __html: renderToStaticMarkup(<ArrowRight size={12} />) }} /> {t.nextStop}</div>}
@@ -388,13 +386,7 @@ function SelectedStopOverlay() {
     return stopsData.features.find((f) => f.properties.id === selectedStopId) ?? null
   }, [stopsData, selectedStopId])
 
-  const lastStopRef = useRef<typeof selectedStop>(null)
-  if (selectedStop) {
-    lastStopRef.current = selectedStop
-  }
-
-  const stopToRender = selectedStop ?? (selectedStopId ? lastStopRef.current : null)
-  const coords = stopToRender?.geometry.coordinates
+  const coords = selectedStop?.geometry.coordinates
   const targetLon = coords?.[0]
   const targetLat = coords?.[1]
 
@@ -404,7 +396,6 @@ function SelectedStopOverlay() {
 
   useEffect(() => {
     if (!shouldRender || targetLat == null || targetLon == null) {
-      setPosition(null)
       return
     }
 
@@ -418,17 +409,21 @@ function SelectedStopOverlay() {
       })
     }
 
-    updatePosition()
-    map.on('move zoom resize', updatePosition)
-    window.addEventListener('resize', updatePosition)
+    const scheduleUpdate = () => {
+      requestAnimationFrame(updatePosition)
+    }
+
+    scheduleUpdate()
+    map.on('move zoom resize', scheduleUpdate)
+    window.addEventListener('resize', scheduleUpdate)
 
     return () => {
-      map.off('move zoom resize', updatePosition)
-      window.removeEventListener('resize', updatePosition)
+      map.off('move zoom resize', scheduleUpdate)
+      window.removeEventListener('resize', scheduleUpdate)
     }
   }, [map, shouldRender, targetLat, targetLon])
 
-  if (!shouldRender || !position || !stopToRender) return null
+  if (!shouldRender || !position || !selectedStop) return null
 
   return createPortal(
     <div
@@ -496,6 +491,24 @@ export default function StopsLayer() {
 
   const now = new Date()
 
+  // Precompute per-stop vehicle counts to avoid repeated scans.
+  const arrivingCounts = new Map<number, number>()
+  const atStopCounts = new Map<number, number>()
+  for (const vehicle of vehicles) {
+    if (vehicle.nextStopId != null) {
+      arrivingCounts.set(
+        vehicle.nextStopId,
+        (arrivingCounts.get(vehicle.nextStopId) ?? 0) + 1
+      )
+    }
+    if (vehicle.stopId != null) {
+      atStopCounts.set(
+        vehicle.stopId,
+        (atStopCounts.get(vehicle.stopId) ?? 0) + 1
+      )
+    }
+  }
+
   return (
     <>
       {visibleStops.map((feature) => {
@@ -509,8 +522,8 @@ export default function StopsLayer() {
         const style = getStopStyle(isCurrentStop, isNextStop, isSelected, matchMethod, vehicleRouteColor)
 
         // Count vehicles heading to this stop
-        const arrivingCount = vehicles.filter((v) => v.nextStopId === id).length
-        const atStopCount = vehicles.filter((v) => v.stopId === id).length
+        const arrivingCount = arrivingCounts.get(id) ?? 0
+        const atStopCount = atStopCounts.get(id) ?? 0
 
         const scheduleCandidates = [
           { route: '1', schedule: route1Schedule },
@@ -566,7 +579,6 @@ export default function StopsLayer() {
             scheduleInfo={scheduleInfo}
             scheduleLabel={scheduleLabel}
             isMobile={isMobile}
-            selectedStopId={selectedStopId}
             setSelectedStopId={setSelectedStopId}
             t={t}
           />

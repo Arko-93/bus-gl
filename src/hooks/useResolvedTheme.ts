@@ -55,13 +55,3 @@ export function useResolvedTheme(): ResolvedTheme {
   return resolvedTheme
 }
 
-/**
- * Get resolved theme without React (for initial script)
- */
-export function getInitialResolvedTheme(storedTheme: Theme | undefined): ResolvedTheme {
-  const theme = storedTheme ?? 'system'
-  if (theme === 'system') {
-    return getSystemTheme()
-  }
-  return theme
-}

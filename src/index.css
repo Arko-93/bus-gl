@@ -41,8 +41,6 @@
   
   /* Component-specific */
   --marker-shadow: rgba(0, 0, 0, 0.3);
-  --route-width: 4;
-  --route-outline-color: transparent;
   --route-outline-width: 0px;
   
   /* Zoom control */
@@ -94,7 +92,6 @@
   
   /* Component-specific - stronger shadow in dark mode */
   --marker-shadow: rgba(0, 0, 0, 0.5);
-  --route-outline-color: rgba(0, 0, 0, 0.4);
   /* --route-outline-width: 2px; */ /* Enable if polylines need outline in dark mode */
   
   /* Zoom control */
@@ -138,8 +135,18 @@ body {
     "ROND" 5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
   background: var(--bg);
   color: var(--text);
+}
+
+button,
+[role="button"],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #root {

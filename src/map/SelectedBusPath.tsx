@@ -6,9 +6,15 @@ import { Polyline } from 'react-leaflet'
 import L from 'leaflet'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
-import { useStopsData, createStopLookup, getStopCoordinates, type StopFeature } from '../data/useStopsData'
+import {
+  useStopsData,
+  useRoutesData,
+  createStopLookup,
+  getStopCoordinates,
+  type StopFeature,
+  type RouteFeature,
+} from '../data/useStopsData'
 import { getRouteLineColor } from '../data/routeColors'
-import type { Vehicle } from '../data/ridangoRealtime'
 
 type LatLng = [number, number]
 
@@ -17,22 +23,6 @@ const OSRM_PROFILE = import.meta.env.VITE_OSRM_PROFILE || 'driving'
 
 // In-memory cache for OSRM route responses
 const osrmRouteCache = new Map<string, LatLng[]>()
-
-interface RouteFeature {
-  type: 'Feature'
-  properties: {
-    route: string
-  }
-  geometry: {
-    type: 'LineString' | 'MultiLineString'
-    coordinates: number[][] | number[][][]
-  }
-}
-
-interface RoutesGeoJSON {
-  type: 'FeatureCollection'
-  features: RouteFeature[]
-}
 
 function projectPoint(latlng: LatLng): L.Point {
   return L.CRS.EPSG3857.project(L.latLng(latlng[0], latlng[1]))
@@ -305,37 +295,24 @@ export default function SelectedBusPath() {
   const selectedVehicleId = useAppStore((state) => state.selectedVehicleId)
   const { data: vehicles = [] } = useVehiclesQuery()
   const { data: stopsData } = useStopsData()
-  const [routesData, setRoutesData] = useState<RoutesGeoJSON | null>(null)
+  const { data: routesData, error: routesError } = useRoutesData()
   const [roadSegments, setRoadSegments] = useState<{ primary: LatLng[] | null; next: LatLng[] | null }>({
     primary: null,
     next: null,
   })
-  const lastVehicleRef = useRef<Vehicle | null>(null)
   const lastRouteKeyRef = useRef<string | null>(null)
   const routeAbortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
-    fetch('/data/routes.geojson')
-      .then((res) => {
-        if (!res.ok) throw new Error('Routes data not found')
-        return res.json()
-      })
-      .then(setRoutesData)
-      .catch((err) => {
-        console.warn('Failed to load route paths:', err)
-      })
-  }, [])
+    if (routesError) {
+      console.warn('Failed to load route paths:', routesError)
+    }
+  }, [routesError])
 
-  const currentVehicle = useMemo(
+  const selectedVehicle = useMemo(
     () => vehicles.find((v) => v.id === selectedVehicleId) ?? null,
     [vehicles, selectedVehicleId]
   )
-
-  if (currentVehicle) {
-    lastVehicleRef.current = currentVehicle
-  }
-
-  const selectedVehicle = currentVehicle ?? (selectedVehicleId ? lastVehicleRef.current : null)
 
   const stopLookup = useMemo(() => {
     if (!stopsData) return new Map()
@@ -365,7 +342,7 @@ export default function SelectedBusPath() {
     const feature = routesData.features.find((f) => f.properties.route === selectedVehicle.route)
     if (!feature) return null
     return normalizeLine(feature.geometry)
-  }, [routesData, selectedVehicle?.route])
+  }, [routesData, selectedVehicle])
 
   const primaryStop = currentStop ?? nextStop
   const secondaryStop = currentStop ? nextStop : null
@@ -373,7 +350,7 @@ export default function SelectedBusPath() {
   const busPosition = useMemo<LatLng | null>(() => {
     if (!selectedVehicle) return null
     return [selectedVehicle.lat, selectedVehicle.lon]
-  }, [selectedVehicle?.lat, selectedVehicle?.lon, selectedVehicle?.id])
+  }, [selectedVehicle])
 
   const routeKey = useMemo(() => {
     if (!busPosition || !primaryStop) return null
@@ -386,7 +363,9 @@ export default function SelectedBusPath() {
     if (!selectedVehicle || selectedVehicle.atStop || !busPosition || !routeKey || !primaryStop) {
       routeAbortRef.current?.abort()
       routeAbortRef.current = null
-      setRoadSegments({ primary: null, next: null })
+      queueMicrotask(() => {
+        setRoadSegments({ primary: null, next: null })
+      })
       lastRouteKeyRef.current = null
       return
     }
@@ -426,8 +405,7 @@ export default function SelectedBusPath() {
     busPosition,
     primaryStop,
     secondaryStop,
-    selectedVehicle?.atStop,
-    selectedVehicle?.id,
+    selectedVehicle,
   ])
 
   if (!selectedVehicle || selectedVehicle.atStop || !primaryStop || !busPosition) return null

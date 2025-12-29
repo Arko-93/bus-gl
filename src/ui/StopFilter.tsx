@@ -6,7 +6,7 @@ import { X, MapPin, Route, Search, ChevronDown } from 'lucide-react'
 import { useAppStore } from '../state/appStore'
 import { useTranslation, useLocale } from '../i18n/useTranslation'
 import { useStopsData } from '../data/useStopsData'
-import { useRoute1Schedule, getStopOrderForDate, getScheduleServiceForDate } from '../data/route1Schedule'
+import { useRoute1Schedule, getStopOrderForDate } from '../data/route1Schedule'
 import { useRoute2Schedule } from '../data/route2Schedule'
 import { useRoute3Schedule } from '../data/route3Schedule'
 import { useRouteX2Schedule } from '../data/routeX2Schedule'
@@ -100,7 +100,7 @@ function SearchableStopSelect({ stops, value, onChange, placeholder, label }: Se
             {filteredStops.length === 0 ? (
               <li className="stop-filter__searchable-empty">—</li>
             ) : (
-              filteredStops.map((stop, index) => (
+              filteredStops.map((stop) => (
                 <li key={stop.id}>
                   <button
                     type="button"
@@ -147,7 +147,6 @@ export default function StopFilter() {
 
   const hasFilters = filteredStopIds.size > 0
   const isLoading = stopsLoading || schedule1Loading || schedule2Loading || schedule3Loading || scheduleX2Loading || scheduleE2Loading || scheduleX3Loading
-  const scheduleService = getScheduleServiceForDate(new Date())
 
   const buildStopOrder = useCallback(
     (schedule: ReturnType<typeof useRoute1Schedule>['data']) => {
@@ -177,7 +176,7 @@ export default function StopFilter() {
       'E2': buildStopOrder(routeE2Schedule),
       'X3': buildStopOrder(routeX3Schedule),
     }
-  }, [buildStopOrder, route1Schedule, route2Schedule, route3Schedule, routeX2Schedule, routeE2Schedule, routeX3Schedule, scheduleService])
+  }, [buildStopOrder, route1Schedule, route2Schedule, route3Schedule, routeX2Schedule, routeE2Schedule, routeX3Schedule])
 
   const routeStopsById = useMemo(() => {
     const map = new Map<string, Stop[]>()
@@ -309,7 +308,7 @@ export default function StopFilter() {
         title={t.filterStops}
       >
         <MapPin size={14} />
-        <span className="stop-filter__btn-text">{t.busStops}</span>
+        <span>{t.busStops}</span>
       </button>
 
       {/* Dropdown panel */}

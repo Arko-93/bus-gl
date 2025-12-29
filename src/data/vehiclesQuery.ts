@@ -8,6 +8,8 @@ import { useAppStore } from '../state/appStore'
 
 const POLL_INTERVAL = Number(import.meta.env.VITE_POLL_MS) || 8000
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+const VEHICLE_GRACE_MS = 20000
+const vehicleCache = new Map<string, { vehicle: Vehicle; lastSeen: number }>()
 
 /**
  * Fetch vehicles from the API endpoint
@@ -45,9 +47,25 @@ export function useVehiclesQuery() {
     queryFn: async () => {
       try {
         const vehicles = await fetchVehicles()
+        const now = Date.now()
+
+        for (const vehicle of vehicles) {
+          const cached = vehicleCache.get(vehicle.id)?.vehicle
+          const mergedVehicle = (vehicle.route === 'N/A' && cached)
+            ? { ...cached, ...vehicle, route: cached.route }
+            : vehicle
+          vehicleCache.set(vehicle.id, { vehicle: mergedVehicle, lastSeen: now })
+        }
+
+        for (const [id, entry] of vehicleCache) {
+          if (now - entry.lastSeen > VEHICLE_GRACE_MS) {
+            vehicleCache.delete(id)
+          }
+        }
+
         setFeedError(null)
-        setLastSuccessTime(Date.now())
-        return vehicles
+        setLastSuccessTime(now)
+        return Array.from(vehicleCache.values()).map((entry) => entry.vehicle)
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unknown error'
         setFeedError(message)

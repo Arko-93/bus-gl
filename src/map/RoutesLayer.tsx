@@ -1,28 +1,11 @@
 // src/map/RoutesLayer.tsx
 // Optional layer for bus routes (behind feature flag)
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect } from 'react'
 import { GeoJSON } from 'react-leaflet'
 import { useResolvedTheme } from '../hooks/useResolvedTheme'
 import { getRouteLineColor } from '../data/routeColors'
-
-interface RouteFeature {
-  type: 'Feature'
-  properties: {
-    name: string
-    route: string
-    color?: string
-  }
-  geometry: {
-    type: 'LineString' | 'MultiLineString'
-    coordinates: number[][] | number[][][]
-  }
-}
-
-interface RoutesGeoJSON {
-  type: 'FeatureCollection'
-  features: RouteFeature[]
-}
+import { useRoutesData, type RouteFeature } from '../data/useStopsData'
 
 /**
  * Route styling configuration
@@ -36,23 +19,17 @@ const ROUTE_WIDTH = 4
 const ROUTE_OUTLINE_WIDTH = parseInt(import.meta.env.VITE_ROUTE_OUTLINE_WIDTH || '0', 10)
 
 export default function RoutesLayer() {
-  const [routesData, setRoutesData] = useState<RoutesGeoJSON | null>(null)
+  const { data: routesData, error } = useRoutesData()
   const resolvedTheme = useResolvedTheme()
 
   useEffect(() => {
-    fetch('/data/routes.geojson')
-      .then((res) => {
-        if (!res.ok) throw new Error('Routes data not found')
-        return res.json()
-      })
-      .then(setRoutesData)
-      .catch((err) => {
-        console.warn('Failed to load routes layer:', err)
-      })
-  }, [])
+    if (error) {
+      console.warn('Failed to load routes layer:', error)
+    }
+  }, [error])
 
   // Compute whether to show outline (dormant by default)
-  const showOutline = useMemo(() => {
+  const showOutline = (() => {
     // Check CSS variable from document
     if (typeof window !== 'undefined') {
       const cssOutlineWidth = getComputedStyle(document.documentElement)
@@ -64,7 +41,7 @@ export default function RoutesLayer() {
     }
     // Fall back to env var
     return ROUTE_OUTLINE_WIDTH > 0
-  }, [resolvedTheme]) // Re-check when theme changes
+  })()
 
   if (!routesData) return null
 

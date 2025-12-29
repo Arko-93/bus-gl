@@ -1,47 +1,45 @@
 // src/ui/StopSearch.tsx
 // Stop search input using Fuse.js (works with stops.geojson fixture)
 
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { MapPin } from 'lucide-react'
 import Fuse from 'fuse.js'
+import { useStopsData } from '../data/useStopsData'
+import { useTranslation } from '../i18n/useTranslation'
 
 interface Stop {
-  id: string
+  id: number
   name: string
   lat: number
   lon: number
 }
 
 export default function StopSearch() {
-  const [stops, setStops] = useState<Stop[]>([])
+  const { data: stopsData, isLoading } = useStopsData()
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const t = useTranslation()
 
-  // Load stops from GeoJSON
-  useEffect(() => {
-    fetch('/data/stops.geojson')
-      .then((res) => {
-        if (!res.ok) throw new Error('Stops data not found')
-        return res.json()
-      })
-      .then((geojson) => {
-        const parsed: Stop[] = geojson.features.map((feature: {
-          properties: { name: string; id?: string }
-          geometry: { coordinates: [number, number] }
-        }) => ({
-          id: feature.properties.id || feature.properties.name,
+  const stops = useMemo<Stop[]>(() => {
+    if (!stopsData) return []
+    return stopsData.features.flatMap((feature) => {
+      if (!feature.geometry.coordinates) return []
+      const [lon, lat] = feature.geometry.coordinates
+      return [
+        {
+          id: feature.properties.id,
           name: feature.properties.name,
-          lon: feature.geometry.coordinates[0],
-          lat: feature.geometry.coordinates[1],
-        }))
-        setStops(parsed)
-      })
-      .catch((err) => {
-        console.warn('Failed to load stops for search:', err)
-      })
-  }, [])
+          lon,
+          lat,
+        },
+      ]
+    })
+  }, [stopsData])
+
+  const deferredQuery = useDeferredValue(query)
+  const placeholder = isLoading ? t.loading : t.searchStops
 
   // Initialize Fuse.js
   const fuse = useMemo(() => {
@@ -54,9 +52,9 @@ export default function StopSearch() {
 
   // Compute search results from query (derived state, no effect needed)
   const searchResults = useMemo(() => {
-    if (query.length < 2) return []
-    return fuse.search(query).slice(0, 5).map((r) => r.item)
-  }, [query, fuse])
+    if (deferredQuery.length < 2) return []
+    return fuse.search(deferredQuery).slice(0, 5).map((r) => r.item)
+  }, [deferredQuery, fuse])
 
   // Derive if dropdown should be shown
   const showDropdown = isOpen && searchResults.length > 0
@@ -79,7 +77,6 @@ export default function StopSearch() {
 
   const handleSelect = (stop: Stop) => {
     // TODO: Pan map to stop location
-    console.log('Selected stop:', stop)
     setQuery(stop.name)
     setIsOpen(false)
   }
@@ -90,7 +87,7 @@ export default function StopSearch() {
         ref={inputRef}
         type="text"
         className="stop-search__input"
-        placeholder="Search stops..."
+        placeholder={placeholder}
         value={query}
         onChange={(e) => {
           setQuery(e.target.value)

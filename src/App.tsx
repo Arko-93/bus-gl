@@ -14,8 +14,6 @@ import { useAppStore } from './state/appStore'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import './App.css'
 
-const ENABLE_STATIC_LAYERS = import.meta.env.VITE_ENABLE_STATIC_LAYERS === 'true'
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

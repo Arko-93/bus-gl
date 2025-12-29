@@ -579,7 +579,9 @@ export default function SelectedRoutePath() {
       routeAbortRef.current?.abort()
       routeAbortRef.current = null
       lastRouteKeyRef.current = null
-      setIsLoadingOsrm(false)
+      queueMicrotask(() => {
+        setIsLoadingOsrm(false)
+      })
       return
     }
 
@@ -593,8 +595,10 @@ export default function SelectedRoutePath() {
     // Immediately show straight lines while OSRM loads
     const straightBase = baseCoords.length > 1 ? baseCoords : null
     const straightPulse = pulseCoords.length > 1 ? pulseCoords : null
-    setRoutePaths({ base: straightBase, pulse: straightPulse })
-    setIsLoadingOsrm(true)
+    queueMicrotask(() => {
+      setRoutePaths({ base: straightBase, pulse: straightPulse })
+      setIsLoadingOsrm(true)
+    })
 
     const load = async () => {
       try {
