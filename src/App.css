@@ -1831,6 +1831,103 @@ button.bottom-sheet__route-badge:hover {
   .stop-filter__searchable-list {
     max-height: 140px;
   }
+
+  .bottom-sheet {
+    height: min(52dvh, 52vh);
+    max-height: min(52dvh, 52vh);
+    padding: 0.65rem 0.75rem 0.5rem;
+    border-radius: 0.9rem 0.9rem 0 0;
+    overflow: hidden;
+  }
+
+  .bottom-sheet__handle {
+    margin-bottom: 0.5rem;
+  }
+
+  .bottom-sheet__close {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 28px;
+    height: 28px;
+  }
+
+  .bottom-sheet__content {
+    display: grid;
+    grid-template-columns: minmax(180px, 40%) 1fr;
+    column-gap: 0.75rem;
+    row-gap: 0.5rem;
+    height: 100%;
+    padding-bottom: 0.5rem;
+  }
+
+  .bottom-sheet__header {
+    margin-bottom: 0;
+  }
+
+  .bottom-sheet__title h2 {
+    font-size: 1rem;
+  }
+
+  .bottom-sheet__headsign {
+    font-size: 0.75rem;
+  }
+
+  .bottom-sheet__details {
+    gap: 0.5rem;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+
+  .bottom-sheet__group--log {
+    padding: 0.5rem;
+  }
+
+  .bottom-sheet__row {
+    padding: 0.35rem 0;
+  }
+
+  .bottom-sheet__route-badge {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .bottom-sheet__heading-list {
+    gap: 0.35rem;
+  }
+
+  .bottom-sheet__header--stop {
+    gap: 0.4rem;
+    margin-bottom: 0;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badges {
+    gap: 0.3rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badge--small {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    font-size: 0.65rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badge--active {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    font-size: 0.75rem;
+  }
+
+  .stop-schedule {
+    gap: 0.3rem;
+  }
+
+  .stop-schedule__time {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+  }
 }
 
 /* Loading Skeleton */
