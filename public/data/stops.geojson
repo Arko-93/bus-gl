@@ -2,13 +2,13 @@
   "type": "FeatureCollection",
   "generatedAt": "2025-12-29T00:31:44.408Z",
   "matchStats": {
-    "total": 45,
-    "matched": 44,
-    "unmatched": 1,
-    "coveragePercent": 97.78,
-    "ridangoStops": 45,
+    "total": 49,
+    "matched": 45,
+    "unmatched": 4,
+    "coveragePercent": 91.84,
+    "ridangoStops": 49,
     "osmOnlyStops": 0,
-    "manualStops": 1
+    "manualStops": 4
   },
   "features": [
     {
@@ -1043,6 +1043,98 @@
         "coordinates": [
           -51.6730964428104,
           64.19169749061129
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 35,
+        "name": "Qernertunnguanut",
+        "osmId": 2583577978,
+        "osmName": "Qernertunnguanut",
+        "matchScore": 1,
+        "matchMethod": "exact",
+        "seenCount": 1,
+        "priorityScore": 1,
+        "firstSeenAt": "2025-12-29T00:31:44.408Z",
+        "lastSeenAt": "2025-12-29T00:31:44.408Z",
+        "source": "ridango"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.7244613,
+          64.1886889
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 68,
+        "name": "Qeqertanut stop 1",
+        "osmId": null,
+        "osmName": null,
+        "matchScore": 0,
+        "matchMethod": "manual",
+        "seenCount": 1,
+        "priorityScore": 1,
+        "firstSeenAt": "2025-12-29T00:31:44.408Z",
+        "lastSeenAt": "2025-12-29T00:31:44.408Z",
+        "source": "ridango"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.702,
+          64.182
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 69,
+        "name": "Qeqertanut stop 2",
+        "osmId": null,
+        "osmName": null,
+        "matchScore": 0,
+        "matchMethod": "manual",
+        "seenCount": 1,
+        "priorityScore": 1,
+        "firstSeenAt": "2025-12-29T00:31:44.408Z",
+        "lastSeenAt": "2025-12-29T00:31:44.408Z",
+        "source": "ridango"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.705,
+          64.180
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 70,
+        "name": "Qeqertanut stop 3",
+        "osmId": null,
+        "osmName": null,
+        "matchScore": 0,
+        "matchMethod": "manual",
+        "seenCount": 1,
+        "priorityScore": 1,
+        "firstSeenAt": "2025-12-29T00:31:44.408Z",
+        "lastSeenAt": "2025-12-29T00:31:44.408Z",
+        "source": "ridango"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.708,
+          64.178
         ]
       }
     }
