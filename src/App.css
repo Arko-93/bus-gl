@@ -899,7 +899,7 @@
 
 .bus-path--next {
   stroke-dasharray: 12 20;
-  animation: bus-path-flow 2.6s linear infinite;
+  animation: bus-path-flow-next 2.6s linear infinite;
 }
 
 @keyframes bus-path-flow {
@@ -908,6 +908,15 @@
   }
   to {
     stroke-dashoffset: -36;
+  }
+}
+
+@keyframes bus-path-flow-next {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -32;
   }
 }
 
@@ -1758,6 +1767,33 @@ button.bottom-sheet__route-badge:hover {
     height: 28px;
     padding: 0 0.5rem;
     font-size: 0.6rem;
+  }
+
+  .stop-filter__panel {
+    position: fixed;
+    bottom: calc(0.5rem + 28px + 0.5rem);
+    right: 0.5rem;
+    left: auto;
+    top: auto;
+    min-width: 260px;
+    max-width: min(360px, 90vw);
+    width: auto;
+    max-height: calc(100vh - 4.5rem);
+    border-radius: 0.75rem;
+    padding-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stop-filter__routes,
+  .stop-filter__selected-route {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .stop-filter__searchable-list {
+    max-height: 180px;
   }
 }
 
