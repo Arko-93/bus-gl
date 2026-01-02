@@ -1151,11 +1151,6 @@
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
-/* Left column for bus details (used in landscape) */
-.bottom-sheet__left-col {
-  display: contents;
-}
-
 .bottom-sheet__header {
   display: flex;
   align-items: center;
@@ -2025,37 +2020,39 @@ button.bottom-sheet__route-badge:hover {
     padding-right: 0;
   }
 
-  /* Bus popover: two-column layout, wider for timecodes */
+  /* Bus popover: two-column layout via CSS Grid */
   .bottom-sheet--bus {
     max-width: min(580px, 95vw);
     max-height: min(42dvh, 42vh);
   }
 
   .bottom-sheet--bus .bottom-sheet__content {
-    flex-direction: row;
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 0.4rem 0.75rem;
     overflow: visible;
   }
 
-  .bottom-sheet--bus .bottom-sheet__left-col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    flex-shrink: 0;
-    min-width: 110px;
-  }
-
+  /* Header in top-left */
   .bottom-sheet--bus .bottom-sheet__header {
+    grid-column: 1;
+    grid-row: 1;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
+    margin-bottom: 0;
   }
 
+  /* Speed/updated in bottom-left */
   .bottom-sheet--bus .bottom-sheet__group--log {
+    grid-column: 1;
+    grid-row: 2;
     padding: 0;
     margin: 0;
     background: none;
     border-radius: 0;
+    align-self: start;
   }
 
   .bottom-sheet--bus .bottom-sheet__group--log .bottom-sheet__row {
@@ -2065,8 +2062,10 @@ button.bottom-sheet__route-badge:hover {
     padding: 0.15rem 0;
   }
 
+  /* Stops details span right column */
   .bottom-sheet--bus .bottom-sheet__details {
-    flex: 1;
+    grid-column: 2;
+    grid-row: 1 / -1;
     overflow: visible;
   }
 

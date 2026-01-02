@@ -84,37 +84,20 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
   
   return (
     <div className="bottom-sheet__content">
-      {/* Left column: route badge + speed/updated */}
-      <div className="bottom-sheet__left-col">
-        <div className="bottom-sheet__header">
-          <div 
-            className={`bottom-sheet__route-badge ${vehicle.route === 'X3' ? 'bottom-sheet__route-badge--x3' : ''}`}
-            style={{ backgroundColor: getRouteColor(vehicle.route) }}
-          >
-            {vehicle.route}
-          </div>
-          <div className="bottom-sheet__title">
-            <h2>{t.route} {vehicle.route}</h2>
-          </div>
+      {/* Header with route badge */}
+      <div className="bottom-sheet__header">
+        <div 
+          className={`bottom-sheet__route-badge ${vehicle.route === 'X3' ? 'bottom-sheet__route-badge--x3' : ''}`}
+          style={{ backgroundColor: getRouteColor(vehicle.route) }}
+        >
+          {vehicle.route}
         </div>
-
-        <div className="bottom-sheet__group bottom-sheet__group--log">
-          <div className="bottom-sheet__row">
-            <span className="bottom-sheet__label"><Gauge size={14} /> {t.speed}</span>
-            <span className="bottom-sheet__value">{vehicle.speed} {t.kmh}</span>
-          </div>
-          
-          <div className="bottom-sheet__row">
-            <span className="bottom-sheet__label"><Clock size={14} /> {t.updated}</span>
-            <span className="bottom-sheet__value">
-              {formatTime(vehicle.updatedAtMs, locale)}
-              <span className="bottom-sheet__time-ago"> ({getTimeAgo(vehicle.updatedAtMs)})</span>
-            </span>
-          </div>
+        <div className="bottom-sheet__title">
+          <h2>{t.route} {vehicle.route}</h2>
         </div>
       </div>
 
-      {/* Right column: stops info */}
+      {/* Stops info - primary content */}
       <div className="bottom-sheet__details">
         <div className="bottom-sheet__group bottom-sheet__group--primary">
           {!vehicle.atStop && (
@@ -173,6 +156,22 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
             <AlertTriangle size={14} /> {t.dataOutdated}
           </div>
         )}
+      </div>
+
+      {/* Speed and updated - secondary info */}
+      <div className="bottom-sheet__group bottom-sheet__group--log">
+        <div className="bottom-sheet__row">
+          <span className="bottom-sheet__label"><Gauge size={14} /> {t.speed}</span>
+          <span className="bottom-sheet__value">{vehicle.speed} {t.kmh}</span>
+        </div>
+        
+        <div className="bottom-sheet__row">
+          <span className="bottom-sheet__label"><Clock size={14} /> {t.updated}</span>
+          <span className="bottom-sheet__value">
+            {formatTime(vehicle.updatedAtMs, locale)}
+            <span className="bottom-sheet__time-ago"> ({getTimeAgo(vehicle.updatedAtMs)})</span>
+          </span>
+        </div>
       </div>
     </div>
   )
