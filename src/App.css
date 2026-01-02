@@ -3013,12 +3013,15 @@ html.portrait-mobile .bottom-sheet__group--log {
   font-size: 0.8125rem;
 }
 
-.info-modal__list--compact code {
-  background: var(--bg);
-  padding: 0.125rem 0.375rem;
+.info-modal__cookie-key {
+  display: inline-block;
+  background: var(--brand-accent);
+  color: #1a1a1a;
+  padding: 0.1rem 0.4rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
-  color: var(--brand-accent);
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
 .info-modal__source {
@@ -3348,4 +3351,44 @@ html.portrait-mobile .bottom-sheet__group--log {
   ) !important;
   background-size: 11px 11px;
   text-shadow: 0 0 3px #00b047, 0 0 6px #00b047;
+}
+
+/* Landscape Mobile: Stop popup within viewport for Safari iOS */
+html.landscape-mobile .stop-popup {
+  min-width: 160px;
+  max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 4rem);
+  max-width: calc(100dvw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 4rem);
+}
+
+html.landscape-mobile .stop-popup__route-badges {
+  flex-wrap: wrap;
+  max-width: 100%;
+  gap: 0.25rem;
+}
+
+html.landscape-mobile .stop-popup__route-badge {
+  min-width: 22px;
+  height: 20px;
+  font-size: 0.65rem;
+  padding: 0 0.3rem;
+}
+
+html.landscape-mobile .stop-popup__route-badge--active {
+  min-width: 26px;
+  height: 24px;
+  font-size: 0.7rem;
+}
+
+html.landscape-mobile .stop-popup__schedule {
+  max-width: 100%;
+}
+
+html.landscape-mobile .stop-schedule {
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+html.landscape-mobile .stop-schedule__time {
+  font-size: 0.6rem;
+  padding: 0.1rem 0.25rem;
 }

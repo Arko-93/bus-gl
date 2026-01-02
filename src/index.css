@@ -6,6 +6,33 @@
 .maplibregl-popup {
   pointer-events: auto;
   z-index: 5;
+  /* Ensure popup stays within viewport on iOS Safari */
+  max-width: calc(100vw - 2rem) !important;
+  max-width: calc(100dvw - 2rem) !important;
+}
+
+/* iOS Safari landscape: constrain popup within safe area */
+html.landscape-mobile .maplibregl-popup {
+  max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 2rem) !important;
+  max-width: calc(100dvw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 2rem) !important;
+}
+
+html.landscape-mobile .maplibregl-popup .map-popup {
+  max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 2rem);
+  max-width: calc(100dvw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 2rem);
+  max-height: calc(100vh - 6rem);
+  max-height: calc(100dvh - 6rem);
+  overflow-y: auto;
+}
+
+html.landscape-mobile .maplibregl-popup .stop-popup {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+html.landscape-mobile .maplibregl-popup .stop-popup__route-badges {
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .maplibregl-popup-content {

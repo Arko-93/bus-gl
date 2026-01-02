@@ -89,8 +89,8 @@ export default function InfoModal() {
             <h3>{t.cookiesTitle}</h3>
             <p className="info-modal__text">{t.cookiesDescription}</p>
             <ul className="info-modal__list info-modal__list--compact">
-              <li>{t.cookieLocale}</li>
-              <li>{t.cookieTheme}</li>
+              <li><span className="info-modal__cookie-key">locale</span> – {t.cookieLocale.replace(/^(locale|oqaatsit)\s*[-–]\s*/i, '')}</li>
+              <li><span className="info-modal__cookie-key">theme</span> – {t.cookieTheme.replace(/^(theme|app-ip qaamassusaa)\s*[-–]\s*/i, '')}</li>
             </ul>
           </section>
 
