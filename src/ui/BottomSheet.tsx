@@ -334,6 +334,7 @@ export default function BottomSheet() {
   const selectedStopId = useAppStore((state) => state.selectedStopId)
   const isOpen = useAppStore((state) => state.isBottomSheetOpen)
   const isMobile = useAppStore((state) => state.isMobile)
+  const isLandscapeMobile = useAppStore((state) => state.isLandscapeMobile)
   const setBottomSheetOpen = useAppStore((state) => state.setBottomSheetOpen)
   const setSelectedVehicleId = useAppStore((state) => state.setSelectedVehicleId)
   const setSelectedStopId = useAppStore((state) => state.setSelectedStopId)
@@ -402,8 +403,10 @@ export default function BottomSheet() {
 
   // Different styling for desktop vs mobile
   const typeModifier = showVehicle ? 'bottom-sheet--bus' : 'bottom-sheet--stop'
-  const panelClassName = isMobile ? `bottom-sheet ${typeModifier}` : 'detail-panel'
-  const backdropClassName = isMobile ? 'bottom-sheet__backdrop' : 'detail-panel__backdrop'
+  // Use mobile styling if either isMobile or isLandscapeMobile is true (Safari fallback)
+  const useMobileStyle = isMobile || isLandscapeMobile
+  const panelClassName = useMobileStyle ? `bottom-sheet ${typeModifier}` : 'detail-panel'
+  const backdropClassName = useMobileStyle ? 'bottom-sheet__backdrop' : 'detail-panel__backdrop'
 
   return (
     <div className={backdropClassName} onClick={handleBackdropClick}>
@@ -414,9 +417,9 @@ export default function BottomSheet() {
         aria-modal="true"
         aria-label={ariaLabel}
       >
-        {isMobile && <div className="bottom-sheet__handle" />}
+        {useMobileStyle && <div className="bottom-sheet__handle" />}
         <button
-          className={isMobile ? 'bottom-sheet__close' : 'detail-panel__close'}
+          className={useMobileStyle ? 'bottom-sheet__close' : 'detail-panel__close'}
           onClick={handleClose}
           aria-label={t.close}
         >

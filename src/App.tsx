@@ -41,7 +41,15 @@ function useMobileDetection() {
     const handleChange = () => {
       // Check for touch capability as fallback for iOS Safari
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-      const isLandscapeMobile = landscapeQuery.matches && isTouchDevice
+      
+      // Use multiple detection methods for landscape mobile (Safari workaround)
+      // 1. Media query based detection
+      const mediaQueryLandscape = landscapeQuery.matches
+      // 2. Direct dimension check - landscape if wider than tall and short height
+      const dimensionLandscape = window.innerWidth > window.innerHeight && window.innerHeight <= 500
+      
+      // Consider it landscape mobile if either method detects it AND it's a touch device
+      const isLandscapeMobile = (mediaQueryLandscape || dimensionLandscape) && isTouchDevice
       const isMobile = portraitQuery.matches || isLandscapeMobile
       
       setIsMobile(isMobile)
@@ -90,10 +98,9 @@ function AppContent() {
       return
     }
 
-    // Load map immediately for better reliability on mobile
-    // Use a minimal delay just to let the app shell paint first
-    const timeoutId = window.setTimeout(() => setIsMapReady(true), 50)
-    return () => window.clearTimeout(timeoutId)
+    // Set map ready immediately - the Map component handles its own loading state
+    // This ensures we don't show a blank page on initial load
+    setIsMapReady(true)
   }, [])
 
   const handleLoadMap = () => {
@@ -110,7 +117,13 @@ function AppContent() {
       <ErrorBanner />
       <LoadingSkeleton />
       {isMapReady ? (
-        <Suspense fallback={<div className="map-container" />}>
+        <Suspense fallback={
+          <div className="map-container map-container--loading">
+            <div className="map-loading-indicator">
+              <img src="/bussit.webp" alt="Bussit" style={{ height: 48, width: 'auto', opacity: 0.8 }} />
+            </div>
+          </div>
+        }>
           <MapViewMapLibre />
         </Suspense>
       ) : isMapDeferred ? (
@@ -126,7 +139,11 @@ function AppContent() {
           </div>
         </div>
       ) : (
-        <div className="map-container" />
+        <div className="map-container map-container--loading">
+          <div className="map-loading-indicator">
+            <img src="/bussit.webp" alt="Bussit" style={{ height: 48, width: 'auto', opacity: 0.8 }} />
+          </div>
+        </div>
       )}
       {/* Hide filter bar on mobile when bottom sheet is open */}
       {!(isMobile && isBottomSheetOpen) && (

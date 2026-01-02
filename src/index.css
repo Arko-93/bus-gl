@@ -185,6 +185,14 @@ textarea {
   width: 100%;
 }
 
+/* Safe area insets for iOS notch/Dynamic Island in landscape */
+/* Applied at root level to ensure all content respects safe areas */
+html.landscape-mobile {
+  /* These CSS vars will be used by .app and positioned elements */
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
 /* ============================================
    MapLibre Overrides
    ============================================ */

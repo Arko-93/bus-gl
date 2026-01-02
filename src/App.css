@@ -26,6 +26,25 @@
   background: var(--bg-map);
 }
 
+.map-container--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-map);
+}
+
+.map-loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
 .map-placeholder {
   display: flex;
   flex-direction: column;
@@ -1729,13 +1748,13 @@ button.bottom-sheet__route-badge:hover {
   }
 
   .top-bar__icon {
-    width: 28px;
-    height: 28px;
+    display: flex;
+    align-items: center;
   }
 
   .top-bar__icon img {
-    width: 24px;
     height: 24px;
+    width: auto;
   }
 
   .top-bar__title {
@@ -2082,16 +2101,29 @@ button.bottom-sheet__route-badge:hover {
   }
 
   /* Stop popover: give space for close button and left edge */
+  .bottom-sheet--stop {
+    max-width: min(380px, calc(90vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  }
+
   .bottom-sheet--stop .bottom-sheet__title {
     padding-right: 0;
   }
 
   .bottom-sheet--stop .bottom-sheet__content {
     padding-left: 0.25rem;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .bottom-sheet--stop .bottom-sheet__header--stop {
+    max-width: 100%;
   }
 
   .bottom-sheet--stop .bottom-sheet__header--stop .bottom-sheet__route-badges {
     padding-left: 0.15rem;
+    max-width: 100%;
+    flex-wrap: wrap;
+    overflow: hidden;
   }
 
   /* Bus popover: two-column layout via CSS Grid */
@@ -2162,6 +2194,13 @@ button.bottom-sheet__route-badge:hover {
 /* ============================================
    Landscape Mobile - JS Class Fallback for Safari
    ============================================ */
+/* Apply safe area insets to the app container to center content */
+html.landscape-mobile .app {
+  width: calc(100vw - var(--safe-left, 0px) - var(--safe-right, 0px));
+  margin-left: var(--safe-left, 0px);
+  margin-right: var(--safe-right, 0px);
+}
+
 html.landscape-mobile .top-bar {
   padding: 0.35rem 0.5rem;
   padding-top: calc(env(safe-area-inset-top, 0px) + 0.35rem);
@@ -2173,13 +2212,13 @@ html.landscape-mobile .top-bar__left {
 }
 
 html.landscape-mobile .top-bar__icon {
-  width: 28px;
-  height: 28px;
+  display: flex;
+  align-items: center;
 }
 
 html.landscape-mobile .top-bar__icon img {
-  width: 24px;
   height: 24px;
+  width: auto;
 }
 
 html.landscape-mobile .top-bar__title {
@@ -2228,7 +2267,7 @@ html.landscape-mobile .theme-switcher__btn svg {
 html.landscape-mobile .filter-bar {
   position: fixed;
   bottom: 0.5rem;
-  right: 0.5rem;
+  right: calc(0.5rem + var(--safe-right, 0px));
   left: auto;
   transform: none;
   flex-direction: row;
@@ -2265,6 +2304,275 @@ html.landscape-mobile .stop-filter__toggle {
   height: 28px;
   padding: 0 0.5rem;
   font-size: 0.6rem;
+}
+
+/* Bottom sheet - compact centered popover for Safari landscape fallback */
+html.landscape-mobile .bottom-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  width: auto;
+  max-width: min(420px, calc(90vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  height: auto;
+  max-height: min(50dvh, 50vh);
+  padding: 0.5rem 0.75rem 0.5rem;
+  padding-right: 2rem;
+  padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
+  border-radius: 0.75rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+html.landscape-mobile .bottom-sheet__handle {
+  display: none;
+}
+
+html.landscape-mobile .bottom-sheet__close {
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 24px;
+  height: 24px;
+}
+
+html.landscape-mobile .bottom-sheet__close svg {
+  width: 14px;
+  height: 14px;
+}
+
+html.landscape-mobile .bottom-sheet__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 0.15rem;
+}
+
+html.landscape-mobile .bottom-sheet__header {
+  flex-shrink: 0;
+  margin-bottom: 0;
+  gap: 0.35rem;
+}
+
+html.landscape-mobile .bottom-sheet__title h2 {
+  font-size: 0.8rem;
+}
+
+html.landscape-mobile .bottom-sheet__headsign {
+  font-size: 0.6rem;
+}
+
+html.landscape-mobile .bottom-sheet__details {
+  flex: 1;
+  gap: 0.25rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+  font-size: 0.7rem;
+}
+
+html.landscape-mobile .bottom-sheet__group {
+  gap: 0.2rem;
+}
+
+html.landscape-mobile .bottom-sheet__group--log {
+  padding: 0.3rem 0.4rem;
+  margin-top: 0.1rem;
+  max-height: none;
+  overflow-y: visible;
+}
+
+html.landscape-mobile .bottom-sheet__group--log .bottom-sheet__row {
+  padding: 0.15rem 0;
+  font-size: 0.65rem;
+}
+
+html.landscape-mobile .bottom-sheet__row {
+  padding: 0.2rem 0;
+  font-size: 0.7rem;
+}
+
+html.landscape-mobile .bottom-sheet__label {
+  font-size: 0.65rem;
+}
+
+html.landscape-mobile .bottom-sheet__label svg {
+  width: 11px;
+  height: 11px;
+}
+
+html.landscape-mobile .bottom-sheet__value {
+  font-size: 0.7rem;
+}
+
+html.landscape-mobile .bottom-sheet__route-badge {
+  width: 28px;
+  height: 28px;
+  font-size: 0.8rem;
+}
+
+html.landscape-mobile .bottom-sheet__badge {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.6rem;
+}
+
+html.landscape-mobile .bottom-sheet__badge svg {
+  width: 11px;
+  height: 11px;
+}
+
+html.landscape-mobile .bottom-sheet__stop-section {
+  margin-bottom: 0.2rem;
+}
+
+html.landscape-mobile .bottom-sheet__heading-list {
+  gap: 0.2rem;
+  padding: 0.1rem 0 0.2rem;
+}
+
+html.landscape-mobile .bottom-sheet__section {
+  margin-bottom: 0.2rem;
+}
+
+html.landscape-mobile .bottom-sheet__section-title {
+  font-size: 0.65rem;
+  margin-bottom: 0.15rem;
+}
+
+html.landscape-mobile .bottom-sheet__section-title svg {
+  width: 11px;
+  height: 11px;
+}
+
+html.landscape-mobile .bottom-sheet__header--stop {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  margin-bottom: 0;
+}
+
+html.landscape-mobile .bottom-sheet__header--stop .bottom-sheet__title h2 {
+  font-size: 0.8rem;
+}
+
+html.landscape-mobile .bottom-sheet__header--stop .bottom-sheet__route-badges {
+  gap: 0.15rem;
+}
+
+html.landscape-mobile .bottom-sheet__header--stop .bottom-sheet__route-badge--small {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  font-size: 0.55rem;
+}
+
+html.landscape-mobile .bottom-sheet__header--stop .bottom-sheet__route-badge--active {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  font-size: 0.65rem;
+}
+
+html.landscape-mobile .stop-schedule {
+  gap: 0.15rem;
+}
+
+html.landscape-mobile .stop-schedule__time {
+  font-size: 0.6rem;
+  padding: 0.1rem 0.3rem;
+}
+
+html.landscape-mobile .stop-schedule--compact {
+  margin-top: 0.15rem;
+  margin-left: 0.75rem;
+}
+
+html.landscape-mobile .bottom-sheet--stop {
+  max-width: min(380px, calc(90vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+}
+
+html.landscape-mobile .bottom-sheet--stop .bottom-sheet__title {
+  padding-right: 0;
+}
+
+html.landscape-mobile .bottom-sheet--stop .bottom-sheet__content {
+  padding-left: 0.25rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+html.landscape-mobile .bottom-sheet--stop .bottom-sheet__header--stop {
+  max-width: 100%;
+}
+
+html.landscape-mobile .bottom-sheet--stop .bottom-sheet__header--stop .bottom-sheet__route-badges {
+  padding-left: 0.15rem;
+  max-width: 100%;
+  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+/* Bus popover: two-column layout */
+html.landscape-mobile .bottom-sheet--bus {
+  max-width: min(580px, 95vw);
+  max-height: min(42dvh, 42vh);
+}
+
+html.landscape-mobile .bottom-sheet--bus .bottom-sheet__content {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 0.4rem 0.75rem;
+  overflow: visible;
+}
+
+html.landscape-mobile .bottom-sheet--bus .bottom-sheet__header {
+  grid-column: 1;
+  grid-row: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  margin-bottom: 0;
+}
+
+html.landscape-mobile .bottom-sheet--bus .bottom-sheet__group--log {
+  grid-column: 1;
+  grid-row: 2;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border-radius: 0;
+  align-self: start;
+}
+
+html.landscape-mobile .bottom-sheet--bus .bottom-sheet__group--log .bottom-sheet__row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  padding: 0.15rem 0;
+}
+
+html.landscape-mobile .bottom-sheet--bus .bottom-sheet__details {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  overflow: visible;
+}
+
+html.landscape-mobile .bottom-sheet--bus .stop-schedule {
+  gap: 0.25rem;
+}
+
+html.landscape-mobile .bottom-sheet--bus .stop-schedule__time {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+}
+
+html.landscape-mobile .bottom-sheet--bus .stop-schedule--compact {
+  margin-left: 0;
+  margin-top: 0.25rem;
 }
 
 /* ============================================
