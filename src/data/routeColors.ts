@@ -27,6 +27,15 @@ export const ROUTE_LINE_COLORS: Partial<Record<KnownRoute, string>> = {
 }
 
 /**
+ * Route line colors for dark mode - brighter versions for visibility on dark map
+ * Falls back to ROUTE_LINE_COLORS, then ROUTE_COLORS if not specified
+ */
+export const ROUTE_LINE_COLORS_DARK: Partial<Record<KnownRoute, string>> = {
+  'X2': '#d0d0d0',  // Light gray - high contrast on dark background
+  'E2': '#7ec8ff',  // Bright sky blue - high contrast on dark background
+}
+
+/**
  * Default fallback color for unknown routes
  */
 export const DEFAULT_ROUTE_COLOR = '#6b7280'
@@ -62,12 +71,17 @@ export function getRouteColor(route: string): string {
 
 /**
  * Get the line color for a route path on the map
- * Uses ROUTE_LINE_COLORS if available, otherwise falls back to ROUTE_COLORS
+ * Uses dark mode colors when isDark is true, otherwise uses standard colors
  * 
  * @param route - Route ID (e.g., '1', '2', 'X2')
+ * @param isDark - Whether to use dark mode colors
  * @returns Hex color string for the route line
  */
-export function getRouteLineColor(route: string): string {
+export function getRouteLineColor(route: string, isDark = false): string {
+  if (isDark) {
+    const darkColor = ROUTE_LINE_COLORS_DARK[route as KnownRoute]
+    if (darkColor) return darkColor
+  }
   return ROUTE_LINE_COLORS[route as KnownRoute] ?? ROUTE_COLORS[route as KnownRoute] ?? DEFAULT_ROUTE_COLOR
 }
 

@@ -25,23 +25,31 @@ const queryClient = new QueryClient({
 
 /**
  * Hook to detect mobile viewport and update store
+ * Detects both portrait and landscape mobile modes
  */
 function useMobileDetection() {
   const setIsMobile = useAppStore((state) => state.setIsMobile)
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 768px)')
+    // Portrait mobile: narrow width
+    const portraitQuery = window.matchMedia('(max-width: 768px)')
+    // Landscape mobile: short height + touch device OR narrow max-dimension
+    const landscapeQuery = window.matchMedia('(max-height: 500px) and (orientation: landscape) and (pointer: coarse)')
     
-    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      setIsMobile(e.matches)
+    const handleChange = () => {
+      setIsMobile(portraitQuery.matches || landscapeQuery.matches)
     }
 
     // Set initial value immediately
-    handleChange(mediaQuery)
+    handleChange()
 
     // Listen for changes
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
+    portraitQuery.addEventListener('change', handleChange)
+    landscapeQuery.addEventListener('change', handleChange)
+    return () => {
+      portraitQuery.removeEventListener('change', handleChange)
+      landscapeQuery.removeEventListener('change', handleChange)
+    }
   }, [setIsMobile])
 }
 

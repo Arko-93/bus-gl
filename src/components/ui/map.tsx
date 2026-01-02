@@ -1078,6 +1078,7 @@ function AnimatedRouteSvg({
         strokeWidth={width}
         strokeOpacity={opacity}
         className={className}
+        style={{ pointerEvents: 'none' }}
       />
     </svg>
   )

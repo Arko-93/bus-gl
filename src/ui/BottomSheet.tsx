@@ -189,6 +189,7 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
   const { data: routeE2Schedule } = useRouteE2Schedule()
   const { data: routeX3Schedule } = useRouteX3Schedule()
   const selectedStopRoute = useAppStore((state) => state.selectedStopRoute)
+  const setSelectedStopRoute = useAppStore((state) => state.setSelectedStopRoute)
 
   const scheduleCandidates = useMemo(() => [
     { route: '1' as KnownRoute, schedule: route1Schedule },
@@ -212,6 +213,18 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
     }
     return routes
   }, [scheduleCandidates, stop.properties.id])
+
+  // Determine the active route for schedule display
+  const activeRoute = selectedStopRoute ?? (routesServingStop[0] || null)
+
+  // Sort routes so active route comes first
+  const sortedRoutes = useMemo(() => {
+    if (!activeRoute) return routesServingStop
+    return [
+      ...routesServingStop.filter((r) => r === activeRoute),
+      ...routesServingStop.filter((r) => r !== activeRoute),
+    ]
+  }, [routesServingStop, activeRoute])
 
   const resolvedSchedule =
     scheduleCandidates.find(
@@ -241,27 +254,30 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
   
   return (
     <div className="bottom-sheet__content">
-      <div className="bottom-sheet__header">
-        {/* Show route badges instead of circle icon */}
+      <div className="bottom-sheet__header bottom-sheet__header--stop">
+        <div className="bottom-sheet__title">
+          <h2>{stop.properties.name}</h2>
+        </div>
         <div className="bottom-sheet__route-badges">
-          {routesServingStop.length > 0 ? (
-            routesServingStop.map((route) => (
-              <span
-                key={route}
-                className={`bottom-sheet__route-badge bottom-sheet__route-badge--small ${route === 'X3' ? 'bottom-sheet__route-badge--x3' : ''}`}
-                style={{ backgroundColor: getRouteColor(route) }}
-              >
-                {route}
-              </span>
-            ))
+          {sortedRoutes.length > 0 ? (
+            sortedRoutes.map((route) => {
+              const isActive = route === activeRoute
+              return (
+                <button
+                  key={route}
+                  className={`bottom-sheet__route-badge ${isActive ? 'bottom-sheet__route-badge--active' : 'bottom-sheet__route-badge--small'} ${route === 'X3' ? 'bottom-sheet__route-badge--x3' : ''}`}
+                  style={{ backgroundColor: getRouteColor(route) }}
+                  onClick={() => setSelectedStopRoute(route)}
+                >
+                  {route}
+                </button>
+              )
+            })
           ) : (
             <span className="bottom-sheet__route-badge bottom-sheet__route-badge--small" style={{ backgroundColor: '#6b7280' }}>
               ?
             </span>
           )}
-        </div>
-        <div className="bottom-sheet__title">
-          <h2>{stop.properties.name}</h2>
         </div>
       </div>
 

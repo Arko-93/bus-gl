@@ -9,6 +9,7 @@ import { useRouteX2Schedule } from '../data/routeX2Schedule'
 import { useRouteE2Schedule } from '../data/routeE2Schedule'
 import { useRouteX3Schedule } from '../data/routeX3Schedule'
 import { getRouteLineColor } from '../data/routeColors'
+import { useResolvedTheme } from '../hooks/useResolvedTheme'
 
 type LatLng = [number, number]
 
@@ -390,6 +391,7 @@ export default function SelectedRoutePathMapLibre() {
   const selectedStopRouteTripEnabled = useAppStore((state) => state.selectedStopRouteTripEnabled)
   const selectedStopRouteFromId = useAppStore((state) => state.selectedStopRouteFromId)
   const selectedStopRouteToId = useAppStore((state) => state.selectedStopRouteToId)
+  const resolvedTheme = useResolvedTheme()
   const { data: route1Schedule } = useRoute1Schedule()
   const { data: route2Schedule } = useRoute2Schedule()
   const { data: route3Schedule } = useRoute3Schedule()
@@ -684,7 +686,7 @@ export default function SelectedRoutePathMapLibre() {
   )
     return null
 
-  const routeColor = getRouteLineColor(selectedStopRoute)
+  const routeColor = getRouteLineColor(selectedStopRoute, resolvedTheme === 'dark')
 
   return (
     <>

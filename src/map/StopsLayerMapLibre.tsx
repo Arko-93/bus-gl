@@ -15,6 +15,32 @@ import { useTranslation } from '../i18n/useTranslation'
 import { getRouteColor } from '../data/routeColors'
 import { type KnownRoute } from '../data/ridangoRealtime'
 
+/**
+ * Display coordinate overrides for bus stops.
+ * These move the stop circle marker to the actual bus stop location
+ * (e.g., on sidewalk/shelter) rather than the road centerline.
+ * Format: stopId -> [latitude, longitude]
+ * 
+ * Note: This only affects stop circle display, NOT route path rendering.
+ * Route paths use ROUTE_STOP_COORD_OVERRIDES in SelectedRoutePathMapLibre.tsx
+ */
+const STOP_COORD_DISPLAY_OVERRIDES: Record<number, [number, number]> = {
+  // Add overrides as needed after visual inspection
+  // Example: 63: [64.1840093, -51.6980487], // Maligiaq - moved off road
+}
+
+/**
+ * Get display coordinates for a stop, applying overrides if available
+ */
+function getStopDisplayCoords(stopId: number, originalLon: number, originalLat: number): [number, number] {
+  const override = STOP_COORD_DISPLAY_OVERRIDES[stopId]
+  if (override) {
+    // Override format is [lat, lon], return as [lon, lat] for MapLibre
+    return [override[1], override[0]]
+  }
+  return [originalLon, originalLat]
+}
+
 function darkenColor(hex: string, percent: number): string {
   const num = parseInt(hex.replace('#', ''), 16)
   const r = Math.max(0, ((num >> 16) & 0xff) * (1 - percent))
@@ -430,6 +456,8 @@ function DesktopStopPopup({
       onClose={onClose}
     >
       <div className="stop-popup">
+        <strong>{stop.properties.name}</strong>
+        
         {/* Route badges header */}
         <div className="stop-popup__route-badges">
           {sortedRoutes.length > 0 ? (
@@ -453,8 +481,6 @@ function DesktopStopPopup({
             </span>
           )}
         </div>
-
-        <strong>{stop.properties.name}</strong>
 
         {isCurrentStop && (
           <div>
@@ -587,7 +613,8 @@ export default function StopsLayerMapLibre() {
     <>
       {visibleStops.map((feature) => {
         const { id, name, matchMethod } = feature.properties
-        const [lon, lat] = feature.geometry.coordinates!
+        const [originalLon, originalLat] = feature.geometry.coordinates!
+        const [lon, lat] = getStopDisplayCoords(id, originalLon, originalLat)
 
         const isCurrentStop = id === currentStopId
         const isNextStop = id === nextStopId
