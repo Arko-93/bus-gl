@@ -1,6 +1,6 @@
 import { useEffect, useMemo, memo, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import MapLibreGL from 'maplibre-gl'
+import * as MapLibreGL from 'maplibre-gl'
 import { Map, MapControls, MapPopup, useMap } from '@/components/ui/map'
 import { useAppStore, filterVehiclesByRoute } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
