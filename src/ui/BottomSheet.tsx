@@ -2,7 +2,7 @@
 // Mobile bottom sheet for vehicle and stop details
 
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Gauge, MapPin, ArrowRight, Clock, Bus, Timer, AlertTriangle, X } from 'lucide-react'
+import { Gauge, MapPin, ArrowRight, Clock, Bus, AlertTriangle, X } from 'lucide-react'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import { useStopsData, getStopById, createStopLookup } from '../data/useStopsData'
@@ -177,10 +177,9 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
 interface StopDetailsProps {
   stop: StopFeature
   vehiclesAtStop: Vehicle[]
-  vehiclesArriving: Vehicle[]
 }
 
-function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProps) {
+function StopDetails({ stop, vehiclesAtStop }: StopDetailsProps) {
   const t = useTranslation()
   const { data: route1Schedule } = useRoute1Schedule()
   const { data: route2Schedule } = useRoute2Schedule()
@@ -302,24 +301,6 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
           </div>
         )}
 
-        {vehiclesArriving.length > 0 && (
-          <div className="bottom-sheet__section">
-            <h3 className="bottom-sheet__section-title"><Timer size={16} /> {t.arriving}</h3>
-            {vehiclesArriving.map((v) => (
-              <div key={v.id} className="bottom-sheet__bus-item">
-                <span 
-                  className={`bottom-sheet__route-badge bottom-sheet__route-badge--small ${v.route === 'X3' ? 'bottom-sheet__route-badge--x3' : ''}`}
-                  style={{ backgroundColor: getRouteColor(v.route) }}
-                >
-                  {v.route}
-                </span>
-                <span className="bottom-sheet__bus-destination">
-                  {v.stopName ? <><MapPin size={12} /> {v.stopName}</> : t.inTransit}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
 
         {scheduleInfo && scheduleLabel && (
           <div className="bottom-sheet__section">
@@ -364,7 +345,7 @@ export default function BottomSheet() {
     [vehicles, selectedVehicleId]
   )
   
-  // Get selected stop and vehicles at/arriving
+  // Get selected stop and vehicles at the stop
   const stopLookup = useMemo(() => {
     if (!stopsData) return new Map()
     return createStopLookup(stopsData)
@@ -377,11 +358,6 @@ export default function BottomSheet() {
   const vehiclesAtStop = useMemo(() => {
     if (selectedStopId === null) return []
     return vehicles.filter((v) => v.stopId === selectedStopId)
-  }, [vehicles, selectedStopId])
-  
-  const vehiclesArriving = useMemo(() => {
-    if (selectedStopId === null) return []
-    return vehicles.filter((v) => v.nextStopId === selectedStopId && v.stopId !== selectedStopId)
   }, [vehicles, selectedStopId])
 
   // Close handler
@@ -446,7 +422,6 @@ export default function BottomSheet() {
           <StopDetails 
             stop={selectedStop!} 
             vehiclesAtStop={vehiclesAtStop}
-            vehiclesArriving={vehiclesArriving}
           />
         )}
       </div>

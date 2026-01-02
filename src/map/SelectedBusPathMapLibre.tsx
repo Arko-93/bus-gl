@@ -308,7 +308,10 @@ export default function SelectedBusPathMapLibre() {
     primary: null,
     next: null,
   })
-  const lastRouteKeyRef = useRef<string | null>(null)
+  const lastRouteKeyRef = useRef<{ primary: string | null; next: string | null }>({
+    primary: null,
+    next: null,
+  })
   const routeAbortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
@@ -360,26 +363,33 @@ export default function SelectedBusPathMapLibre() {
     return [selectedVehicle.lat, selectedVehicle.lon]
   }, [selectedVehicle])
 
-  const routeKey = useMemo(() => {
+  const primaryKey = useMemo(() => {
     if (!busPosition || !primaryStop) return null
-    const primaryKey = buildRouteKey([busPosition, primaryStop])
-    const nextKey = secondaryStop ? buildRouteKey([primaryStop, secondaryStop]) : ''
-    return `${primaryKey}|${nextKey}`
-  }, [busPosition, primaryStop, secondaryStop])
+    return buildRouteKey([busPosition, primaryStop])
+  }, [busPosition, primaryStop])
+
+  const nextKey = useMemo(() => {
+    if (!primaryStop || !secondaryStop) return null
+    return buildRouteKey([primaryStop, secondaryStop])
+  }, [primaryStop, secondaryStop])
 
   useEffect(() => {
-    if (!selectedVehicle || !busPosition || !routeKey || !primaryStop) {
+    if (!selectedVehicle || !busPosition || !primaryStop || !primaryKey) {
       routeAbortRef.current?.abort()
       routeAbortRef.current = null
       queueMicrotask(() => {
         setRoadSegments({ primary: null, next: null })
       })
-      lastRouteKeyRef.current = null
+      lastRouteKeyRef.current = { primary: null, next: null }
       return
     }
 
-    if (routeKey === lastRouteKeyRef.current) return
-    lastRouteKeyRef.current = routeKey
+    const primaryChanged = primaryKey !== lastRouteKeyRef.current.primary
+    const nextChanged = nextKey !== lastRouteKeyRef.current.next
+
+    if (!primaryChanged && !nextChanged) return
+
+    lastRouteKeyRef.current = { primary: primaryKey, next: nextKey ?? null }
 
     routeAbortRef.current?.abort()
     const controller = new AbortController()
@@ -387,18 +397,27 @@ export default function SelectedBusPathMapLibre() {
 
     const load = async () => {
       try {
-        const primaryPromise = fetchOsrmRoute([busPosition, primaryStop], controller.signal)
-        const nextPromise = secondaryStop
-          ? fetchOsrmRoute([primaryStop, secondaryStop], controller.signal)
+        const primaryPromise = primaryChanged
+          ? fetchOsrmRoute([busPosition, primaryStop], controller.signal)
           : Promise.resolve(null)
+        const nextPromise =
+          nextChanged && secondaryStop
+            ? fetchOsrmRoute([primaryStop, secondaryStop], controller.signal)
+            : Promise.resolve(null)
         const [primary, next] = await Promise.all([primaryPromise, nextPromise])
         if (!controller.signal.aborted) {
-          setRoadSegments({ primary, next })
+          setRoadSegments((prev) => ({
+            primary: primaryChanged ? primary : prev.primary,
+            next: nextChanged ? (secondaryStop ? next : null) : prev.next,
+          }))
         }
       } catch (error) {
         if (!controller.signal.aborted) {
           console.warn('Failed to load snapped route:', error)
-          setRoadSegments({ primary: null, next: null })
+          setRoadSegments((prev) => ({
+            primary: primaryChanged ? null : prev.primary,
+            next: nextChanged ? null : prev.next,
+          }))
         }
       }
     }
@@ -408,31 +427,46 @@ export default function SelectedBusPathMapLibre() {
     return () => {
       controller.abort()
     }
-  }, [routeKey, busPosition, primaryStop, secondaryStop, selectedVehicle])
+  }, [primaryKey, nextKey, busPosition, primaryStop, secondaryStop, selectedVehicle])
 
   // Hide path when bus is at a stop (same behavior as Leaflet version)
-  if (!selectedVehicle || selectedVehicle.atStop || !primaryStop || !busPosition) return null
-
-  const primaryFallback = buildSegment(routeLine, busPosition, primaryStop)
-  const nextFallback = secondaryStop ? buildSegment(routeLine, primaryStop, secondaryStop) : null
+  const primaryFallback = useMemo(
+    () => (busPosition && primaryStop ? buildSegment(routeLine, busPosition, primaryStop) : null),
+    [routeLine, busPosition, primaryStop]
+  )
+  const nextFallback = useMemo(
+    () => (primaryStop && secondaryStop ? buildSegment(routeLine, primaryStop, secondaryStop) : null),
+    [routeLine, primaryStop, secondaryStop]
+  )
   const primarySegment = roadSegments.primary ?? primaryFallback
   const nextSegment = roadSegments.next ?? nextFallback
+  const primarySegmentLngLat = useMemo(
+    () => (primarySegment ? primarySegment.map(toLngLat) : null),
+    [primarySegment]
+  )
+  const nextSegmentLngLat = useMemo(
+    () => (nextSegment ? nextSegment.map(toLngLat) : null),
+    [nextSegment]
+  )
+
+  if (!selectedVehicle || selectedVehicle.atStop || !primaryStop || !busPosition) return null
+
   const routeColor = getRouteLineColor(selectedVehicle.route)
 
   return (
     <>
-      {primarySegment && (
+      {primarySegmentLngLat && (
         <AnimatedRouteSvg
-          coordinates={primarySegment.map(toLngLat)}
+          coordinates={primarySegmentLngLat}
           color={routeColor}
           width={5}
           opacity={0.9}
           className="bus-path bus-path--current"
         />
       )}
-      {nextSegment && (
+      {nextSegmentLngLat && (
         <AnimatedRouteSvg
-          coordinates={nextSegment.map(toLngLat)}
+          coordinates={nextSegmentLngLat}
           color={routeColor}
           width={4}
           opacity={0.35}

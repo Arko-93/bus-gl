@@ -184,18 +184,10 @@ function StopMarker({
   lat,
   lon,
   style,
-  isCurrentStop,
-  isNextStop,
   isVehicleStop,
   isSelected,
-  atStopCount,
-  arrivingCount,
-  scheduleInfo,
-  scheduleLabel,
-  isX3Schedule,
   isMobile,
   setSelectedStopId,
-  t,
 }: StopMarkerProps) {
   const handleClick = useCallback((event: MouseEvent) => {
     event.stopPropagation()
@@ -234,47 +226,6 @@ function StopMarker({
         <MarkerTooltip>
           <div>
             <strong>{name}</strong>
-            {isCurrentStop && (
-              <div>
-                <Bus size={12} /> {t.busHere}
-              </div>
-            )}
-            {isNextStop && (
-              <div>
-                <ArrowRight size={12} /> {t.nextStop}
-              </div>
-            )}
-            {!isCurrentStop && !isNextStop && atStopCount > 0 && (
-              <div>
-                <Bus size={12} /> {atStopCount} {atStopCount === 1 ? t.bus : t.buses}
-              </div>
-            )}
-            {!isNextStop && arrivingCount > 0 && (
-              <div>
-                <Timer size={12} /> {arrivingCount} {t.arriving}
-              </div>
-            )}
-            {isVehicleStop && scheduleInfo && scheduleLabel && (
-              <div className="stop-popup__schedule">
-                <div className="stop-popup__schedule-title">
-                  {scheduleInfo.serviceEnded && <em>{t.serviceEnded} · </em>}
-                  {scheduleLabel}
-                </div>
-                <div className={`stop-schedule${isX3Schedule ? ' stop-schedule--x3' : ''}`}>
-                  {scheduleInfo.times.map((time) => (
-                    <span
-                      key={`tooltip-${id}-${time.raw}`}
-                      className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${scheduleInfo.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
-                    >
-                      {time.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {isVehicleStop && !scheduleInfo && (
-              <div className="stop-popup__no-schedule">{t.noSchedule}</div>
-            )}
           </div>
         </MarkerTooltip>
       )}
