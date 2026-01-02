@@ -30,16 +30,18 @@ export default function RoutesLayerMapLibre() {
   })()
 
   const routeSegments = useMemo(() => {
-    if (!routesData) return [] as Array<{ route: string; coords: [number, number][] }>
+    if (!routesData) return [] as Array<{ route: string; name: string; coords: [number, number][] }>
     return routesData.features.flatMap((feature) => {
       const route = feature.properties.route
+      const name = feature.properties.name || ''
       if (feature.geometry.type === 'LineString') {
         const coords = feature.geometry.coordinates.map((coord) => [coord[0], coord[1]] as [number, number])
-        return [{ route, coords }]
+        return [{ route, name, coords }]
       }
       if (feature.geometry.type === 'MultiLineString') {
         return feature.geometry.coordinates.map((line) => ({
           route,
+          name,
           coords: line.map((coord) => [coord[0], coord[1]] as [number, number]),
         }))
       }
@@ -70,6 +72,7 @@ export default function RoutesLayerMapLibre() {
           width={ROUTE_WIDTH}
           opacity={0.6}
           dashArray={[10, 5]}
+          tooltip={segment.name || undefined}
         />
       ))}
     </>

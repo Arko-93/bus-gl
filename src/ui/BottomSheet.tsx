@@ -2,7 +2,7 @@
 // Mobile bottom sheet for vehicle and stop details
 
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { Gauge, MapPin, ArrowRight, Clock, CircleDot, Bus, Timer, AlertTriangle, X } from 'lucide-react'
+import { Gauge, MapPin, ArrowRight, Clock, Bus, Timer, AlertTriangle, X } from 'lucide-react'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import { useStopsData, getStopById, createStopLookup } from '../data/useStopsData'
@@ -14,6 +14,7 @@ import { useRouteE2Schedule } from '../data/routeE2Schedule'
 import { useRouteX3Schedule } from '../data/routeX3Schedule'
 import { useTranslation } from '../i18n/useTranslation'
 import { getRouteColor } from '../data/routeColors'
+import { type KnownRoute } from '../data/ridangoRealtime'
 import type { Vehicle } from '../data/ridangoRealtime'
 import type { StopFeature } from '../data/useStopsData'
 
@@ -189,14 +190,28 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
   const { data: routeX3Schedule } = useRouteX3Schedule()
   const selectedStopRoute = useAppStore((state) => state.selectedStopRoute)
 
-  const scheduleCandidates = [
-    { route: '1', schedule: route1Schedule },
-    { route: '2', schedule: route2Schedule },
-    { route: '3', schedule: route3Schedule },
-    { route: 'X2', schedule: routeX2Schedule },
-    { route: 'E2', schedule: routeE2Schedule },
-    { route: 'X3', schedule: routeX3Schedule },
-  ]
+  const scheduleCandidates = useMemo(() => [
+    { route: '1' as KnownRoute, schedule: route1Schedule },
+    { route: '2' as KnownRoute, schedule: route2Schedule },
+    { route: '3' as KnownRoute, schedule: route3Schedule },
+    { route: 'X2' as KnownRoute, schedule: routeX2Schedule },
+    { route: 'E2' as KnownRoute, schedule: routeE2Schedule },
+    { route: 'X3' as KnownRoute, schedule: routeX3Schedule },
+  ], [route1Schedule, route2Schedule, route3Schedule, routeX2Schedule, routeE2Schedule, routeX3Schedule])
+
+  // Determine which routes serve this stop
+  const routesServingStop = useMemo(() => {
+    const routes: KnownRoute[] = []
+    for (const candidate of scheduleCandidates) {
+      if (candidate.schedule) {
+        const stopIdStr = String(stop.properties.id)
+        if (candidate.schedule.weekdays[stopIdStr] || candidate.schedule.weekends[stopIdStr]) {
+          routes.push(candidate.route)
+        }
+      }
+    }
+    return routes
+  }, [scheduleCandidates, stop.properties.id])
 
   const resolvedSchedule =
     scheduleCandidates.find(
@@ -220,14 +235,33 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
           scheduleInfo.service === 'weekdays' ? t.scheduleWeekdays : t.scheduleWeekends
         }`
       : null
+
+  // Get the color for schedule times based on selected route
+  const scheduleRouteColor = resolvedSchedule ? getRouteColor(resolvedSchedule.route) : null
   
   return (
     <div className="bottom-sheet__content">
       <div className="bottom-sheet__header">
-        <div className="bottom-sheet__stop-icon"><CircleDot size={24} /></div>
+        {/* Show route badges instead of circle icon */}
+        <div className="bottom-sheet__route-badges">
+          {routesServingStop.length > 0 ? (
+            routesServingStop.map((route) => (
+              <span
+                key={route}
+                className={`bottom-sheet__route-badge bottom-sheet__route-badge--small ${route === 'X3' ? 'bottom-sheet__route-badge--x3' : ''}`}
+                style={{ backgroundColor: getRouteColor(route) }}
+              >
+                {route}
+              </span>
+            ))
+          ) : (
+            <span className="bottom-sheet__route-badge bottom-sheet__route-badge--small" style={{ backgroundColor: '#6b7280' }}>
+              ?
+            </span>
+          )}
+        </div>
         <div className="bottom-sheet__title">
           <h2>{stop.properties.name}</h2>
-          <p className="bottom-sheet__headsign">Stop #{stop.properties.id}</p>
         </div>
       </div>
 
@@ -281,6 +315,7 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
                 <span
                   key={`${stop.properties.id}-${time.raw}`}
                   className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${scheduleInfo.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
+                  style={time.isNext && scheduleRouteColor ? { backgroundColor: scheduleRouteColor, borderColor: scheduleRouteColor } : undefined}
                 >
                   {time.label}
                 </span>

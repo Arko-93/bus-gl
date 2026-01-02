@@ -828,6 +828,8 @@ type MapRouteProps = {
   width?: number
   opacity?: number
   dashArray?: [number, number]
+  /** Tooltip text shown on hover (sticky, follows cursor) */
+  tooltip?: string
   /** @deprecated Animation disabled due to MapLibre LineAtlas limitations */
   animated?: boolean
   /** @deprecated Animation disabled due to MapLibre LineAtlas limitations */
@@ -840,6 +842,7 @@ function MapRoute({
   width = 3,
   opacity = 0.8,
   dashArray,
+  tooltip,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   animated: _animated = false,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -850,6 +853,7 @@ function MapRoute({
   const sourceId = `route-source-${id}`
   const layerId = `route-layer-${id}`
   const [styleVersion, setStyleVersion] = useState(0)
+  const popupRef = useRef<MapLibreGL.Popup | null>(null)
 
   // Track style changes to re-add layers
   useEffect(() => {
@@ -937,6 +941,43 @@ function MapRoute({
     // Set dasharray - use [1, 0] for solid line (effectively no dash)
     map.setPaintProperty(layerId, 'line-dasharray', dashArray || [1, 0])
   }, [isLoaded, map, layerId, color, width, opacity, dashArray])
+
+  // Tooltip on hover (sticky, follows cursor like Leaflet's sticky tooltip)
+  useEffect(() => {
+    if (!isLoaded || !map || !tooltip) return
+
+    const popup = new MapLibreGL.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      offset: 10,
+    })
+    popupRef.current = popup
+
+    const handleMouseEnter = () => {
+      map.getCanvas().style.cursor = 'pointer'
+    }
+
+    const handleMouseMove = (e: MapLibreGL.MapMouseEvent) => {
+      popup.setLngLat(e.lngLat).setHTML(`<span class="route-tooltip">${tooltip}</span>`).addTo(map)
+    }
+
+    const handleMouseLeave = () => {
+      map.getCanvas().style.cursor = ''
+      popup.remove()
+    }
+
+    map.on('mouseenter', layerId, handleMouseEnter)
+    map.on('mousemove', layerId, handleMouseMove)
+    map.on('mouseleave', layerId, handleMouseLeave)
+
+    return () => {
+      map.off('mouseenter', layerId, handleMouseEnter)
+      map.off('mousemove', layerId, handleMouseMove)
+      map.off('mouseleave', layerId, handleMouseLeave)
+      popup.remove()
+      popupRef.current = null
+    }
+  }, [isLoaded, map, layerId, tooltip])
 
   // Note: Animated dash flow is disabled because MapLibre's LineAtlas
   // cannot handle frequent dash pattern changes. The dashArray prop

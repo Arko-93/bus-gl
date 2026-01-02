@@ -13,6 +13,7 @@ import { useRouteE2Schedule } from '../data/routeE2Schedule'
 import { useRouteX3Schedule } from '../data/routeX3Schedule'
 import { useTranslation } from '../i18n/useTranslation'
 import { getRouteColor } from '../data/routeColors'
+import { type KnownRoute } from '../data/ridangoRealtime'
 
 function darkenColor(hex: string, percent: number): string {
   const num = parseInt(hex.replace('#', ''), 16)
@@ -173,12 +174,14 @@ function StopMarker({
     if (isVehicleStop) return
 
     if (isMobile) {
+      // On mobile, single click opens the bottom sheet directly
       if (isSelected) {
-        setSelectedStopId(null, { openPanel: true })
+        setSelectedStopId(null, { openPanel: false })
       } else {
-        setSelectedStopId(id)
+        setSelectedStopId(id, { openPanel: true })
       }
     } else {
+      // On desktop, click selects the stop (shows popup on map)
       setSelectedStopId(id, { openPanel: false })
     }
   }, [id, isMobile, isSelected, isVehicleStop, setSelectedStopId])
@@ -198,52 +201,55 @@ function StopMarker({
       <MarkerContent>
         <div style={markerStyle} />
       </MarkerContent>
-      <MarkerTooltip>
-        <div>
-          <strong>{name}</strong>
-          {isCurrentStop && (
-            <div>
-              <Bus size={12} /> {t.busHere}
-            </div>
-          )}
-          {isNextStop && (
-            <div>
-              <ArrowRight size={12} /> {t.nextStop}
-            </div>
-          )}
-          {!isCurrentStop && !isNextStop && atStopCount > 0 && (
-            <div>
-              <Bus size={12} /> {atStopCount} {atStopCount === 1 ? t.bus : t.buses}
-            </div>
-          )}
-          {!isNextStop && arrivingCount > 0 && (
-            <div>
-              <Timer size={12} /> {arrivingCount} {t.arriving}
-            </div>
-          )}
-          {isVehicleStop && scheduleInfo && scheduleLabel && (
-            <div className="stop-popup__schedule">
-              <div className="stop-popup__schedule-title">
-                {scheduleInfo.serviceEnded && <em>{t.serviceEnded} · </em>}
-                {scheduleLabel}
+      {/* Only show tooltip on desktop - on mobile, clicks go directly to the bottom sheet */}
+      {!isMobile && (
+        <MarkerTooltip>
+          <div>
+            <strong>{name}</strong>
+            {isCurrentStop && (
+              <div>
+                <Bus size={12} /> {t.busHere}
               </div>
-              <div className="stop-schedule">
-                {scheduleInfo.times.map((time) => (
-                  <span
-                    key={`tooltip-${id}-${time.raw}`}
-                    className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${scheduleInfo.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
-                  >
-                    {time.label}
-                  </span>
-                ))}
+            )}
+            {isNextStop && (
+              <div>
+                <ArrowRight size={12} /> {t.nextStop}
               </div>
-            </div>
-          )}
-          {isVehicleStop && !scheduleInfo && (
-            <div className="stop-popup__no-schedule">{t.noSchedule}</div>
-          )}
-        </div>
-      </MarkerTooltip>
+            )}
+            {!isCurrentStop && !isNextStop && atStopCount > 0 && (
+              <div>
+                <Bus size={12} /> {atStopCount} {atStopCount === 1 ? t.bus : t.buses}
+              </div>
+            )}
+            {!isNextStop && arrivingCount > 0 && (
+              <div>
+                <Timer size={12} /> {arrivingCount} {t.arriving}
+              </div>
+            )}
+            {isVehicleStop && scheduleInfo && scheduleLabel && (
+              <div className="stop-popup__schedule">
+                <div className="stop-popup__schedule-title">
+                  {scheduleInfo.serviceEnded && <em>{t.serviceEnded} · </em>}
+                  {scheduleLabel}
+                </div>
+                <div className="stop-schedule">
+                  {scheduleInfo.times.map((time) => (
+                    <span
+                      key={`tooltip-${id}-${time.raw}`}
+                      className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${scheduleInfo.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
+                    >
+                      {time.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {isVehicleStop && !scheduleInfo && (
+              <div className="stop-popup__no-schedule">{t.noSchedule}</div>
+            )}
+          </div>
+        </MarkerTooltip>
+      )}
     </MapMarker>
   )
 }
@@ -341,6 +347,159 @@ function SelectedStopOverlay() {
   )
 }
 
+interface DesktopStopPopupProps {
+  stop: StopFeature
+  scheduleCandidates: Array<{ route: string; schedule: ReturnType<typeof useRoute1Schedule>['data'] }>
+  selectedStopRoute: KnownRoute | null
+  isCurrentStop: boolean
+  isNextStop: boolean
+  atStopCount: number
+  arrivingCount: number
+  onClose: () => void
+  t: ReturnType<typeof useTranslation>
+}
+
+function DesktopStopPopup({
+  stop,
+  scheduleCandidates,
+  selectedStopRoute,
+  isCurrentStop,
+  isNextStop,
+  atStopCount,
+  arrivingCount,
+  onClose,
+  t,
+}: DesktopStopPopupProps) {
+  const setSelectedStopRoute = useAppStore((state) => state.setSelectedStopRoute)
+
+  // Determine which routes serve this stop
+  const routesServingStop = useMemo(() => {
+    const routes: KnownRoute[] = []
+    for (const candidate of scheduleCandidates) {
+      if (candidate.schedule) {
+        const stopIdStr = String(stop.properties.id)
+        if (candidate.schedule.weekdays[stopIdStr] || candidate.schedule.weekends[stopIdStr]) {
+          routes.push(candidate.route as KnownRoute)
+        }
+      }
+    }
+    return routes
+  }, [scheduleCandidates, stop.properties.id])
+
+  // Determine the active route for schedule display
+  const activeRoute = selectedStopRoute ?? (routesServingStop[0] || null)
+
+  // Sort routes so active route comes first
+  const sortedRoutes = useMemo(() => {
+    if (!activeRoute) return routesServingStop
+    return [
+      ...routesServingStop.filter((r) => r === activeRoute),
+      ...routesServingStop.filter((r) => r !== activeRoute),
+    ]
+  }, [routesServingStop, activeRoute])
+
+  // Get schedule for active route
+  const resolvedSchedule = scheduleCandidates.find(
+    (candidate) => candidate.route === activeRoute && candidate.schedule
+  ) || null
+
+  const scheduleInfo = resolvedSchedule
+    ? getUpcomingTimes(resolvedSchedule.schedule, stop.properties.id, new Date(), 6)
+    : null
+
+  const scheduleLabel =
+    scheduleInfo && resolvedSchedule
+      ? `${t.route} ${resolvedSchedule.route} · ${
+          scheduleInfo.service === 'weekdays' ? t.scheduleWeekdays : t.scheduleWeekends
+        }`
+      : null
+
+  // Get the color for schedule times based on active route
+  const scheduleRouteColor = activeRoute ? getRouteColor(activeRoute) : null
+
+  // Handle clicking a route badge
+  const handleRouteBadgeClick = useCallback((route: KnownRoute) => {
+    setSelectedStopRoute(route)
+  }, [setSelectedStopRoute])
+
+  return (
+    <MapPopup
+      longitude={stop.geometry.coordinates![0]}
+      latitude={stop.geometry.coordinates![1]}
+      closeButton={true}
+      onClose={onClose}
+    >
+      <div className="stop-popup">
+        {/* Route badges header */}
+        <div className="stop-popup__route-badges">
+          {sortedRoutes.length > 0 ? (
+            sortedRoutes.map((route) => {
+              const isActive = route === activeRoute
+              return (
+                <button
+                  key={route}
+                  className={`stop-popup__route-badge ${isActive ? 'stop-popup__route-badge--active' : ''} ${route === 'X3' ? 'stop-popup__route-badge--x3' : ''}`}
+                  style={{ backgroundColor: getRouteColor(route) }}
+                  onClick={() => handleRouteBadgeClick(route)}
+                  title={`${t.route} ${route}`}
+                >
+                  {route}
+                </button>
+              )
+            })
+          ) : (
+            <span className="stop-popup__route-badge" style={{ backgroundColor: '#6b7280' }}>
+              ?
+            </span>
+          )}
+        </div>
+
+        <strong>{stop.properties.name}</strong>
+
+        {isCurrentStop && (
+          <div>
+            <Bus size={12} /> {t.busHere}
+          </div>
+        )}
+        {isNextStop && (
+          <div>
+            <ArrowRight size={12} /> {t.nextStop}
+          </div>
+        )}
+        {!isCurrentStop && !isNextStop && atStopCount > 0 && (
+          <div>
+            <Bus size={12} /> {atStopCount} {atStopCount === 1 ? t.bus : t.buses}
+          </div>
+        )}
+        {!isNextStop && arrivingCount > 0 && (
+          <div>
+            <Timer size={12} /> {arrivingCount} {t.arriving}
+          </div>
+        )}
+        {scheduleInfo && scheduleLabel && (
+          <div className="stop-popup__schedule">
+            <div className="stop-popup__schedule-title">
+              {scheduleInfo.serviceEnded && <em>{t.serviceEnded} · </em>}
+              {scheduleLabel}
+            </div>
+            <div className="stop-schedule">
+              {scheduleInfo.times.map((time) => (
+                <span
+                  key={`popup-${stop.properties.id}-${time.raw}`}
+                  className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${scheduleInfo.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
+                  style={time.isNext && scheduleRouteColor ? { backgroundColor: scheduleRouteColor, borderColor: scheduleRouteColor } : undefined}
+                >
+                  {time.label}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </MapPopup>
+  )
+}
+
 export default function StopsLayerMapLibre() {
   const t = useTranslation()
   const { data: stopsData, isLoading, error } = useStopsData()
@@ -415,36 +574,6 @@ export default function StopsLayerMapLibre() {
     ? validStops.find((f) => f.properties.id === selectedStopId) ?? null
     : null
 
-  const selectedScheduleInfo = selectedStop
-    ? (() => {
-        const preferredRoute = selectedStopRoute
-        const resolvedSchedule =
-          scheduleCandidates.find(
-            (candidate) => candidate.route === preferredRoute && candidate.schedule
-          ) ||
-          scheduleCandidates.find(
-            (candidate) =>
-              candidate.schedule &&
-              (candidate.schedule.weekdays[String(selectedStop.properties.id)] ||
-                candidate.schedule.weekends[String(selectedStop.properties.id)])
-          ) ||
-          null
-
-        const scheduleInfo = resolvedSchedule
-          ? getUpcomingTimes(resolvedSchedule.schedule, selectedStop.properties.id, now, 6)
-          : null
-
-        const scheduleLabel =
-          scheduleInfo && resolvedSchedule
-            ? `${t.route} ${resolvedSchedule.route} · ${
-                scheduleInfo.service === 'weekdays' ? t.scheduleWeekdays : t.scheduleWeekends
-              }`
-            : null
-
-        return { scheduleInfo, scheduleLabel }
-      })()
-    : { scheduleInfo: null, scheduleLabel: null }
-
   const selectedStopArriving = selectedStop
     ? (arrivingCounts.get(selectedStop.properties.id) ?? 0)
     : 0
@@ -453,8 +582,6 @@ export default function StopsLayerMapLibre() {
     : 0
   const selectedIsCurrentStop = selectedStop?.properties.id === currentStopId
   const selectedIsNextStop = selectedStop?.properties.id === nextStopId
-  const selectedSchedule = selectedScheduleInfo.scheduleInfo
-  const selectedScheduleLabel = selectedScheduleInfo.scheduleLabel
 
   return (
     <>
@@ -520,54 +647,17 @@ export default function StopsLayerMapLibre() {
         )
       })}
       {selectedStop && !isMobile && selectedStop.geometry.coordinates && (
-        <MapPopup
-          longitude={selectedStop.geometry.coordinates[0]}
-          latitude={selectedStop.geometry.coordinates[1]}
-          closeButton={true}
+        <DesktopStopPopup
+          stop={selectedStop}
+          scheduleCandidates={scheduleCandidates}
+          selectedStopRoute={selectedStopRoute}
+          isCurrentStop={selectedIsCurrentStop}
+          isNextStop={selectedIsNextStop}
+          atStopCount={selectedStopAtStop}
+          arrivingCount={selectedStopArriving}
           onClose={() => setSelectedStopId(null, { openPanel: false })}
-        >
-          <div>
-            <strong>{selectedStop.properties.name}</strong>
-            {selectedIsCurrentStop && (
-              <div>
-                <Bus size={12} /> {t.busHere}
-              </div>
-            )}
-            {selectedIsNextStop && (
-              <div>
-                <ArrowRight size={12} /> {t.nextStop}
-              </div>
-            )}
-            {!selectedIsCurrentStop && !selectedIsNextStop && selectedStopAtStop > 0 && (
-              <div>
-                <Bus size={12} /> {selectedStopAtStop} {selectedStopAtStop === 1 ? t.bus : t.buses}
-              </div>
-            )}
-            {!selectedIsNextStop && selectedStopArriving > 0 && (
-              <div>
-                <Timer size={12} /> {selectedStopArriving} {t.arriving}
-              </div>
-            )}
-            {selectedSchedule && selectedScheduleLabel && (
-              <div className="stop-popup__schedule">
-                <div className="stop-popup__schedule-title">
-                  {selectedSchedule.serviceEnded && <em>{t.serviceEnded} · </em>}
-                  {selectedScheduleLabel}
-                </div>
-                <div className="stop-schedule">
-                  {selectedSchedule.times.map((time) => (
-                    <span
-                      key={`popup-${selectedStop.properties.id}-${time.raw}`}
-                      className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${selectedSchedule.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
-                    >
-                      {time.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </MapPopup>
+          t={t}
+        />
       )}
       <MobileFollowSelectedStop />
       <SelectedStopOverlay />

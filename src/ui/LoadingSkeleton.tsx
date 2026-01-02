@@ -14,7 +14,7 @@ export default function LoadingSkeleton() {
     <div className="loading-skeleton">
       <div className="loading-skeleton__content">
         <div className="loading-skeleton__icon">
-          <img src="/bussit.webp" alt="Bussit" width={64} height={64} />
+          <img src="/bussit.webp" alt="Bussit" style={{ height: 64, width: 'auto' }} />
         </div>
         <div className="loading-skeleton__text">{t.loadingBuses}</div>
         <div className="loading-skeleton__dots">

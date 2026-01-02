@@ -173,6 +173,24 @@ function MapResizer() {
   return null
 }
 
+/**
+ * Disables rotation on touch gestures while keeping pinch-to-zoom enabled.
+ * MapLibre's touchZoomRotate handler combines both gestures, but provides
+ * a disableRotation() method to allow zoom-only behavior.
+ */
+function TouchRotationDisabler() {
+  const { map, isLoaded } = useMap()
+
+  useEffect(() => {
+    if (!map || !isLoaded) return
+
+    // Disable rotation component of touchZoomRotate, keeping zoom enabled
+    map.touchZoomRotate.disableRotation()
+  }, [map, isLoaded])
+
+  return null
+}
+
 function MapBoundsLimiter() {
   const { map, isLoaded } = useMap()
 
@@ -626,13 +644,13 @@ export default function MapViewMapLibre() {
         maxBounds={NUUK_BOUNDS}
         styles={mapStyles}
         dragRotate={false}
-        touchZoomRotate={false}
         pitchWithRotate={false}
         touchPitch={false}
         maxPitch={0}
       >
         <MapResizer />
         <MapBoundsLimiter />
+        <TouchRotationDisabler />
         <MapClickHandler />
         <MobileFollowSelectedVehicle />
         <MobileSelectedVehicleOverlayMarker />
