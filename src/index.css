@@ -188,8 +188,10 @@ textarea {
 /* Safe area insets for iOS notch/Dynamic Island in landscape */
 @media (orientation: landscape) {
   #root {
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
+    /* Use margin instead of padding so content respects safe areas on both rotations */
+    margin-left: env(safe-area-inset-left, 0px);
+    margin-right: env(safe-area-inset-right, 0px);
+    width: calc(100% - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
   }
 }
 
