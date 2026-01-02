@@ -2324,6 +2324,38 @@ html.landscape-mobile .stop-filter__toggle {
   font-size: 0.6rem;
 }
 
+/* Stop filter panel - Safari landscape positioning */
+html.landscape-mobile .stop-filter__panel {
+  position: fixed;
+  bottom: auto;
+  top: calc(env(safe-area-inset-top, 0px) + 3rem);
+  right: max(0.5rem, env(safe-area-inset-right, 0px));
+  left: auto;
+  max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 1rem);
+  max-width: calc(100dvw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 1rem);
+  min-width: 240px;
+  max-height: calc(100vh - env(safe-area-inset-top, 0px) - 4rem);
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 4rem);
+  overflow-y: auto;
+  z-index: 1001;
+}
+
+html.landscape-mobile .stop-filter__searchable-dropdown {
+  position: relative;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  max-height: none;
+  border-radius: 0.5rem;
+  margin-top: 0.25rem;
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+
+html.landscape-mobile .stop-filter__searchable-list {
+  max-height: 120px;
+}
+
 /* Bottom sheet - compact centered popover for Safari landscape fallback */
 html.landscape-mobile .bottom-sheet {
   position: fixed;
