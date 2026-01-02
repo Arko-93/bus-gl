@@ -176,10 +176,10 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
 
 interface StopDetailsProps {
   stop: StopFeature
-  vehiclesAtStop: Vehicle[]
+  headingVehicles: Vehicle[]
 }
 
-function StopDetails({ stop, vehiclesAtStop }: StopDetailsProps) {
+function StopDetails({ stop, headingVehicles }: StopDetailsProps) {
   const t = useTranslation()
   const { data: route1Schedule } = useRoute1Schedule()
   const { data: route2Schedule } = useRoute2Schedule()
@@ -282,25 +282,22 @@ function StopDetails({ stop, vehiclesAtStop }: StopDetailsProps) {
       </div>
 
       <div className="bottom-sheet__details">
-        {vehiclesAtStop.length > 0 && (
+        {headingVehicles.length > 0 && (
           <div className="bottom-sheet__section">
             <h3 className="bottom-sheet__section-title"><Bus size={16} /> {t.busHere}</h3>
-            {vehiclesAtStop.map((v) => (
-              <div key={v.id} className="bottom-sheet__bus-item">
-                <span 
-                  className={`bottom-sheet__route-badge bottom-sheet__route-badge--small ${v.route === 'X3' ? 'bottom-sheet__route-badge--x3' : ''}`}
-                  style={{ backgroundColor: getRouteColor(v.route) }}
+            <div className="bottom-sheet__heading-list">
+              {headingVehicles.map((vehicle) => (
+                <span
+                  key={vehicle.id}
+                  className={`bottom-sheet__route-badge bottom-sheet__route-badge--small ${vehicle.route === 'X3' ? 'bottom-sheet__route-badge--x3' : ''}`}
+                  style={{ backgroundColor: getRouteColor(vehicle.route) }}
                 >
-                  {v.route}
+                  {vehicle.route}
                 </span>
-                <span className="bottom-sheet__bus-destination">
-                  → {v.nextStopName || t.unknown}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
-
 
         {scheduleInfo && scheduleLabel && (
           <div className="bottom-sheet__section">
@@ -345,7 +342,7 @@ export default function BottomSheet() {
     [vehicles, selectedVehicleId]
   )
   
-  // Get selected stop and vehicles at the stop
+  // Get selected stop and vehicles heading here
   const stopLookup = useMemo(() => {
     if (!stopsData) return new Map()
     return createStopLookup(stopsData)
@@ -355,9 +352,11 @@ export default function BottomSheet() {
     return getStopById(selectedStopId, stopLookup)
   }, [selectedStopId, stopLookup])
   
-  const vehiclesAtStop = useMemo(() => {
+  const headingVehicles = useMemo(() => {
     if (selectedStopId === null) return []
-    return vehicles.filter((v) => v.stopId === selectedStopId)
+    return vehicles.filter(
+      (vehicle) => vehicle.nextStopId === selectedStopId || vehicle.stopId === selectedStopId
+    )
   }, [vehicles, selectedStopId])
 
   // Close handler
@@ -421,7 +420,7 @@ export default function BottomSheet() {
         {showStop && (
           <StopDetails 
             stop={selectedStop!} 
-            vehiclesAtStop={vehiclesAtStop}
+            headingVehicles={headingVehicles}
           />
         )}
       </div>

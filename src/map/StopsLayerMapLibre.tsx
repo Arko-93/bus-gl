@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Bus, ArrowRight, Timer } from 'lucide-react'
+import { Bus } from 'lucide-react'
 import { MapMarker, MarkerContent, MarkerTooltip, MapPopup, useMap } from '@/components/ui/map'
 import { useStopsData, type StopFeature } from '../data/useStopsData'
 import { useAppStore } from '../state/appStore'
@@ -13,7 +13,7 @@ import { useRouteE2Schedule } from '../data/routeE2Schedule'
 import { useRouteX3Schedule } from '../data/routeX3Schedule'
 import { useTranslation } from '../i18n/useTranslation'
 import { getRouteColor } from '../data/routeColors'
-import { type KnownRoute } from '../data/ridangoRealtime'
+import { type KnownRoute, type Vehicle } from '../data/ridangoRealtime'
 
 /**
  * Display coordinate overrides for bus stops.
@@ -330,10 +330,7 @@ interface DesktopStopPopupProps {
   stop: StopFeature
   scheduleCandidates: Array<{ route: string; schedule: ReturnType<typeof useRoute1Schedule>['data'] }>
   selectedStopRoute: KnownRoute | null
-  isCurrentStop: boolean
-  isNextStop: boolean
-  atStopCount: number
-  arrivingCount: number
+  headingVehicles: Vehicle[]
   onClose: () => void
   t: ReturnType<typeof useTranslation>
 }
@@ -342,10 +339,7 @@ function DesktopStopPopup({
   stop,
   scheduleCandidates,
   selectedStopRoute,
-  isCurrentStop,
-  isNextStop,
-  atStopCount,
-  arrivingCount,
+  headingVehicles,
   onClose,
   t,
 }: DesktopStopPopupProps) {
@@ -436,24 +430,22 @@ function DesktopStopPopup({
           )}
         </div>
 
-        {isCurrentStop && (
-          <div>
-            <Bus size={12} /> {t.busHere}
-          </div>
-        )}
-        {isNextStop && (
-          <div>
-            <ArrowRight size={12} /> {t.nextStop}
-          </div>
-        )}
-        {!isCurrentStop && !isNextStop && atStopCount > 0 && (
-          <div>
-            <Bus size={12} /> {atStopCount} {atStopCount === 1 ? t.bus : t.buses}
-          </div>
-        )}
-        {!isNextStop && arrivingCount > 0 && (
-          <div>
-            <Timer size={12} /> {arrivingCount} {t.arriving}
+        {headingVehicles.length > 0 && (
+          <div className="stop-popup__heading">
+            <div className="stop-popup__heading-title">
+              <Bus size={12} /> {t.busHere}
+            </div>
+            <div className="stop-popup__heading-list">
+              {headingVehicles.map((vehicle) => (
+                <span
+                  key={vehicle.id}
+                  className={`stop-popup__route-badge ${vehicle.route === 'X3' ? 'stop-popup__route-badge--x3' : ''}`}
+                  style={{ backgroundColor: getRouteColor(vehicle.route) }}
+                >
+                  {vehicle.route}
+                </span>
+              ))}
+            </div>
           </div>
         )}
         {scheduleInfo && scheduleLabel && (
@@ -554,14 +546,12 @@ export default function StopsLayerMapLibre() {
     ? validStops.find((f) => f.properties.id === selectedStopId) ?? null
     : null
 
-  const selectedStopArriving = selectedStop
-    ? (arrivingCounts.get(selectedStop.properties.id) ?? 0)
-    : 0
-  const selectedStopAtStop = selectedStop
-    ? (atStopCounts.get(selectedStop.properties.id) ?? 0)
-    : 0
-  const selectedIsCurrentStop = selectedStop?.properties.id === currentStopId
-  const selectedIsNextStop = selectedStop?.properties.id === nextStopId
+  const selectedStopHeadingVehicles = useMemo(() => {
+    if (!selectedStopId) return []
+    return vehicles.filter(
+      (vehicle) => vehicle.nextStopId === selectedStopId || vehicle.stopId === selectedStopId
+    )
+  }, [vehicles, selectedStopId])
 
   return (
     <>
@@ -635,10 +625,7 @@ export default function StopsLayerMapLibre() {
           stop={selectedStop}
           scheduleCandidates={scheduleCandidates}
           selectedStopRoute={selectedStopRoute}
-          isCurrentStop={selectedIsCurrentStop}
-          isNextStop={selectedIsNextStop}
-          atStopCount={selectedStopAtStop}
-          arrivingCount={selectedStopArriving}
+          headingVehicles={selectedStopHeadingVehicles}
           onClose={() => setSelectedStopId(null, { openPanel: false })}
           t={t}
         />

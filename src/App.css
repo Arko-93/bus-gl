@@ -1325,6 +1325,13 @@
   border-bottom: none;
 }
 
+.bottom-sheet__heading-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.25rem 0 0.5rem;
+}
+
 .bottom-sheet__route-badge--small {
   width: 32px;
   height: 32px;
@@ -2235,6 +2242,25 @@ button.bottom-sheet__route-badge:hover {
 /* Stop Popup Route Badges (desktop) */
 .stop-popup {
   min-width: 180px;
+}
+
+.stop-popup__heading {
+  margin-top: 0.4rem;
+}
+
+.stop-popup__heading-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.stop-popup__heading-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
 }
 
 .stop-popup__route-badges {
