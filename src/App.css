@@ -1833,100 +1833,174 @@ button.bottom-sheet__route-badge:hover {
   }
 
   .bottom-sheet {
-    height: min(52dvh, 52vh);
-    max-height: min(52dvh, 52vh);
-    padding: 0.65rem 0.75rem 0.5rem;
-    border-radius: 0.9rem 0.9rem 0 0;
+    height: auto;
+    max-height: min(40dvh, 40vh);
+    padding: 0.5rem 0.75rem 0.4rem;
+    border-radius: 0.75rem 0.75rem 0 0;
     overflow: hidden;
   }
 
   .bottom-sheet__handle {
-    margin-bottom: 0.5rem;
+    width: 32px;
+    height: 3px;
+    margin-bottom: 0.35rem;
   }
 
   .bottom-sheet__close {
-    top: 0.5rem;
+    top: 0.35rem;
     right: 0.5rem;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .bottom-sheet__close svg {
+    width: 14px;
+    height: 14px;
   }
 
   .bottom-sheet__content {
-    display: grid;
-    grid-template-columns: minmax(180px, 40%) 1fr;
-    column-gap: 0.75rem;
-    row-gap: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    gap: 0.6rem;
     height: 100%;
-    padding-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
   }
 
   .bottom-sheet__header {
+    flex-shrink: 0;
     margin-bottom: 0;
+    gap: 0.5rem;
   }
 
   .bottom-sheet__title h2 {
-    font-size: 1rem;
+    font-size: 0.85rem;
   }
 
   .bottom-sheet__headsign {
-    font-size: 0.75rem;
-  }
-
-  .bottom-sheet__details {
-    gap: 0.5rem;
-    min-height: 0;
-    overflow-y: auto;
-    padding-right: 0.25rem;
-  }
-
-  .bottom-sheet__group--log {
-    padding: 0.5rem;
-  }
-
-  .bottom-sheet__row {
-    padding: 0.35rem 0;
-  }
-
-  .bottom-sheet__route-badge {
-    width: 38px;
-    height: 38px;
-    font-size: 1rem;
-  }
-
-  .bottom-sheet__heading-list {
-    gap: 0.35rem;
-  }
-
-  .bottom-sheet__header--stop {
-    gap: 0.4rem;
-    margin-bottom: 0;
-  }
-
-  .bottom-sheet__header--stop .bottom-sheet__route-badges {
-    gap: 0.3rem;
-  }
-
-  .bottom-sheet__header--stop .bottom-sheet__route-badge--small {
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
     font-size: 0.65rem;
   }
 
-  .bottom-sheet__header--stop .bottom-sheet__route-badge--active {
-    width: 30px;
-    height: 30px;
-    min-width: 30px;
+  .bottom-sheet__details {
+    flex: 1;
+    gap: 0.35rem;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 0.25rem;
     font-size: 0.75rem;
   }
 
-  .stop-schedule {
+  .bottom-sheet__group {
+    gap: 0.25rem;
+  }
+
+  .bottom-sheet__group--log {
+    padding: 0.35rem 0.5rem;
+    margin-top: 0.15rem;
+  }
+
+  .bottom-sheet__group--log .bottom-sheet__row {
+    padding: 0.2rem 0;
+    font-size: 0.7rem;
+  }
+
+  .bottom-sheet__row {
+    padding: 0.25rem 0;
+    font-size: 0.75rem;
+  }
+
+  .bottom-sheet__label {
+    font-size: 0.7rem;
+  }
+
+  .bottom-sheet__label svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .bottom-sheet__value {
+    font-size: 0.75rem;
+  }
+
+  .bottom-sheet__route-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .bottom-sheet__badge {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .bottom-sheet__badge svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .bottom-sheet__stop-section {
+    margin-bottom: 0.25rem;
+  }
+
+  .bottom-sheet__heading-list {
+    gap: 0.25rem;
+    padding: 0.15rem 0 0.25rem;
+  }
+
+  .bottom-sheet__section {
+    margin-bottom: 0.25rem;
+  }
+
+  .bottom-sheet__section-title {
+    font-size: 0.7rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .bottom-sheet__section-title svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .bottom-sheet__header--stop {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0.3rem;
+    margin-bottom: 0;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__title h2 {
+    font-size: 0.85rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badges {
+    gap: 0.2rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badge--small {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    font-size: 0.6rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badge--active {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    font-size: 0.7rem;
+  }
+
+  .stop-schedule {
+    gap: 0.2rem;
   }
 
   .stop-schedule__time {
-    font-size: 0.7rem;
-    padding: 0.15rem 0.4rem;
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
+  }
+
+  .stop-schedule--compact {
+    margin-top: 0.2rem;
+    margin-left: 1rem;
   }
 }
 
