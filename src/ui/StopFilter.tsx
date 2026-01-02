@@ -206,16 +206,27 @@ export default function StopFilter() {
     return new Map(selectedRouteStops.map((stop, index) => [stop.id, index]))
   }, [selectedRouteStops])
 
-  const getStopsForward = useCallback(
+  const getStopsBetween = useCallback(
     (fromId: number, toId: number) => {
       if (selectedRouteStops.length === 0) return selectedRouteStops
       const fromIndex = selectedRouteIndex.get(fromId)
       const toIndex = selectedRouteIndex.get(toId)
       if (fromIndex == null || toIndex == null) return selectedRouteStops
-      if (fromIndex <= toIndex) {
-        return selectedRouteStops.slice(fromIndex, toIndex + 1)
-      }
-      return selectedRouteStops.slice(fromIndex).concat(selectedRouteStops.slice(0, toIndex + 1))
+
+      const forward =
+        fromIndex <= toIndex
+          ? selectedRouteStops.slice(fromIndex, toIndex + 1)
+          : selectedRouteStops.slice(fromIndex).concat(selectedRouteStops.slice(0, toIndex + 1))
+
+      const reverse =
+        fromIndex >= toIndex
+          ? selectedRouteStops.slice(toIndex, fromIndex + 1).reverse()
+          : selectedRouteStops
+              .slice(0, fromIndex + 1)
+              .reverse()
+              .concat(selectedRouteStops.slice(toIndex).reverse())
+
+      return reverse.length < forward.length ? reverse : forward
     },
     [selectedRouteIndex, selectedRouteStops]
   )
@@ -231,9 +242,9 @@ export default function StopFilter() {
       setStopFilters(selectedRouteStops)
       return
     }
-    setStopFilters(getStopsForward(selectedStopRouteFromId, selectedStopRouteToId))
+    setStopFilters(getStopsBetween(selectedStopRouteFromId, selectedStopRouteToId))
   }, [
-    getStopsForward,
+    getStopsBetween,
     selectedRouteStops,
     selectedStopRouteFromId,
     selectedStopRouteToId,

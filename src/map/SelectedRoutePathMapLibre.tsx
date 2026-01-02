@@ -459,7 +459,13 @@ export default function SelectedRoutePathMapLibre() {
       const fromId = stopNameIndex.get(normalizeStopName(override.fromName))
       const toId = stopNameIndex.get(normalizeStopName(override.toName))
       if (!fromId || !toId) continue
+      const viaPoints = normalizeOverridePoints(override.via)
       map.set(`${fromId}|${toId}`, override.via)
+      const reverseKey = `${toId}|${fromId}`
+      if (!map.has(reverseKey)) {
+        const reversed = [...viaPoints].reverse()
+        map.set(reverseKey, reversed.length === 1 ? reversed[0] : reversed)
+      }
     }
     return map
   }, [selectedStopRoute, stopNameIndex])
@@ -471,10 +477,18 @@ export default function SelectedRoutePathMapLibre() {
     const fromIndex = stopOrder.indexOf(selectedStopRouteFromId)
     const toIndex = stopOrder.indexOf(selectedStopRouteToId)
     if (fromIndex === -1 || toIndex === -1) return null
-    if (fromIndex <= toIndex) {
-      return stopOrder.slice(fromIndex, toIndex + 1)
-    }
-    return stopOrder.slice(fromIndex).concat(stopOrder.slice(0, toIndex + 1))
+
+    const forward =
+      fromIndex <= toIndex
+        ? stopOrder.slice(fromIndex, toIndex + 1)
+        : stopOrder.slice(fromIndex).concat(stopOrder.slice(0, toIndex + 1))
+
+    const reverse =
+      fromIndex >= toIndex
+        ? stopOrder.slice(toIndex, fromIndex + 1).reverse()
+        : stopOrder.slice(0, fromIndex + 1).reverse().concat(stopOrder.slice(toIndex).reverse())
+
+    return reverse.length < forward.length ? reverse : forward
   }, [
     selectedStopRouteTripEnabled,
     selectedStopRouteFromId,
