@@ -898,8 +898,8 @@
 }
 
 .bus-path--next {
-  stroke-dasharray: 12 20;
-  animation: bus-path-flow-next 2.6s linear infinite;
+  stroke-dasharray: 8 10;
+  animation: bus-path-flow 2.6s linear infinite;
 }
 
 @keyframes bus-path-flow {
@@ -908,15 +908,6 @@
   }
   to {
     stroke-dashoffset: -36;
-  }
-}
-
-@keyframes bus-path-flow-next {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -32;
   }
 }
 
