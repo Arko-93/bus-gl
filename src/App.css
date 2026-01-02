@@ -1250,7 +1250,7 @@
 
 .bottom-sheet__time-ago {
   color: var(--text-subtle);
-  font-size: 0.875rem;
+  font-size: inherit;
 }
 
 .bottom-sheet__badge {
@@ -2012,6 +2012,26 @@ button.bottom-sheet__route-badge:hover {
   .stop-schedule--compact {
     margin-top: 0.15rem;
     margin-left: 0.75rem;
+  }
+
+  /* Bus popover: wider and shorter for speed/time visibility */
+  .bottom-sheet--bus {
+    max-width: min(520px, 95vw);
+    max-height: min(38dvh, 38vh);
+  }
+
+  .bottom-sheet--bus .bottom-sheet__content {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .bottom-sheet--bus .bottom-sheet__header {
+    flex-shrink: 0;
+    min-width: 70px;
+  }
+
+  .bottom-sheet--bus .bottom-sheet__details {
+    flex: 1;
   }
 }
 

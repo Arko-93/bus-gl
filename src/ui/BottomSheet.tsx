@@ -396,7 +396,8 @@ export default function BottomSheet() {
     : `${t.stopDetails}: ${selectedStop!.properties.name}`
 
   // Different styling for desktop vs mobile
-  const panelClassName = isMobile ? 'bottom-sheet' : 'detail-panel'
+  const typeModifier = showVehicle ? 'bottom-sheet--bus' : 'bottom-sheet--stop'
+  const panelClassName = isMobile ? `bottom-sheet ${typeModifier}` : 'detail-panel'
   const backdropClassName = isMobile ? 'bottom-sheet__backdrop' : 'detail-panel__backdrop'
 
   return (
