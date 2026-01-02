@@ -90,17 +90,9 @@ function AppContent() {
       return
     }
 
-    const { requestIdleCallback, cancelIdleCallback } = window as Window & {
-      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number
-      cancelIdleCallback?: (handle: number) => void
-    }
-
-    if (requestIdleCallback) {
-      const idleHandle = requestIdleCallback(() => setIsMapReady(true), { timeout: 1200 })
-      return () => cancelIdleCallback?.(idleHandle)
-    }
-
-    const timeoutId = window.setTimeout(() => setIsMapReady(true), 250)
+    // Load map immediately for better reliability on mobile
+    // Use a minimal delay just to let the app shell paint first
+    const timeoutId = window.setTimeout(() => setIsMapReady(true), 50)
     return () => window.clearTimeout(timeoutId)
   }, [])
 

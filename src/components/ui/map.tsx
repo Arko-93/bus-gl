@@ -106,18 +106,36 @@ function Map({ children, styles, ...props }: MapProps) {
 
     const styleDataHandler = () => setIsStyleLoaded(true)
     const loadHandler = () => setIsLoaded(true)
+    const errorHandler = (e: { error?: Error }) => {
+      console.warn('MapLibre error:', e.error?.message || 'Unknown error')
+      // Still mark as loaded so app doesn't hang - map will show what it can
+      setIsLoaded(true)
+      setIsStyleLoaded(true)
+    }
 
     mapInstance.on('load', loadHandler)
     mapInstance.on('styledata', styleDataHandler)
+    mapInstance.on('error', errorHandler)
     mapRef.current = mapInstance
+
+    // Fallback timeout - if map hasn't loaded after 8 seconds, proceed anyway
+    const fallbackTimeout = window.setTimeout(() => {
+      if (!isLoaded || !isStyleLoaded) {
+        console.warn('Map load timeout - proceeding with partial load')
+        setIsLoaded(true)
+        setIsStyleLoaded(true)
+      }
+    }, 8000)
 
     if (import.meta.env.DEV) {
       window.__maplibre = mapInstance
     }
 
     return () => {
+      window.clearTimeout(fallbackTimeout)
       mapInstance.off('load', loadHandler)
       mapInstance.off('styledata', styleDataHandler)
+      mapInstance.off('error', errorHandler)
       if (import.meta.env.DEV) {
         window.__maplibre = undefined
       }
