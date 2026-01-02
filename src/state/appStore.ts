@@ -4,7 +4,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { KNOWN_ROUTES, type KnownRoute } from '../data/ridangoRealtime'
-import { detectBrowserLocale, type Locale } from '../i18n/translations'
+import { type Locale } from '../i18n/translations'
 import type { Theme } from '../hooks/useResolvedTheme'
 
 const STORAGE_KEY = 'nuuk-bus-preferences'
@@ -222,8 +222,8 @@ export const useAppStore = create<AppState>()(
       isBottomSheetOpen: false,
       setBottomSheetOpen: (open) => set({ isBottomSheetOpen: open }),
 
-      // Locale - detect from browser or default to English
-      locale: persistedPreferences.locale ?? detectBrowserLocale(),
+      // Locale - default to Kalaallisut unless user has explicitly chosen
+      locale: persistedPreferences.locale ?? 'kl',
       setLocale: (locale) => set({ locale }),
 
       // Theme - default to system preference
