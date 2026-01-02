@@ -1839,11 +1839,13 @@ button.bottom-sheet__route-badge:hover {
     bottom: 1rem;
     transform: translateX(-50%);
     width: auto;
-    max-width: min(420px, 90vw);
+    /* Respect safe areas for Dynamic Island / notch */
+    max-width: min(420px, calc(90vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
     height: auto;
     max-height: min(50dvh, 50vh);
     padding: 0.5rem 0.75rem 0.5rem;
     padding-right: 2rem; /* Space for close button */
+    padding-left: max(0.75rem, env(safe-area-inset-left, 0px));
     border-radius: 0.75rem;
     overflow: hidden;
     display: flex;
