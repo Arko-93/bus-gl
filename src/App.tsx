@@ -1,9 +1,8 @@
 // src/App.tsx
 // Main application component
 
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import MapViewMapLibre from './map/MapViewMapLibre'
 import TopBar from './ui/TopBar'
 import RouteFilter from './ui/RouteFilter'
 import StopFilter from './ui/StopFilter'
@@ -13,6 +12,8 @@ import LoadingSkeleton from './ui/LoadingSkeleton'
 import { useAppStore } from './state/appStore'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import './App.css'
+
+const MapViewMapLibre = lazy(() => import('./map/MapViewMapLibre'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,7 +66,9 @@ function AppContent() {
       <TopBar />
       <ErrorBanner />
       <LoadingSkeleton />
-      <MapViewMapLibre />
+      <Suspense fallback={<div className="map-container" />}>
+        <MapViewMapLibre />
+      </Suspense>
       {/* Hide filter bar on mobile when bottom sheet is open */}
       {!(isMobile && isBottomSheetOpen) && (
         <div className="filter-bar">

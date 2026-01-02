@@ -1360,14 +1360,7 @@ button.bottom-sheet__route-badge:hover {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-/* X3 route with solid green schedule pills */
-.stop-schedule--x3 .stop-schedule__time {
-  background: #00b047;
-  border-color: #00b047;
-  color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-}
-
+/* X3 route keeps only the next time highlighted */
 .stop-schedule--x3 .stop-schedule__time--next {
   background: #00b047;
   border-color: #00b047;
@@ -1526,7 +1519,7 @@ button.bottom-sheet__route-badge:hover {
   }
 
   .bottom-sheet__header--stop .bottom-sheet__route-badges {
-    gap: 0.25rem;
+    gap: 0.4rem;
   }
 
   .bottom-sheet__header--stop .bottom-sheet__route-badge {

@@ -50,6 +50,21 @@ export default defineConfig(({ mode }) => {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           runtimeCaching: [
             {
+              // Cache MapLibre CDN assets for faster repeat loads
+              urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/maplibre-gl@5\.15\.0\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'maplibre-cdn',
+                expiration: {
+                  maxEntries: 8,
+                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
               // Cache OpenStreetMap tiles
               urlPattern: /^https:\/\/[a-c]\.tile\.openstreetmap\.org\/.*/i,
               handler: 'CacheFirst',
@@ -75,11 +90,24 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
+        external: ['maplibre-gl'],
         output: {
           manualChunks: (id) => {
             if (!id.includes('node_modules')) return undefined
             if (id.includes('react-dom') || id.includes('/react/')) return 'react-vendor'
             if (id.includes('@tanstack/react-query') || id.includes('zustand')) return 'state-vendor'
+            if (
+              id.includes('geojson-vt') ||
+              id.includes('supercluster') ||
+              id.includes('kdbush') ||
+              id.includes('rbush') ||
+              id.includes('potpack') ||
+              id.includes('pbf') ||
+              id.includes('quickselect') ||
+              id.includes('@mapbox/') ||
+              id.includes('@maplibre/')
+            )
+              return 'map-geo'
             if (id.includes('maplibre-gl')) return 'map-vendor'
             if (id.includes('lucide-react')) return 'icons'
             if (id.includes('fuse.js')) return 'search'
@@ -87,6 +115,9 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
+    },
+    optimizeDeps: {
+      exclude: ['maplibre-gl'],
     },
     server: {
       proxy: {

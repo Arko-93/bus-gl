@@ -5,6 +5,7 @@
 /* MapLibre popup overrides - must be unlayered to override maplibre-gl.css */
 .maplibregl-popup {
   pointer-events: auto;
+  z-index: 5;
 }
 
 .maplibregl-popup-content {
