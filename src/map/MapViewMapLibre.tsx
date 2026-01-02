@@ -629,7 +629,13 @@ function SelectedVehiclePopup() {
 }
 
 function ResponsiveMapControls() {
-  return <MapControls position="top-right" showZoom={true} />
+  return (
+    <MapControls
+      position="top-right"
+      showZoom={true}
+      className="map-controls--below-top-bar"
+    />
+  )
 }
 
 export default function MapViewMapLibre() {

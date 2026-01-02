@@ -105,7 +105,7 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
                 <span className="bottom-sheet__value">{vehicle.stopName || t.inTransit}</span>
               </div>
               {currentStopSchedule && (
-                <div className="stop-schedule stop-schedule--compact">
+                <div className={`stop-schedule stop-schedule--compact${vehicle.route === 'X3' ? ' stop-schedule--x3' : ''}`}>
                   {currentStopSchedule.serviceEnded && <span className="stop-schedule__ended-label">{t.serviceEnded}</span>}
                   {currentStopSchedule.times.map((time) => (
                     <span
@@ -127,7 +127,7 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
                 <span className="bottom-sheet__value">{vehicle.nextStopName}</span>
               </div>
               {nextStopSchedule && (
-                <div className="stop-schedule stop-schedule--compact">
+                <div className={`stop-schedule stop-schedule--compact${vehicle.route === 'X3' ? ' stop-schedule--x3' : ''}`}>
                   {nextStopSchedule.serviceEnded && <span className="stop-schedule__ended-label">{t.serviceEnded}</span>}
                   {nextStopSchedule.times.map((time) => (
                     <span
@@ -251,6 +251,7 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
 
   // Get the color for schedule times based on selected route
   const scheduleRouteColor = resolvedSchedule ? getRouteColor(resolvedSchedule.route) : null
+  const isX3Schedule = resolvedSchedule?.route === 'X3'
   
   return (
     <div className="bottom-sheet__content">
@@ -326,7 +327,7 @@ function StopDetails({ stop, vehiclesAtStop, vehiclesArriving }: StopDetailsProp
               {scheduleInfo.serviceEnded && <em>{t.serviceEnded} · </em>}
               {scheduleLabel}
             </h3>
-            <div className="stop-schedule">
+            <div className={`stop-schedule${isX3Schedule ? ' stop-schedule--x3' : ''}`}>
               {scheduleInfo.times.map((time) => (
                 <span
                   key={`${stop.properties.id}-${time.raw}`}

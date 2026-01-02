@@ -357,7 +357,9 @@ export default function StopFilter() {
                       onClick={() => handleRouteSelect(routeId)}
                       disabled={isDisabled}
                     >
-                      <span className="stop-filter__route-badge">
+                      <span
+                        className={`stop-filter__route-badge${routeId === 'X3' ? ' stop-filter__route-badge--x3' : ''}`}
+                      >
                         <Route size={14} />
                         <span>{routeId}</span>
                       </span>
@@ -381,7 +383,9 @@ export default function StopFilter() {
                 className="stop-filter__route-btn stop-filter__route-btn--active"
                 style={{ '--route-color': getRouteColor(selectedStopRoute) } as React.CSSProperties}
               >
-                <span className="stop-filter__route-badge">
+                <span
+                  className={`stop-filter__route-badge${selectedStopRoute === 'X3' ? ' stop-filter__route-badge--x3' : ''}`}
+                >
                   <Route size={14} />
                   <span>{selectedStopRoute}</span>
                 </span>

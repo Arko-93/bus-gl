@@ -19,6 +19,10 @@
   z-index: 0;
 }
 
+.map-controls--below-top-bar {
+  top: calc(env(safe-area-inset-top, 0px) + 4.25rem);
+}
+
 /* Top Bar */
 .top-bar {
   position: absolute;
@@ -435,6 +439,19 @@
   font-weight: 700;
   font-size: 0.875rem;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35), 0 0 2px rgba(0, 0, 0, 0.25);
+}
+
+/* X3 route with diagonal stripes */
+.stop-filter__route-badge--x3 {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #00b047 0,
+    #00b047 5px,
+    #006425 5px,
+    #006425 10px
+  ) !important;
+  background-size: 14px 14px;
+  text-shadow: 0 0 3px #00b047, 0 0 6px #00b047;
 }
 
 .stop-filter__route-badge svg {
@@ -1341,6 +1358,34 @@ button.bottom-sheet__route-badge:hover {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
+/* X3 route with diagonal stripes */
+.stop-schedule--x3 .stop-schedule__time {
+  background: #00b047;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #00b047 0,
+    #00b047 4px,
+    #006425 4px,
+    #006425 8px
+  );
+  background-size: 11px 11px;
+  border-color: #006425;
+  color: white;
+  text-shadow: 0 0 3px #00b047, 0 0 6px #00b047;
+}
+
+.stop-schedule--x3 .stop-schedule__time--next {
+  background: #00b047;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #00b047 0,
+    #00b047 4px,
+    #006425 4px,
+    #006425 8px
+  );
+  border-color: #00b047;
+}
+
 /* Past times when service has ended for the day */
 .stop-schedule__time--ended {
   opacity: 0.5;
@@ -1483,6 +1528,40 @@ button.bottom-sheet__route-badge:hover {
     display: none;
   }
 
+  /* Mobile bottom sheet stop header balance */
+  .bottom-sheet__header--stop {
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__title h2 {
+    font-size: 1rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badges {
+    gap: 0.25rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badge {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badge--small {
+    height: 24px;
+    min-width: 24px;
+    padding: 0 0.35rem;
+    font-size: 0.7rem;
+  }
+
+  .bottom-sheet__header--stop .bottom-sheet__route-badge--active {
+    height: 30px;
+    min-width: 32px;
+    padding: 0 0.4rem;
+    font-size: 0.85rem;
+  }
+
   /* Mobile filter bar - simple stacked layout */
   .filter-bar {
     position: fixed;
@@ -1574,8 +1653,8 @@ button.bottom-sheet__route-badge:hover {
   }
 
   /* Map controls - position below navbar on mobile */
-  .map-controls.top-2 {
-    top: 5.5rem;
+  .map-controls--below-top-bar {
+    top: calc(env(safe-area-inset-top, 0px) + 5.5rem);
   }
 }
 

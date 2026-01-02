@@ -195,12 +195,17 @@ textarea {
   pointer-events: auto !important;
   touch-action: manipulation;
   cursor: pointer;
+  z-index: 3;
 }
 
 /* Animated route SVG overlay should never block interactions */
 .animated-route-svg,
 .animated-route-svg * {
   pointer-events: none !important;
+}
+
+.animated-route-svg {
+  z-index: 1;
 }
 
 /* ============================================

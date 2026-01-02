@@ -172,6 +172,7 @@ interface StopMarkerProps {
   arrivingCount: number
   scheduleInfo: ReturnType<typeof getUpcomingTimes>
   scheduleLabel: string | null
+  isX3Schedule: boolean
   isMobile: boolean
   setSelectedStopId: (id: number | null, options?: { openPanel?: boolean }) => void
   t: ReturnType<typeof useTranslation>
@@ -191,6 +192,7 @@ function StopMarker({
   arrivingCount,
   scheduleInfo,
   scheduleLabel,
+  isX3Schedule,
   isMobile,
   setSelectedStopId,
   t,
@@ -258,7 +260,7 @@ function StopMarker({
                   {scheduleInfo.serviceEnded && <em>{t.serviceEnded} · </em>}
                   {scheduleLabel}
                 </div>
-                <div className="stop-schedule">
+                <div className={`stop-schedule${isX3Schedule ? ' stop-schedule--x3' : ''}`}>
                   {scheduleInfo.times.map((time) => (
                     <span
                       key={`tooltip-${id}-${time.raw}`}
@@ -442,6 +444,7 @@ function DesktopStopPopup({
 
   // Get the color for schedule times based on active route
   const scheduleRouteColor = activeRoute ? getRouteColor(activeRoute) : null
+  const isX3Schedule = resolvedSchedule?.route === 'X3'
 
   // Handle clicking a route badge
   const handleRouteBadgeClick = useCallback((route: KnownRoute) => {
@@ -508,7 +511,7 @@ function DesktopStopPopup({
               {scheduleInfo.serviceEnded && <em>{t.serviceEnded} · </em>}
               {scheduleLabel}
             </div>
-            <div className="stop-schedule">
+            <div className={`stop-schedule${isX3Schedule ? ' stop-schedule--x3' : ''}`}>
               {scheduleInfo.times.map((time) => (
                 <span
                   key={`popup-${stop.properties.id}-${time.raw}`}
@@ -651,6 +654,8 @@ export default function StopsLayerMapLibre() {
               }`
             : null
 
+        const isX3Schedule = resolvedSchedule?.route === 'X3'
+
         return (
           <StopMarker
             key={id}
@@ -667,6 +672,7 @@ export default function StopsLayerMapLibre() {
             arrivingCount={arrivingCount}
             scheduleInfo={scheduleInfo}
             scheduleLabel={scheduleLabel}
+            isX3Schedule={isX3Schedule}
             isMobile={isMobile}
             setSelectedStopId={setSelectedStopId}
             t={t}
