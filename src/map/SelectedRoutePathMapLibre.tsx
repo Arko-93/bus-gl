@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import maplibregl from 'maplibre-gl'
 import { MapRoute, AnimatedRouteSvg } from '@/components/ui/map'
 import { useAppStore } from '../state/appStore'
 import { useStopsData } from '../data/useStopsData'
@@ -13,100 +12,6 @@ import { getRouteLineColor } from '../data/routeColors'
 import { useResolvedTheme } from '../hooks/useResolvedTheme'
 
 type LatLng = [number, number]
-
-type Point = {
-  x: number
-  y: number
-}
-
-type LinePosition = {
-  index: number
-  t: number
-  distance: number
-}
-
-function projectPoint(latlng: LatLng): Point {
-  const mercator = maplibregl.MercatorCoordinate.fromLngLat({
-    lng: latlng[1],
-    lat: latlng[0],
-  })
-  return { x: mercator.x, y: mercator.y }
-}
-
-function distance(a: Point, b: Point): number {
-  const dx = b.x - a.x
-  const dy = b.y - a.y
-  return Math.sqrt(dx * dx + dy * dy)
-}
-
-function interpolate(a: LatLng, b: LatLng, t: number): LatLng {
-  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]
-}
-
-function locateOnLine(line: LatLng[], point: LatLng): LinePosition | null {
-  if (line.length < 2) return null
-  const p = projectPoint(point)
-  let total = 0
-  let best: { distance: number; index: number; t: number; along: number } | null = null
-
-  for (let i = 0; i < line.length - 1; i += 1) {
-    const a = projectPoint(line[i])
-    const b = projectPoint(line[i + 1])
-    const ab = { x: b.x - a.x, y: b.y - a.y }
-    const ab2 = ab.x * ab.x + ab.y * ab.y
-    const ap = { x: p.x - a.x, y: p.y - a.y }
-    let t = ab2 === 0 ? 0 : (ap.x * ab.x + ap.y * ab.y) / ab2
-    t = Math.max(0, Math.min(1, t))
-    const closest = { x: a.x + ab.x * t, y: a.y + ab.y * t }
-    const dist = distance(closest, p)
-    const segmentLength = distance(a, b)
-    const along = total + segmentLength * t
-
-    if (!best || dist < best.distance) {
-      best = { distance: dist, index: i, t, along }
-    }
-
-    total += segmentLength
-  }
-
-  if (!best) return null
-  return { index: best.index, t: best.t, distance: best.along }
-}
-
-function sliceLine(line: LatLng[], start: LinePosition, end: LinePosition): LatLng[] | null {
-  if (line.length < 2) return null
-
-  const reversed = start.distance > end.distance
-  const from = reversed ? end : start
-  const to = reversed ? start : end
-
-  const points: LatLng[] = []
-  const startPoint = interpolate(line[from.index], line[from.index + 1], from.t)
-  points.push(startPoint)
-
-  for (let i = from.index + 1; i <= to.index; i += 1) {
-    points.push(line[i])
-  }
-
-  const endPoint = interpolate(line[to.index], line[to.index + 1], to.t)
-  points.push(endPoint)
-
-  if (reversed) {
-    points.reverse()
-  }
-
-  return points
-}
-
-function trimLineToStops(line: LatLng[] | null, fromCoord: LatLng, toCoord: LatLng): LatLng[] | null {
-  if (!line || line.length < 2) return line
-  const start = locateOnLine(line, fromCoord)
-  const end = locateOnLine(line, toCoord)
-  if (!start || !end) return line
-  const trimmed = sliceLine(line, start, end)
-  if (!trimmed || trimmed.length < 2) return line
-  return trimmed
-}
 
 const OSRM_BASE_URL = (import.meta.env.VITE_OSRM_BASE_URL || 'https://router.project-osrm.org').replace(
   /\/$/,
@@ -754,32 +659,10 @@ export default function SelectedRoutePathMapLibre() {
     routeChunks,
   ])
 
-  const tripEndpoints = useMemo(() => {
-    if (!selectedStopRouteTripEnabled) return null
-    if (!selectedStopRouteFromId || !selectedStopRouteToId) return null
-    const from = coordIndex.get(selectedStopRouteFromId)
-    const to = coordIndex.get(selectedStopRouteToId)
-    if (!from || !to) return null
-    return { from, to }
-  }, [
-    selectedStopRouteTripEnabled,
-    selectedStopRouteFromId,
-    selectedStopRouteToId,
-    coordIndex,
-  ])
-
-  const trimmedRoutePaths = useMemo(() => {
-    if (!tripEndpoints) return routePaths
-    return {
-      base: trimLineToStops(routePaths.base, tripEndpoints.from, tripEndpoints.to),
-      pulse: trimLineToStops(routePaths.pulse, tripEndpoints.from, tripEndpoints.to),
-    }
-  }, [routePaths, tripEndpoints])
-
   const effectiveRoutePaths = useMemo(() => {
     if (!shouldFetchRoute) return { base: null, pulse: null }
-    return trimmedRoutePaths
-  }, [shouldFetchRoute, trimmedRoutePaths])
+    return routePaths
+  }, [shouldFetchRoute, routePaths])
 
   const baseSegments = useMemo(() => {
     if (!effectiveRoutePaths.base || effectiveRoutePaths.base.length < 2) return null
