@@ -1264,19 +1264,21 @@
 }
 
 .bottom-sheet__route-badge--small {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
+  width: 32px;
+  height: 32px;
   min-width: 32px;
+  padding: 0;
+  font-size: 0.75rem;
 }
 
 /* Active route badge in bottom sheet stop details */
 .bottom-sheet__route-badge--active {
-  width: auto;
-  height: 32px;
-  min-width: 36px;
-  padding: 0 0.5rem;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0;
   font-size: 0.9rem;
-  border-radius: 999px;
+  border-radius: 50%;
   box-shadow: 0 0 0 2px var(--panel-solid), 0 0 0 3px currentColor;
 }
 
@@ -1358,31 +1360,16 @@ button.bottom-sheet__route-badge:hover {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-/* X3 route with diagonal stripes */
+/* X3 route with solid green schedule pills */
 .stop-schedule--x3 .stop-schedule__time {
   background: #00b047;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    #00b047 0,
-    #00b047 4px,
-    #006425 4px,
-    #006425 8px
-  );
-  background-size: 11px 11px;
-  border-color: #006425;
+  border-color: #00b047;
   color: white;
-  text-shadow: 0 0 3px #00b047, 0 0 6px #00b047;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .stop-schedule--x3 .stop-schedule__time--next {
   background: #00b047;
-  background-image: repeating-linear-gradient(
-    -45deg,
-    #00b047 0,
-    #00b047 4px,
-    #006425 4px,
-    #006425 8px
-  );
   border-color: #00b047;
 }
 
@@ -1549,16 +1536,18 @@ button.bottom-sheet__route-badge:hover {
   }
 
   .bottom-sheet__header--stop .bottom-sheet__route-badge--small {
-    height: 24px;
-    min-width: 24px;
-    padding: 0 0.35rem;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    padding: 0;
     font-size: 0.7rem;
   }
 
   .bottom-sheet__header--stop .bottom-sheet__route-badge--active {
-    height: 30px;
+    width: 32px;
+    height: 32px;
     min-width: 32px;
-    padding: 0 0.4rem;
+    padding: 0;
     font-size: 0.85rem;
   }
 
