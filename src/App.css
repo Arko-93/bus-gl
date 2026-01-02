@@ -2514,33 +2514,43 @@ html.landscape-mobile .stop-schedule--compact {
 }
 
 html.landscape-mobile .bottom-sheet--stop {
-  max-width: min(380px, calc(90vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))) !important;
+  width: min(380px, calc(90vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  width: min(380px, calc(90dvw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  max-width: min(380px, calc(90vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  max-width: min(380px, calc(90dvw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  min-width: 0;
 }
 
 html.landscape-mobile .bottom-sheet--stop .bottom-sheet__title {
   padding-right: 0;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 html.landscape-mobile .bottom-sheet--stop .bottom-sheet__content {
   padding-left: 0.25rem;
-  max-width: 100% !important;
-  overflow: hidden !important;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
 html.landscape-mobile .bottom-sheet--stop .bottom-sheet__header--stop {
-  max-width: 100% !important;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
 }
 
 html.landscape-mobile .bottom-sheet--stop .bottom-sheet__header--stop .bottom-sheet__route-badges {
   padding-left: 0.15rem;
-  max-width: 100% !important;
-  flex-wrap: wrap !important;
-  overflow: hidden !important;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+  overflow: hidden;
 }
 
 /* Bus popover: two-column layout */

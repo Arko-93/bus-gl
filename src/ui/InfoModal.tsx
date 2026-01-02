@@ -89,8 +89,8 @@ export default function InfoModal() {
             <h3>{t.cookiesTitle}</h3>
             <p className="info-modal__text">{t.cookiesDescription}</p>
             <ul className="info-modal__list info-modal__list--compact">
-              <li><code>locale</code> – {t.cookieLocale}</li>
-              <li><code>theme</code> – {t.cookieTheme}</li>
+              <li>{t.cookieLocale}</li>
+              <li>{t.cookieTheme}</li>
             </ul>
           </section>
 
