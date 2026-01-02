@@ -67,7 +67,7 @@ export default function InfoModal() {
                 <br />
                 <span className="info-modal__source">
                   {t.ownedBy}{' '}
-                  <a href="https://nuup-bussii.gl" target="_blank" rel="noopener noreferrer">
+                  <a href="https://bus.gl" target="_blank" rel="noopener noreferrer">
                     Nuup Bussii A/S <ExternalLink size={12} />
                   </a>
                 </span>
