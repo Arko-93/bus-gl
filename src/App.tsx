@@ -1,7 +1,7 @@
 // src/App.tsx
 // Main application component
 
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import TopBar from './ui/TopBar'
 import RouteFilter from './ui/RouteFilter'
@@ -57,7 +57,41 @@ function useMobileDetection() {
 function AppContent() {
   useMobileDetection()
   useKeyboardShortcuts()
-  
+
+  const [isMapReady, setIsMapReady] = useState(false)
+  const [isMapDeferred, setIsMapDeferred] = useState(false)
+
+  useEffect(() => {
+    const connection = (
+      navigator as Navigator & { connection?: { effectiveType?: string; saveData?: boolean } }
+    ).connection
+    const isSlowConnection =
+      connection?.saveData || connection?.effectiveType === '2g' || connection?.effectiveType === 'slow-2g'
+
+    if (isSlowConnection) {
+      setIsMapDeferred(true)
+      return
+    }
+
+    const { requestIdleCallback, cancelIdleCallback } = window as Window & {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number
+      cancelIdleCallback?: (handle: number) => void
+    }
+
+    if (requestIdleCallback) {
+      const idleHandle = requestIdleCallback(() => setIsMapReady(true), { timeout: 1200 })
+      return () => cancelIdleCallback?.(idleHandle)
+    }
+
+    const timeoutId = window.setTimeout(() => setIsMapReady(true), 250)
+    return () => window.clearTimeout(timeoutId)
+  }, [])
+
+  const handleLoadMap = () => {
+    setIsMapDeferred(false)
+    setIsMapReady(true)
+  }
+
   const isMobile = useAppStore((state) => state.isMobile)
   const isBottomSheetOpen = useAppStore((state) => state.isBottomSheetOpen)
 
@@ -66,9 +100,25 @@ function AppContent() {
       <TopBar />
       <ErrorBanner />
       <LoadingSkeleton />
-      <Suspense fallback={<div className="map-container" />}>
-        <MapViewMapLibre />
-      </Suspense>
+      {isMapReady ? (
+        <Suspense fallback={<div className="map-container" />}>
+          <MapViewMapLibre />
+        </Suspense>
+      ) : isMapDeferred ? (
+        <div className="map-container map-container--placeholder">
+          <div className="map-placeholder">
+            <div className="map-placeholder__title">Load map when ready</div>
+            <p className="map-placeholder__body">
+              Slow connection detected. Tap to load the map.
+            </p>
+            <button className="map-load-button" type="button" onClick={handleLoadMap}>
+              Load map
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="map-container" />
+      )}
       {/* Hide filter bar on mobile when bottom sheet is open */}
       {!(isMobile && isBottomSheetOpen) && (
         <div className="filter-bar">
