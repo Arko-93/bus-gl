@@ -127,7 +127,7 @@ test('route filter updates bus count', async ({ page }) => {
   await route1Button.click()
 
   await expect(route1Button).toHaveAttribute('aria-pressed', 'true')
-  await expect(page.getByText('1 bus')).toBeVisible()
+  await expect(page.getByText('1 bus operating')).toBeVisible()
 })
 
 test('routes layer renders when enabled', async ({ page }) => {

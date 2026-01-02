@@ -60,8 +60,8 @@ export default function TopBar() {
           ) : (
             <>
               <span className="top-bar__vehicle-count">
-                {filteredVehicles.length === 1 
-                  ? `1 ${t.bus}`
+                {filteredVehicles.length === 1
+                  ? t.busCount.replace('{count}', String(filteredVehicles.length))
                   : t.busesCount.replace('{count}', String(filteredVehicles.length))
                 }
               </span>

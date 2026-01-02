@@ -19,6 +19,7 @@ export interface TranslationStrings {
   live: string
   buses: string
   bus: string
+  busCount: string // Template with {count} placeholder
   busesCount: string // Template with {count} placeholder
   updated: string
   stale: string
@@ -101,6 +102,7 @@ const translations: Record<Locale, TranslationStrings> = {
     live: 'Toqqaannartoq',
     buses: 'bussit',
     bus: 'bussi',
+    busCount: 'Bussit ataatsit ingerlapput',
     busesCount: 'Bussit {count}-t ingerlapput',
     updated: 'Nutarterneqarfia',
     stale: 'attaviluttoq',
@@ -160,6 +162,7 @@ const translations: Record<Locale, TranslationStrings> = {
     live: 'Live',
     buses: 'busser',
     bus: 'bus',
+    busCount: '{count} bus i drift',
     busesCount: '{count} busser i drift',
     updated: 'Opdateret',
     stale: 'forældet',
@@ -219,6 +222,7 @@ const translations: Record<Locale, TranslationStrings> = {
     live: 'Live',
     buses: 'buses',
     bus: 'bus',
+    busCount: '{count} bus operating',
     busesCount: '{count} buses operating',
     updated: 'Updated',
     stale: 'stale',

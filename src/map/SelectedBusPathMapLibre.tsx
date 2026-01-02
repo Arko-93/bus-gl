@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
-import { MapRoute, AnimatedRouteSvg } from '@/components/ui/map'
+import { AnimatedRouteSvg } from '@/components/ui/map'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import {
@@ -431,11 +431,12 @@ export default function SelectedBusPathMapLibre() {
         />
       )}
       {nextSegment && (
-        <MapRoute
+        <AnimatedRouteSvg
           coordinates={nextSegment.map(toLngLat)}
           color={routeColor}
           width={4}
           opacity={0.35}
+          className="bus-path bus-path--next"
         />
       )}
     </>
