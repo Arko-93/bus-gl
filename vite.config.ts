@@ -1,6 +1,10 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -60,22 +64,15 @@ export default defineConfig(({ mode }) => {
                 },
               },
             },
-            {
-              // Cache Leaflet assets
-              urlPattern: /^https:\/\/unpkg\.com\/leaflet.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'leaflet-assets',
-                expiration: {
-                  maxEntries: 20,
-                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-                },
-              },
-            },
           ],
         },
       }),
     ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+      },
+    },
     build: {
       rollupOptions: {
         output: {
@@ -83,7 +80,7 @@ export default defineConfig(({ mode }) => {
             if (!id.includes('node_modules')) return undefined
             if (id.includes('react-dom') || id.includes('/react/')) return 'react-vendor'
             if (id.includes('@tanstack/react-query') || id.includes('zustand')) return 'state-vendor'
-            if (id.includes('react-leaflet') || id.includes('leaflet')) return 'map-vendor'
+            if (id.includes('maplibre-gl')) return 'map-vendor'
             if (id.includes('lucide-react')) return 'icons'
             if (id.includes('fuse.js')) return 'search'
             return undefined

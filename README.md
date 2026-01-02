@@ -1,6 +1,6 @@
 # Nuuk Bus Live Map
 
-A real-time bus tracking map for Nuuk, Greenland. Built with React, Vite, TypeScript, and Leaflet.
+A real-time bus tracking map for Nuuk, Greenland. Built with React, Vite, TypeScript, and MapLibre GL.
 
 ## Features
 
@@ -104,7 +104,7 @@ The Cloudflare Worker adds:
 The app detects viewport width using `matchMedia('(max-width: 768px)')`:
 
 ### Desktop (> 768px)
-- Click bus marker → Leaflet popup with details
+- Click bus marker → Map popup with details
 - Stop search visible in top bar when `VITE_ENABLE_STATIC_LAYERS=true`
 
 ### Mobile (≤ 768px)
@@ -122,10 +122,12 @@ src/
 │   ├── ridangoRealtime.ts  # Types, Zod schema, normalization
 │   └── vehiclesQuery.ts    # TanStack Query hook
 ├── map/
-│   ├── MapView.tsx         # Main map component
-│   ├── BusMarker.tsx       # Individual bus marker
-│   ├── StopsLayer.tsx      # GeoJSON stops layer
-│   └── RoutesLayer.tsx     # GeoJSON routes layer
+│   ├── MapViewMapLibre.tsx          # Main map component
+│   ├── BusMarkerMapLibre.tsx        # Individual bus marker
+│   ├── StopsLayerMapLibre.tsx       # GeoJSON stops layer
+│   ├── RoutesLayerMapLibre.tsx      # GeoJSON routes layer
+│   ├── SelectedBusPathMapLibre.tsx  # Selected bus path
+│   └── SelectedRoutePathMapLibre.tsx # Selected route path
 ├── state/
 │   └── appStore.ts         # Zustand state management
 ├── ui/
@@ -213,7 +215,7 @@ PWA support is already configured via `vite-plugin-pwa` in `vite.config.ts`.
 - **Runtime:** [Bun](https://bun.sh/)
 - **Framework:** [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - **Build:** [Vite](https://vitejs.dev/)
-- **Map:** [Leaflet](https://leafletjs.com/) + [react-leaflet](https://react-leaflet.js.org/)
+- **Map:** [MapLibre GL](https://maplibre.org/)
 - **State:** [Zustand](https://zustand-demo.pmnd.rs/)
 - **Data Fetching:** [TanStack Query](https://tanstack.com/query)
 - **Search:** [Fuse.js](https://fusejs.io/)

@@ -162,7 +162,7 @@ export function getStopCoordinates(
   const feature = lookup.get(stopId)
   if (!feature || !feature.geometry.coordinates) return null
   
-  // GeoJSON is [lon, lat], Leaflet expects [lat, lon]
+  // GeoJSON is [lon, lat], map components expect [lat, lon]
   const [lon, lat] = feature.geometry.coordinates
   return [lat, lon]
 }

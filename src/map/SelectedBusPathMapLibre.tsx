@@ -1,10 +1,6 @@
-// src/map/SelectedBusPath.tsx
-// Highlight the selected bus path towards current destination and next stop.
-
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import { Polyline } from 'react-leaflet'
-import L from 'leaflet'
-import type { Polyline as LeafletPolyline } from 'leaflet'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import MapLibreGL from 'maplibre-gl'
+import { MapRoute, AnimatedRouteSvg } from '@/components/ui/map'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
 import {
@@ -19,62 +15,28 @@ import { getRouteLineColor } from '../data/routeColors'
 
 type LatLng = [number, number]
 
-// Custom Polyline component that properly applies CSS classes for animations
-interface AnimatedPolylineProps {
-  positions: LatLng[]
-  color: string
-  weight: number
-  opacity: number
-  className: string
-}
-
-function AnimatedPolyline({ positions, color, weight, opacity, className }: AnimatedPolylineProps) {
-  const polylineRef = useRef<LeafletPolyline | null>(null)
-
-  // Apply the CSS class to the SVG path element after mount
-  const setClassName = useCallback((polyline: LeafletPolyline | null) => {
-    polylineRef.current = polyline
-    if (polyline) {
-      const element = polyline.getElement()
-      if (element) {
-        // Add our custom classes while preserving leaflet-interactive
-        element.classList.add(...className.split(' '))
-      }
-    }
-  }, [className])
-
-  // Re-apply class when positions change (element might be recreated)
-  useEffect(() => {
-    if (polylineRef.current) {
-      const element = polylineRef.current.getElement()
-      if (element) {
-        element.classList.add(...className.split(' '))
-      }
-    }
-  }, [positions, className])
-
-  return (
-    <Polyline
-      ref={setClassName}
-      positions={positions}
-      pathOptions={{
-        color,
-        weight,
-        opacity,
-        interactive: false,
-      }}
-    />
-  )
+type Point = {
+  x: number
+  y: number
 }
 
 const OSRM_BASE_URL = (import.meta.env.VITE_OSRM_BASE_URL || 'https://router.project-osrm.org').replace(/\/$/, '')
 const OSRM_PROFILE = import.meta.env.VITE_OSRM_PROFILE || 'driving'
 
-// In-memory cache for OSRM route responses
 const osrmRouteCache = new Map<string, LatLng[]>()
 
-function projectPoint(latlng: LatLng): L.Point {
-  return L.CRS.EPSG3857.project(L.latLng(latlng[0], latlng[1]))
+function projectPoint(latlng: LatLng): Point {
+  const mercator = MapLibreGL.MercatorCoordinate.fromLngLat({
+    lng: latlng[1],
+    lat: latlng[0],
+  })
+  return { x: mercator.x, y: mercator.y }
+}
+
+function distance(a: Point, b: Point): number {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  return Math.sqrt(dx * dx + dy * dy)
 }
 
 function interpolate(a: LatLng, b: LatLng, t: number): LatLng {
@@ -86,7 +48,7 @@ function lineLength(line: LatLng[]): number {
   for (let i = 0; i < line.length - 1; i += 1) {
     const a = projectPoint(line[i])
     const b = projectPoint(line[i + 1])
-    total += a.distanceTo(b)
+    total += distance(a, b)
   }
   return total
 }
@@ -187,8 +149,8 @@ function scoreStopName(target: string, candidate: string): number {
 
   const maxLen = Math.max(target.length, candidate.length)
   if (maxLen === 0) return 0
-  const distance = levenshtein(target, candidate)
-  return 1 - distance / maxLen
+  const dist = levenshtein(target, candidate)
+  return 1 - dist / maxLen
 }
 
 function getStopCoordinatesByName(
@@ -242,14 +204,14 @@ function locateOnLine(line: LatLng[], target: LatLng): LinePosition | null {
   for (let i = 0; i < line.length - 1; i += 1) {
     const a = projectPoint(line[i])
     const b = projectPoint(line[i + 1])
-    const ab = b.subtract(a)
+    const ab = { x: b.x - a.x, y: b.y - a.y }
     const ab2 = ab.x * ab.x + ab.y * ab.y
-    const ap = p.subtract(a)
+    const ap = { x: p.x - a.x, y: p.y - a.y }
     let t = ab2 === 0 ? 0 : (ap.x * ab.x + ap.y * ab.y) / ab2
     t = Math.max(0, Math.min(1, t))
-    const closest = a.add(ab.multiplyBy(t))
-    const dist = closest.distanceTo(p)
-    const segmentLength = a.distanceTo(b)
+    const closest = { x: a.x + ab.x * t, y: a.y + ab.y * t }
+    const dist = distance(closest, p)
+    const segmentLength = distance(a, b)
     const along = total + segmentLength * t
 
     if (!best || dist < best.distance) {
@@ -290,7 +252,6 @@ function sliceLine(line: LatLng[], start: LinePosition, end: LinePosition): LatL
 
 function buildSegment(routeLine: LatLng[] | null, from: LatLng, to: LatLng): LatLng[] | null {
   if (!from || !to) return null
-
   if (!routeLine || routeLine.length < 2) return null
 
   const start = locateOnLine(routeLine, from)
@@ -308,15 +269,12 @@ function roundCoord(value: number): number {
 }
 
 function buildRouteKey(points: LatLng[]): string {
-  return points
-    .map(([lat, lon]) => `${roundCoord(lat)},${roundCoord(lon)}`)
-    .join('|')
+  return points.map(([lat, lon]) => `${roundCoord(lat)},${roundCoord(lon)}`).join('|')
 }
 
 async function fetchOsrmRoute(points: LatLng[], signal: AbortSignal): Promise<LatLng[] | null> {
   if (!OSRM_BASE_URL || points.length < 2) return null
 
-  // Check cache first
   const cacheKey = buildRouteKey(points)
   const cached = osrmRouteCache.get(cacheKey)
   if (cached) return cached
@@ -333,14 +291,15 @@ async function fetchOsrmRoute(points: LatLng[], signal: AbortSignal): Promise<La
   if (!geometry?.coordinates?.length) return null
 
   const result = geometry.coordinates.map(([lon, lat]: [number, number]) => [lat, lon]) as LatLng[]
-  
-  // Cache the result
   osrmRouteCache.set(cacheKey, result)
-  
   return result
 }
 
-export default function SelectedBusPath() {
+function toLngLat([lat, lon]: LatLng): [number, number] {
+  return [lon, lat]
+}
+
+export default function SelectedBusPathMapLibre() {
   const selectedVehicleId = useAppStore((state) => state.selectedVehicleId)
   const { data: vehicles = [] } = useVehiclesQuery()
   const { data: stopsData } = useStopsData()
@@ -409,7 +368,7 @@ export default function SelectedBusPath() {
   }, [busPosition, primaryStop, secondaryStop])
 
   useEffect(() => {
-    if (!selectedVehicle || selectedVehicle.atStop || !busPosition || !routeKey || !primaryStop) {
+    if (!selectedVehicle || !busPosition || !routeKey || !primaryStop) {
       routeAbortRef.current?.abort()
       routeAbortRef.current = null
       queueMicrotask(() => {
@@ -449,14 +408,9 @@ export default function SelectedBusPath() {
     return () => {
       controller.abort()
     }
-  }, [
-    routeKey,
-    busPosition,
-    primaryStop,
-    secondaryStop,
-    selectedVehicle,
-  ])
+  }, [routeKey, busPosition, primaryStop, secondaryStop, selectedVehicle])
 
+  // Hide path when bus is at a stop (same behavior as Leaflet version)
   if (!selectedVehicle || selectedVehicle.atStop || !primaryStop || !busPosition) return null
 
   const primaryFallback = buildSegment(routeLine, busPosition, primaryStop)
@@ -468,21 +422,20 @@ export default function SelectedBusPath() {
   return (
     <>
       {primarySegment && (
-        <AnimatedPolyline
-          positions={primarySegment}
+        <AnimatedRouteSvg
+          coordinates={primarySegment.map(toLngLat)}
           color={routeColor}
-          weight={5}
+          width={5}
           opacity={0.9}
           className="bus-path bus-path--current"
         />
       )}
       {nextSegment && (
-        <AnimatedPolyline
-          positions={nextSegment}
+        <MapRoute
+          coordinates={nextSegment.map(toLngLat)}
           color={routeColor}
-          weight={4}
+          width={4}
           opacity={0.35}
-          className="bus-path bus-path--next"
         />
       )}
     </>

@@ -3,7 +3,7 @@
 
 import { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import MapView from './map/MapView'
+import MapViewMapLibre from './map/MapViewMapLibre'
 import TopBar from './ui/TopBar'
 import RouteFilter from './ui/RouteFilter'
 import StopFilter from './ui/StopFilter'
@@ -57,7 +57,7 @@ function AppContent() {
       <TopBar />
       <ErrorBanner />
       <LoadingSkeleton />
-      <MapView />
+      <MapViewMapLibre />
       {/* Hide filter bar on mobile when bottom sheet is open */}
       {!(isMobile && isBottomSheetOpen) && (
         <div className="filter-bar">

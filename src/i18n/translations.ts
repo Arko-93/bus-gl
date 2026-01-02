@@ -116,7 +116,7 @@ const translations: Record<Locale, TranslationStrings> = {
     atStop: 'Unittarfimmi',
     atDepot: 'Qatserisuni',
     dataOutdated: 'Paasissutissat nutartingassaapput',
-    busHere: 'Uummut aallartippoq',
+    busHere: 'Massakkut uniffissaq',
     arriving: 'Piffissaq apuuffissaq',
     stopDetails: 'Unittarfimmut paasissutissat',
     noBusesAtStop: 'Bussinik maani uninngasoqanngilaq',

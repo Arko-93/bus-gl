@@ -1526,6 +1526,11 @@
     border-radius: 1rem 1rem 0 0;
     padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
   }
+
+  /* Map controls - position below navbar on mobile */
+  .map-controls.top-2 {
+    top: 5.5rem;
+  }
 }
 
 @media (max-width: 480px) {

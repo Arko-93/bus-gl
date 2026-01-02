@@ -1,9 +1,5 @@
-// src/map/SelectedRoutePath.tsx
-// Highlight a selected route path across all its stops.
-
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import { Polyline } from 'react-leaflet'
-import type { Polyline as LeafletPolyline } from 'leaflet'
+import { MapRoute, AnimatedRouteSvg } from '@/components/ui/map'
 import { useAppStore } from '../state/appStore'
 import { useStopsData } from '../data/useStopsData'
 import { useRoute1Schedule, getStopOrderForDate } from '../data/route1Schedule'
@@ -16,63 +12,13 @@ import { getRouteLineColor } from '../data/routeColors'
 
 type LatLng = [number, number]
 
-// Custom Polyline component that properly applies CSS classes for animations
-interface AnimatedPolylineProps {
-  positions: LatLng[] | LatLng[][]
-  color: string
-  weight: number
-  opacity: number
-  className: string
-  keyProp?: string
-}
-
-function AnimatedPolyline({ positions, color, weight, opacity, className, keyProp }: AnimatedPolylineProps) {
-  const polylineRef = useRef<LeafletPolyline | null>(null)
-
-  // Apply the CSS class to the SVG path element after mount
-  const setClassName = useCallback((polyline: LeafletPolyline | null) => {
-    polylineRef.current = polyline
-    if (polyline) {
-      const element = polyline.getElement()
-      if (element) {
-        // Add our custom classes while preserving leaflet-interactive
-        element.classList.add(...className.split(' '))
-      }
-    }
-  }, [className])
-
-  // Re-apply class when positions change (element might be recreated)
-  useEffect(() => {
-    if (polylineRef.current) {
-      const element = polylineRef.current.getElement()
-      if (element) {
-        element.classList.add(...className.split(' '))
-      }
-    }
-  }, [positions, className])
-
-  return (
-    <Polyline
-      key={keyProp}
-      ref={setClassName}
-      positions={positions}
-      pathOptions={{
-        color,
-        weight,
-        opacity,
-        interactive: false,
-      }}
-    />
-  )
-}
-
 const OSRM_BASE_URL = (import.meta.env.VITE_OSRM_BASE_URL || 'https://router.project-osrm.org').replace(
   /\/$/,
   ''
 )
 const OSRM_PROFILE = import.meta.env.VITE_OSRM_PROFILE || 'driving'
+const MAX_OSRM_COORDS = 80
 
-// In-memory cache for OSRM route responses (persists across re-renders)
 const osrmRouteCache = new Map<string, LatLng[]>()
 
 const QAJAASAT_EAST_LOOP: LatLng[] = [
@@ -160,13 +106,11 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
     {
       fromName: 'Naluttarfik Malik',
       toName: 'Maligiaq',
-      // Keep the link on Borgmester Aniita Aqqusernga without detouring into Stanislawip Issikivia.
       via: [64.1839326, -51.6978638],
     },
     {
       fromName: 'Maligiaq',
       toName: 'Tikiusaaq',
-      // Stay on Borgmester Aniita Aqqusernga when heading back; avoid Stanislawip Issikivia.
       via: [
         [64.1835419, -51.6971834],
         [64.1824822, -51.6949691],
@@ -178,7 +122,6 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
     {
       fromName: 'Tuujuk',
       toName: 'Kommuneqarfik',
-      // Keep the route on Aqqusinersuaq between Tuujuk and Kommuneqarfik.
       via: [
         [64.1718429, -51.7348946],
         [64.1747954, -51.7368738],
@@ -188,7 +131,6 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
     {
       fromName: 'Røde etagehuse',
       toName: 'Tuujuk',
-      // Avoid Kongevej; stay on Aqqusinersuaq.
       via: [
         [64.1706171, -51.7314713],
         [64.1713957, -51.733641],
@@ -198,7 +140,6 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
     {
       fromName: 'Asiarpak',
       toName: 'Pukuffik',
-      // Avoid Stanislawip Isikkivia; stay on Borgmester Aniita Aqqusernga.
       via: [
         [64.1769404, -51.679224],
         [64.177231, -51.6819914],
@@ -215,19 +156,16 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
     {
       fromName: 'Akunnerit',
       toName: 'Qajaasat',
-      // Enter Qajaasat at the first right turn, then loop to the exit.
       via: [...NERNGALLAA_TO_QAJAASAT_SOUTH, ...QAJAASAT_EAST_LOOP.slice(1)],
     },
     {
       fromName: 'Nuniaffik',
       toName: 'Qajaasat',
-      // Stay on Nerngallaa then follow Qajaasat to avoid the pedestrian shortcut.
       via: [...NERNGALLAA_WAYPOINTS_REVERSE, ...QAJAASAT_EAST_LOOP_REVERSE.slice(1)],
     },
     {
       fromName: 'Qajaasat',
       toName: 'Eqalugalinnguit',
-      // Keep routing on Qajaasat then Nerngallaa (avoid the pedestrian shortcut).
       via: [
         ...QAJAASAT_EAST_LOOP,
         ...NERNGALLAA_WAYPOINTS.slice(1),
@@ -237,7 +175,6 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
     {
       fromName: 'Qajaasat',
       toName: 'Paarnat',
-      // Follow Qajaasat loop and Nerngallaa before turning toward Paarnat.
       via: [...QAJAASAT_EAST_LOOP, ...NERNGALLAA_WAYPOINTS.slice(1)],
     },
   ],
@@ -245,7 +182,6 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
     {
       fromName: 'Ilimmarfik',
       toName: 'Siaqqinneq Nukappiakkuluk',
-      // U-turn at university entrance before continuing to next stop
       via: [64.1916837851373, -51.69477566525993] as LatLng,
     },
   ],
@@ -255,7 +191,6 @@ const ROUTE_WAYPOINT_OVERRIDES: Record<
     {
       fromName: 'Ilimmarfik',
       toName: 'Siaqqinneq Nukappiakkuluk',
-      // Route from university to next stop
       via: [64.1916837851373, -51.69477566525993] as LatLng,
     },
   ],
@@ -265,32 +200,26 @@ const ROUTE_STOP_COORD_OVERRIDES: Record<string, Array<{ stopName: string; coord
   '1': [
     {
       stopName: 'Maligiaq',
-      // Keep routing on Borgmester Aniita Aqqusernga to avoid Sarfaarsuit.
       coord: [64.1840093, -51.6980487],
     },
     {
       stopName: 'Tuujuk',
-      // Anchor on Aqqusinersuaq to avoid Kongevej.
       coord: [64.1718429, -51.7348946],
     },
     {
       stopName: 'Røde etagehuse',
-      // Anchor on Aqqusinersuaq to avoid Kongevej.
       coord: [64.1706171, -51.7314713],
     },
     {
       stopName: 'Kommuneqarfik',
-      // Anchor on Aqqusinersuaq after Tuujuk.
       coord: [64.1755706, -51.7361803],
     },
     {
       stopName: 'Asiarpak',
-      // Avoid Stanislawip Isikkivia by anchoring on Borgmester Aniita Aqqusernga.
       coord: [64.1769404, -51.679224],
     },
     {
       stopName: 'Pukuffik',
-      // Keep the route on Borgmester Aniita Aqqusernga near the stop.
       coord: [64.1833869, -51.6966426],
     },
   ],
@@ -298,7 +227,6 @@ const ROUTE_STOP_COORD_OVERRIDES: Record<string, Array<{ stopName: string; coord
   '3': [
     {
       stopName: 'Ilimmarfik',
-      // Route to the U-turn point on the road instead of deep into university parking
       coord: [64.1916837851373, -51.69477566525993],
     },
   ],
@@ -307,7 +235,6 @@ const ROUTE_STOP_COORD_OVERRIDES: Record<string, Array<{ stopName: string; coord
   'X3': [
     {
       stopName: 'Ilimmarfik',
-      // Route to the U-turn point on the road instead of deep into university parking
       coord: [64.1916837851373, -51.69477566525993],
     },
   ],
@@ -381,6 +308,12 @@ function buildRouteChunks(
       currentOsrm.push(fromCoord)
     }
     currentOsrm.push(toCoord)
+
+    if (currentOsrm.length >= MAX_OSRM_COORDS) {
+      const last = currentOsrm[currentOsrm.length - 1]
+      flushOsrm()
+      currentOsrm.push(last)
+    }
   }
 
   flushOsrm()
@@ -405,7 +338,6 @@ function applyStopOrderOverrides(
   if (!route || order.length === 0) return order
 
   if (route === '2') {
-    // Route 2 revisits Qajaasat later; reinsert it to avoid a shortcut across the school area.
     const nuniaffikId = stopNameIndex.get(normalizeStopName('Nuniaffik'))
     const qajaasatId = stopNameIndex.get(normalizeStopName('Qajaasat'))
     if (!nuniaffikId || !qajaasatId) return order
@@ -429,7 +361,6 @@ function buildCacheKey(points: LatLng[]): string {
 async function fetchOsrmRoute(points: LatLng[], signal: AbortSignal): Promise<LatLng[] | null> {
   if (!OSRM_BASE_URL || points.length < 2) return null
 
-  // Check cache first
   const cacheKey = buildCacheKey(points)
   const cached = osrmRouteCache.get(cacheKey)
   if (cached) return cached
@@ -446,14 +377,15 @@ async function fetchOsrmRoute(points: LatLng[], signal: AbortSignal): Promise<La
   if (!geometry?.coordinates?.length) return null
 
   const result = geometry.coordinates.map(([lon, lat]: [number, number]) => [lat, lon]) as LatLng[]
-  
-  // Cache the result
   osrmRouteCache.set(cacheKey, result)
-  
   return result
 }
 
-export default function SelectedRoutePath() {
+function toLngLat([lat, lon]: LatLng): [number, number] {
+  return [lon, lat]
+}
+
+export default function SelectedRoutePathMapLibre() {
   const selectedStopRoute = useAppStore((state) => state.selectedStopRoute)
   const selectedStopRouteTripEnabled = useAppStore((state) => state.selectedStopRouteTripEnabled)
   const selectedStopRouteFromId = useAppStore((state) => state.selectedStopRouteFromId)
@@ -621,7 +553,6 @@ export default function SelectedRoutePath() {
     return `${baseKey}|${pulseKey ?? ''}`
   }, [baseKey, pulseKey])
 
-  // Determine if route should be shown
   const shouldFetchRoute =
     !!selectedStopRoute && !!activeSchedule && routeKey && baseCoords.length >= 2
 
@@ -643,7 +574,6 @@ export default function SelectedRoutePath() {
     const controller = new AbortController()
     routeAbortRef.current = controller
 
-    // Immediately show straight lines while OSRM loads
     const straightBase = baseCoords.length > 1 ? baseCoords : null
     const straightPulse = pulseCoords.length > 1 ? pulseCoords : null
     queueMicrotask(() => {
@@ -713,7 +643,6 @@ export default function SelectedRoutePath() {
     routeChunks,
   ])
 
-  // Compute effective paths - null when route shouldn't be shown
   const effectiveRoutePaths = useMemo(() => {
     if (!shouldFetchRoute) return { base: null, pulse: null }
     return routePaths
@@ -757,30 +686,25 @@ export default function SelectedRoutePath() {
 
   const routeColor = getRouteLineColor(selectedStopRoute)
 
-  // Use loading class only for instant straight lines while waiting for OSRM
-  const pulseClassName = isLoadingOsrm
-    ? 'route-path route-path--loading'
-    : 'route-path route-path--pulse'
-
   return (
     <>
-      {baseSegments && (
-        <AnimatedPolyline
-          positions={baseSegments}
-          color={routeColor}
-          weight={2}
-          opacity={0.18}
-          className="route-path route-path--base"
-        />
-      )}
+      {baseSegments &&
+        baseSegments.map((segment, index) => (
+          <MapRoute
+            key={`route-base-${index}`}
+            coordinates={segment.map(toLngLat)}
+            color={routeColor}
+            width={2}
+            opacity={0.18}
+          />
+        ))}
       {effectiveRoutePaths.pulse && effectiveRoutePaths.pulse.length > 1 && (
-        <AnimatedPolyline
-          keyProp={isLoadingOsrm ? 'loading' : 'loaded'}
-          positions={effectiveRoutePaths.pulse}
+        <AnimatedRouteSvg
+          coordinates={effectiveRoutePaths.pulse.map(toLngLat)}
           color={routeColor}
-          weight={2.8}
+          width={2.8}
           opacity={0.7}
-          className={pulseClassName}
+          className={isLoadingOsrm ? 'route-path route-path--loading' : 'route-path route-path--pulse'}
         />
       )}
     </>

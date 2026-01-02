@@ -4,7 +4,50 @@ const STORAGE_KEY = 'nuuk-bus-preferences'
 const STORE_MODULE_PATH = '/src/state/appStore.ts'
 
 const waitForMarkers = async (page: Page) => {
-  await expect(page.locator('.bus-marker')).toHaveCount(2)
+  // MapLibre markers render after map loads, so we need a longer timeout
+  await expect(page.locator('.bus-marker')).toHaveCount(2, { timeout: 15000 })
+}
+
+type LineLayerFilter = {
+  dashArray?: [number, number] | null
+  opacity?: number
+  width?: number
+}
+
+const countLineLayers = async (page: Page, filter: LineLayerFilter) => {
+  return page.evaluate((filter) => {
+    const map = (window as any).__maplibre
+    if (!map) return 0
+    
+    // Don't require isStyleLoaded() as layers can exist while style is still loading
+    const style = map.getStyle()
+    if (!style) return 0
+
+    const nearly = (value: unknown, target: number) =>
+      typeof value === 'number' && Math.abs(value - target) < 0.01
+
+    const layers = style.layers ?? []
+    return layers.filter((layer: any) => {
+      if (layer.type !== 'line') return false
+      const paint = layer.paint ?? {}
+      if (filter.opacity !== undefined && !nearly(paint['line-opacity'], filter.opacity)) {
+        return false
+      }
+      if (filter.width !== undefined && !nearly(paint['line-width'], filter.width)) {
+        return false
+      }
+      if (filter.dashArray === null) {
+        if (Array.isArray(paint['line-dasharray'])) return false
+      }
+      if (filter.dashArray) {
+        const dashArray = paint['line-dasharray']
+        // Allow animated dash arrays - just check that it's an array with at least 2 elements
+        // Animation modifies the dash pattern continuously, so exact values won't match
+        if (!Array.isArray(dashArray) || dashArray.length < 2) return false
+      }
+      return true
+    }).length
+  }, filter)
 }
 
 const buildMockVehicles = () => {
@@ -90,8 +133,21 @@ test('route filter updates bus count', async ({ page }) => {
 test('routes layer renders when enabled', async ({ page }) => {
   await page.goto('/')
 
-  const routePaths = page.locator('.leaflet-overlay-pane path[stroke-dasharray="10, 5"]')
-  await expect(routePaths.first()).toBeVisible()
+  // Wait for map and route layers to render (don't require isStyleLoaded as it can be flaky)
+  await expect.poll(async () => {
+    return page.evaluate(() => {
+      const map = (window as any).__maplibre
+      if (!map) return 0
+      const style = map.getStyle()
+      if (!style) return 0
+      const layers = style.layers ?? []
+      return layers.filter((layer: any) => {
+        if (layer.type !== 'line') return false
+        const dashArray = layer.paint?.['line-dasharray']
+        return Array.isArray(dashArray) && dashArray[0] === 10 && dashArray[1] === 5
+      }).length
+    })
+  }, { timeout: 15000 }).toBeGreaterThan(0)
 })
 
 test('selected route path renders when stop filter is active', async ({ page }) => {
@@ -102,8 +158,10 @@ test('selected route path renders when stop filter is active', async ({ page }) 
   const routeButton = page.locator('.stop-filter__route-btn', { hasText: 'Route 1' })
   await routeButton.click()
 
-  await expect(page.locator('.route-path--base').first()).toBeVisible()
-  await expect(page.locator('.route-path--pulse, .route-path--loading').first()).toBeVisible()
+  // Base layer still uses MapLibre line layer
+  await expect.poll(() => countLineLayers(page, { opacity: 0.18, width: 2 }), { timeout: 10000 }).toBeGreaterThan(0)
+  // Animated pulse layer now uses SVG overlay with route-path class
+  await expect(page.locator('svg.animated-route-svg path.route-path')).toBeVisible({ timeout: 10000 })
 })
 
 test('OSRM fallback keeps route path visible on failure', async ({ page }) => {
@@ -121,8 +179,10 @@ test('OSRM fallback keeps route path visible on failure', async ({ page }) => {
   await routeButton.click()
 
   await expect.poll(() => osrmRequests).toBeGreaterThan(0)
-  await expect(page.locator('.route-path--base').first()).toBeVisible()
-  await expect(page.locator('.route-path--pulse').first()).toBeVisible()
+  // Base layer still uses MapLibre
+  await expect.poll(() => countLineLayers(page, { opacity: 0.18, width: 2 }), { timeout: 15000 }).toBeGreaterThan(0)
+  // Animated layer uses SVG overlay - on fallback it shows pulse animation
+  await expect(page.locator('svg.animated-route-svg path.route-path--pulse')).toBeVisible({ timeout: 15000 })
 })
 
 test('OSRM success replaces loading path with pulse', async ({ page }) => {
@@ -155,10 +215,11 @@ test('OSRM success replaces loading path with pulse', async ({ page }) => {
   const routeButton = page.locator('.stop-filter__route-btn', { hasText: 'Route 1' })
   await routeButton.click()
 
-  await expect.poll(() => osrmRequests).toBeGreaterThan(0)
-  await expect(page.locator('.route-path--loading').first()).toBeVisible()
-  await expect(page.locator('.route-path--pulse').first()).toBeVisible()
-  await expect.poll(async () => page.locator('.route-path--loading').count()).toBe(0)
+  await expect.poll(() => osrmRequests, { timeout: 10000 }).toBeGreaterThan(0)
+  // After OSRM succeeds, the SVG should have the pulse animation class (not loading)
+  await expect(page.locator('svg.animated-route-svg path.route-path--pulse')).toBeVisible({ timeout: 10000 })
+  // And should NOT have the loading class
+  await expect(page.locator('svg.animated-route-svg path.route-path--loading')).not.toBeVisible({ timeout: 5000 })
 })
 
 test('bus marker opens popup on desktop', async ({ page }) => {
@@ -166,7 +227,7 @@ test('bus marker opens popup on desktop', async ({ page }) => {
   await waitForMarkers(page)
 
   await page.locator('.bus-marker').first().click({ force: true })
-  const popupRoute = page.locator('.leaflet-popup .bus-popup__route')
+  const popupRoute = page.locator('.map-popup .bus-popup__route')
   await expect(popupRoute).toBeVisible()
   await expect(popupRoute).toHaveText(/Route (1|2)/)
 })
