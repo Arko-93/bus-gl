@@ -34,11 +34,15 @@ function useMobileDetection() {
   useEffect(() => {
     // Portrait mobile: narrow width
     const portraitQuery = window.matchMedia('(max-width: 768px)')
-    // Landscape mobile: short height + touch device OR narrow max-dimension
-    const landscapeQuery = window.matchMedia('(max-height: 500px) and (orientation: landscape) and (pointer: coarse)')
+    // Landscape mobile: short height + landscape orientation
+    // Use hover: none as fallback for touch devices (more reliable than pointer: coarse on iOS Safari)
+    const landscapeQuery = window.matchMedia('(max-height: 500px) and (orientation: landscape)')
     
     const handleChange = () => {
-      setIsMobile(portraitQuery.matches || landscapeQuery.matches)
+      // Also check for touch capability as fallback
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+      const isLandscapeMobile = landscapeQuery.matches && isTouchDevice
+      setIsMobile(portraitQuery.matches || isLandscapeMobile)
     }
 
     // Set initial value immediately
@@ -47,9 +51,12 @@ function useMobileDetection() {
     // Listen for changes
     portraitQuery.addEventListener('change', handleChange)
     landscapeQuery.addEventListener('change', handleChange)
+    // Also listen for orientation changes (iOS Safari)
+    window.addEventListener('orientationchange', handleChange)
     return () => {
       portraitQuery.removeEventListener('change', handleChange)
       landscapeQuery.removeEventListener('change', handleChange)
+      window.removeEventListener('orientationchange', handleChange)
     }
   }, [setIsMobile])
 }
