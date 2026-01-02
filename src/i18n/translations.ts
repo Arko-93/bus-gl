@@ -91,6 +91,23 @@ export interface TranslationStrings {
   themeLight: string
   themeDark: string
   themeSystem: string
+
+  // Info modal
+  aboutApp: string
+  dataSources: string
+  realtimeBusData: string
+  busStopsAndRoutes: string
+  mapData: string
+  providedBy: string
+  ownedBy: string
+  contributors: string
+  cookiesTitle: string
+  cookiesDescription: string
+  cookieLocale: string
+  cookieTheme: string
+  disclaimer: string
+  disclaimerText: string
+  builtBy: string
 }
 
 const translations: Record<Locale, TranslationStrings> = {
@@ -152,6 +169,21 @@ const translations: Record<Locale, TranslationStrings> = {
     themeLight: 'Qaamasoq',
     themeDark: 'Taartoq',
     themeSystem: 'Systemip qaamassusaa',
+    aboutApp: 'App-imut paasissutissat',
+    dataSources: 'Paasissutissat aallaavii',
+    realtimeBusData: 'Bussit sukkassusaat toqqaannartoq',
+    busStopsAndRoutes: 'Unittarfiit aammalu ingerlaviit',
+    mapData: 'Nunap assinga',
+    providedBy: 'Tunniussaq:',
+    ownedBy: 'Piginnittuuvoq:',
+    contributors: 'ilaasortaasut',
+    cookiesTitle: 'Cookies-it',
+    cookiesDescription: 'Toqqammavissarsiorfik cookies-inik atorpoq atornerit eqqarsaatigalugit:',
+    cookieLocale: 'Oqaatsit toqqakkat',
+    cookieTheme: 'Qaamassusiat toqqakkat',
+    disclaimer: 'Akuersissut',
+    disclaimerText: 'Bussit sukkassusaat paasissutissait Nuup Bussii A/S-ip aammalu Ridango-p pigiaat. Una toqqammavissarsiorfik bussit qanoq ingerlaneraat qularnanngitsumik paasissutissaanngitsoq.',
+    builtBy: 'Sanasaa:',
   },
   
   // Dansk (Danish)
@@ -212,6 +244,21 @@ const translations: Record<Locale, TranslationStrings> = {
     themeLight: 'Lys',
     themeDark: 'Mørk',
     themeSystem: 'System',
+    aboutApp: 'Om appen',
+    dataSources: 'Datakilder',
+    realtimeBusData: 'Buspositioner i realtid',
+    busStopsAndRoutes: 'Stoppesteder og ruter',
+    mapData: 'Kortdata',
+    providedBy: 'Leveret af',
+    ownedBy: 'Ejet af',
+    contributors: 'bidragydere',
+    cookiesTitle: 'Cookies',
+    cookiesDescription: 'Denne app bruger cookies til at gemme dine præferencer:',
+    cookieLocale: 'Dit valgte sprog',
+    cookieTheme: 'Dit valgte tema',
+    disclaimer: 'Ansvarsfraskrivelse',
+    disclaimerText: 'Buspositionsdata ejes af Nuup Bussii A/S og Ridango. Denne app er ikke en officiel kilde til buskøreplaner.',
+    builtBy: 'Udviklet af',
   },
   
   // English
@@ -272,6 +319,21 @@ const translations: Record<Locale, TranslationStrings> = {
     themeLight: 'Light',
     themeDark: 'Dark',
     themeSystem: 'System',
+    aboutApp: 'About',
+    dataSources: 'Data Sources',
+    realtimeBusData: 'Realtime bus positions',
+    busStopsAndRoutes: 'Bus stops and routes',
+    mapData: 'Map data',
+    providedBy: 'Provided by',
+    ownedBy: 'Owned by',
+    contributors: 'contributors',
+    cookiesTitle: 'Cookies',
+    cookiesDescription: 'This app uses cookies to save your preferences:',
+    cookieLocale: 'Your selected language',
+    cookieTheme: 'Your selected theme',
+    disclaimer: 'Disclaimer',
+    disclaimerText: 'Bus tracking data is owned by Nuup Bussii A/S and Ridango. This app is not an official source for bus schedules.',
+    builtBy: 'Built by',
   },
 }
 

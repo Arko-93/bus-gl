@@ -7,6 +7,7 @@ import { useAppStore, filterVehiclesByRoute } from '../state/appStore'
 import { useTranslation } from '../i18n/useTranslation'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
+import InfoModal from './InfoModal'
 
 const ENABLE_STATIC_LAYERS = import.meta.env.VITE_ENABLE_STATIC_LAYERS === 'true'
 const StopSearch = lazy(() => import('./StopSearch'))
@@ -40,6 +41,7 @@ export default function TopBar() {
           </span>
           {t.appTitle}
         </h1>
+        <InfoModal />
         {ENABLE_STATIC_LAYERS && (
           <Suspense fallback={null}>
             <StopSearch />

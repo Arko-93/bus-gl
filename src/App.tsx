@@ -47,9 +47,15 @@ function useMobileDetection() {
       const mediaQueryLandscape = landscapeQuery.matches
       // 2. Direct dimension check - landscape if wider than tall and short height
       const dimensionLandscape = window.innerWidth > window.innerHeight && window.innerHeight <= 500
+      // 3. Screen orientation API (more reliable on iOS)
+      const screenOrientationLandscape = window.screen?.orientation?.type?.includes('landscape') ?? false
+      // 4. Legacy orientation check
+      const legacyOrientationLandscape = typeof window.orientation === 'number' && (window.orientation === 90 || window.orientation === -90)
       
-      // Consider it landscape mobile if either method detects it AND it's a touch device
-      const isLandscapeMobile = (mediaQueryLandscape || dimensionLandscape) && isTouchDevice
+      // Consider it landscape mobile if any method detects landscape AND it's a touch device with short height
+      const isLandscape = mediaQueryLandscape || dimensionLandscape || screenOrientationLandscape || legacyOrientationLandscape
+      const hasShortHeight = window.innerHeight <= 500 || (isTouchDevice && window.innerHeight < window.innerWidth && window.innerHeight <= 450)
+      const isLandscapeMobile = isLandscape && isTouchDevice && hasShortHeight
       const isMobile = portraitQuery.matches || isLandscapeMobile
       
       setIsMobile(isMobile)
@@ -60,20 +66,28 @@ function useMobileDetection() {
       document.documentElement.classList.toggle('portrait-mobile', portraitQuery.matches && !isLandscapeMobile)
     }
 
+    // Delayed handler for orientation change (Safari needs time to update dimensions)
+    const handleOrientationChange = () => {
+      handleChange()
+      // Re-check after Safari updates dimensions
+      setTimeout(handleChange, 100)
+      setTimeout(handleChange, 300)
+    }
+
     // Set initial value immediately
     handleChange()
 
     // Listen for changes
     portraitQuery.addEventListener('change', handleChange)
     landscapeQuery.addEventListener('change', handleChange)
-    // Also listen for orientation changes (iOS Safari)
-    window.addEventListener('orientationchange', handleChange)
+    // Also listen for orientation changes (iOS Safari) - with delayed re-check
+    window.addEventListener('orientationchange', handleOrientationChange)
     // Listen for resize as additional fallback
     window.addEventListener('resize', handleChange)
     return () => {
       portraitQuery.removeEventListener('change', handleChange)
       landscapeQuery.removeEventListener('change', handleChange)
-      window.removeEventListener('orientationchange', handleChange)
+      window.removeEventListener('orientationchange', handleOrientationChange)
       window.removeEventListener('resize', handleChange)
     }
   }, [setIsMobile, setIsLandscapeMobile])

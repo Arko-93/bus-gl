@@ -403,8 +403,22 @@ export default function BottomSheet() {
 
   // Different styling for desktop vs mobile
   const typeModifier = showVehicle ? 'bottom-sheet--bus' : 'bottom-sheet--stop'
+  
   // Use mobile styling if either isMobile or isLandscapeMobile is true (Safari fallback)
-  const useMobileStyle = isMobile || isLandscapeMobile
+  // Also do a direct check for landscape mobile as ultimate fallback for iOS Safari
+  const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)
+  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 0
+  const windowHeight = typeof window !== 'undefined' ? window.innerHeight : 0
+  const isLandscapeByDimensions = windowWidth > windowHeight && windowHeight <= 500
+  // Relaxed check: any touch device in landscape with height under 600
+  const isLandscapeRelaxed = windowWidth > windowHeight && windowHeight <= 600 && isTouchDevice
+  const directLandscapeMobile = isTouchDevice && isLandscapeByDimensions
+  
+  const useMobileStyle = isMobile || isLandscapeMobile || directLandscapeMobile || isLandscapeRelaxed
+  
+  // DEBUG: Remove after fixing
+  const debugInfo = `W:${windowWidth} H:${windowHeight} Touch:${isTouchDevice} isMobile:${isMobile} isLandscape:${isLandscapeMobile} direct:${directLandscapeMobile} relaxed:${isLandscapeRelaxed} USE:${useMobileStyle}`
+  
   const panelClassName = useMobileStyle ? `bottom-sheet ${typeModifier}` : 'detail-panel'
   const backdropClassName = useMobileStyle ? 'bottom-sheet__backdrop' : 'detail-panel__backdrop'
 
@@ -417,6 +431,10 @@ export default function BottomSheet() {
         aria-modal="true"
         aria-label={ariaLabel}
       >
+        {/* DEBUG: Remove after fixing */}
+        <div style={{ position: 'absolute', top: 0, left: 0, fontSize: '8px', background: 'red', color: 'white', padding: '2px', zIndex: 9999, maxWidth: '100%', wordBreak: 'break-all' }}>
+          {debugInfo}
+        </div>
         {useMobileStyle && <div className="bottom-sheet__handle" />}
         <button
           className={useMobileStyle ? 'bottom-sheet__close' : 'detail-panel__close'}
