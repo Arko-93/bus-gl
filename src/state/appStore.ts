@@ -60,6 +60,8 @@ interface AppState {
   // Mobile detection
   isMobile: boolean
   setIsMobile: (isMobile: boolean) => void
+  isLandscapeMobile: boolean
+  setIsLandscapeMobile: (isLandscape: boolean) => void
 
   // Feed error state
   feedError: string | null
@@ -205,6 +207,8 @@ export const useAppStore = create<AppState>()(
       // Mobile detection
       isMobile: false,
       setIsMobile: (isMobile) => set({ isMobile }),
+      isLandscapeMobile: false,
+      setIsLandscapeMobile: (isLandscape) => set({ isLandscapeMobile: isLandscape }),
 
       // Feed error
       feedError: null,

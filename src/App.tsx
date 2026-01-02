@@ -30,19 +30,26 @@ const queryClient = new QueryClient({
  */
 function useMobileDetection() {
   const setIsMobile = useAppStore((state) => state.setIsMobile)
+  const setIsLandscapeMobile = useAppStore((state) => state.setIsLandscapeMobile)
 
   useEffect(() => {
     // Portrait mobile: narrow width
     const portraitQuery = window.matchMedia('(max-width: 768px)')
     // Landscape mobile: short height + landscape orientation
-    // Use hover: none as fallback for touch devices (more reliable than pointer: coarse on iOS Safari)
     const landscapeQuery = window.matchMedia('(max-height: 500px) and (orientation: landscape)')
     
     const handleChange = () => {
-      // Also check for touch capability as fallback
+      // Check for touch capability as fallback for iOS Safari
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
       const isLandscapeMobile = landscapeQuery.matches && isTouchDevice
-      setIsMobile(portraitQuery.matches || isLandscapeMobile)
+      const isMobile = portraitQuery.matches || isLandscapeMobile
+      
+      setIsMobile(isMobile)
+      setIsLandscapeMobile(isLandscapeMobile)
+      
+      // Apply class to document for CSS targeting (Safari fallback)
+      document.documentElement.classList.toggle('landscape-mobile', isLandscapeMobile)
+      document.documentElement.classList.toggle('portrait-mobile', portraitQuery.matches && !isLandscapeMobile)
     }
 
     // Set initial value immediately
@@ -53,12 +60,15 @@ function useMobileDetection() {
     landscapeQuery.addEventListener('change', handleChange)
     // Also listen for orientation changes (iOS Safari)
     window.addEventListener('orientationchange', handleChange)
+    // Listen for resize as additional fallback
+    window.addEventListener('resize', handleChange)
     return () => {
       portraitQuery.removeEventListener('change', handleChange)
       landscapeQuery.removeEventListener('change', handleChange)
       window.removeEventListener('orientationchange', handleChange)
+      window.removeEventListener('resize', handleChange)
     }
-  }, [setIsMobile])
+  }, [setIsMobile, setIsLandscapeMobile])
 }
 
 function AppContent() {

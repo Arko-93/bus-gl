@@ -113,6 +113,7 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
                     <span
                       key={`current-${time.raw}`}
                       className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${currentStopSchedule.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
+                      style={time.isNext ? { backgroundColor: getRouteColor(vehicle.route), borderColor: getRouteColor(vehicle.route) } : undefined}
                     >
                       {time.label}
                     </span>
@@ -135,6 +136,7 @@ function VehicleDetails({ vehicle }: VehicleDetailsProps) {
                     <span
                       key={`next-${time.raw}`}
                       className={`stop-schedule__time${time.isNext ? ' stop-schedule__time--next' : ''}${nextStopSchedule.serviceEnded ? ' stop-schedule__time--ended' : ''}`}
+                      style={time.isNext ? { backgroundColor: getRouteColor(vehicle.route), borderColor: getRouteColor(vehicle.route) } : undefined}
                     >
                       {time.label}
                     </span>

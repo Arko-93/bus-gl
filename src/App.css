@@ -2151,6 +2151,121 @@ button.bottom-sheet__route-badge:hover {
   }
 }
 
+/* ============================================
+   Landscape Mobile - JS Class Fallback for Safari
+   ============================================ */
+html.landscape-mobile .top-bar {
+  padding: 0.35rem 0.5rem;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 0.35rem);
+  gap: 0.5rem;
+}
+
+html.landscape-mobile .top-bar__left {
+  gap: 0.4rem;
+}
+
+html.landscape-mobile .top-bar__icon {
+  width: 28px;
+  height: 28px;
+}
+
+html.landscape-mobile .top-bar__icon img {
+  width: 24px;
+  height: 24px;
+}
+
+html.landscape-mobile .top-bar__title {
+  font-size: 0.85rem;
+}
+
+html.landscape-mobile .top-bar__right {
+  gap: 0.35rem;
+}
+
+html.landscape-mobile .top-bar__status {
+  gap: 0.25rem;
+}
+
+html.landscape-mobile .top-bar__indicator {
+  width: 6px;
+  height: 6px;
+}
+
+html.landscape-mobile .top-bar__vehicle-count {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.35rem;
+}
+
+html.landscape-mobile .top-bar__stale-count {
+  font-size: 0.6rem;
+  padding: 0.1rem 0.3rem;
+}
+
+html.landscape-mobile .top-bar__update-time {
+  display: none;
+}
+
+html.landscape-mobile .language-switcher__btn,
+html.landscape-mobile .theme-switcher__btn {
+  width: 28px;
+  height: 28px;
+}
+
+html.landscape-mobile .language-switcher__btn svg,
+html.landscape-mobile .theme-switcher__btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+html.landscape-mobile .filter-bar {
+  position: fixed;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  left: auto;
+  transform: none;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  width: auto;
+  max-width: none;
+}
+
+html.landscape-mobile .route-filter {
+  order: 1;
+  padding: 0.25rem;
+  gap: 0.2rem;
+}
+
+html.landscape-mobile .stop-filter {
+  order: 2;
+}
+
+html.landscape-mobile .route-filter__btn {
+  width: 28px;
+  height: 28px;
+  font-size: 0.7rem;
+}
+
+html.landscape-mobile .route-filter__btn--all {
+  min-width: 28px;
+  padding: 0 0.35rem;
+  font-size: 0.5rem;
+}
+
+html.landscape-mobile .stop-filter__toggle {
+  height: 28px;
+  padding: 0 0.5rem;
+  font-size: 0.6rem;
+}
+
+/* ============================================
+   Portrait Mobile - Spacing Adjustments
+   ============================================ */
+html.portrait-mobile .bottom-sheet__group--log {
+  margin-top: 0.75rem;
+}
+
 /* Loading Skeleton */
 .loading-skeleton {
   position: absolute;
