@@ -3032,6 +3032,71 @@ html.portrait-mobile .bottom-sheet__group--log {
   color: var(--text);
 }
 
+/* Mobile info modal */
+@media (max-width: 768px) {
+  .info-modal__backdrop {
+    padding: 0;
+    padding-top: 0;
+    align-items: flex-end;
+  }
+
+  .info-modal {
+    max-width: 100%;
+    max-height: 85vh;
+    max-height: 85dvh;
+    border-radius: 1.25rem 1.25rem 0 0;
+    margin-bottom: 0;
+  }
+
+  .info-modal__title {
+    font-size: 1.125rem;
+    padding: 1rem 1.25rem;
+    padding-right: 3rem;
+  }
+
+  .info-modal__close {
+    top: 0.625rem;
+    right: 0.625rem;
+    width: 36px;
+    height: 36px;
+  }
+
+  .info-modal__content {
+    padding: 0.75rem 1.25rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .info-modal__section {
+    margin-bottom: 1.25rem;
+  }
+
+  .info-modal__section h3 {
+    font-size: 0.8125rem;
+  }
+
+  .info-modal__list li {
+    padding: 0.5rem 0;
+    font-size: 0.8125rem;
+  }
+
+  .info-modal__source {
+    font-size: 0.75rem;
+  }
+
+  .info-modal__text {
+    font-size: 0.8125rem;
+  }
+
+  .info-modal__footer {
+    padding: 0.75rem 1.25rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .info-modal__footer p {
+    font-size: 0.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .theme-switcher__toggle,
   .language-switcher__toggle {
