@@ -1,4 +1,6 @@
-import * as MapLibreGL from 'maplibre-gl'
+import maplibregl from 'maplibre-gl'
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-csp-worker.js?url'
+import type * as MapLibreGL from 'maplibre-gl'
 import type { PopupOptions, MarkerOptions } from 'maplibre-gl'
 import {
   createContext,
@@ -16,6 +18,12 @@ import { X, Minus, Plus, Locate, Maximize, Loader2 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { useResolvedTheme } from '@/hooks/useResolvedTheme'
+
+const maplibre = maplibregl as typeof maplibregl & { workerUrl?: string }
+
+if (!maplibre.workerUrl) {
+  maplibre.workerUrl = maplibreWorkerUrl
+}
 
 declare global {
   interface Window {
@@ -89,7 +97,7 @@ function Map({ children, styles, ...props }: MapProps) {
 
     const mapStyle = resolvedTheme === 'dark' ? mapStyles.dark : mapStyles.light
 
-    const mapInstance = new MapLibreGL.Map({
+    const mapInstance = new maplibregl.Map({
       container: containerRef.current,
       style: mapStyle,
       attributionControl: false,
@@ -215,7 +223,7 @@ function MapMarker({
     const container = document.createElement('div')
     markerElementRef.current = container
 
-    const marker = new MapLibreGL.Marker({
+    const marker = new maplibregl.Marker({
       ...markerOptions,
       element: container,
       draggable,
@@ -357,7 +365,7 @@ function MarkerPopup({
     const container = document.createElement('div')
     containerRef.current = container
 
-    const popup = new MapLibreGL.Popup({
+    const popup = new maplibregl.Popup({
       offset: 16,
       ...popupOptions,
       closeButton: false,
@@ -437,7 +445,7 @@ function MarkerTooltip({
     const container = document.createElement('div')
     containerRef.current = container
 
-    const popup = new MapLibreGL.Popup({
+    const popup = new maplibregl.Popup({
       offset: 16,
       ...popupOptions,
       closeOnClick: true,
@@ -755,7 +763,7 @@ function MapPopup({
   useEffect(() => {
     if (!map) return
 
-    const popup = new MapLibreGL.Popup({
+    const popup = new maplibregl.Popup({
       offset: 16,
       ...popupOptions,
       closeButton: false,
@@ -946,7 +954,7 @@ function MapRoute({
   useEffect(() => {
     if (!isLoaded || !map || !tooltip) return
 
-    const popup = new MapLibreGL.Popup({
+    const popup = new maplibregl.Popup({
       closeButton: false,
       closeOnClick: false,
       offset: 10,

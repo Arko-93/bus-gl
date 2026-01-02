@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import * as MapLibreGL from 'maplibre-gl'
+import maplibregl from 'maplibre-gl'
 import { MapRoute, AnimatedRouteSvg } from '@/components/ui/map'
 import { useAppStore } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
@@ -26,7 +26,7 @@ const OSRM_PROFILE = import.meta.env.VITE_OSRM_PROFILE || 'driving'
 const osrmRouteCache = new Map<string, LatLng[]>()
 
 function projectPoint(latlng: LatLng): Point {
-  const mercator = MapLibreGL.MercatorCoordinate.fromLngLat({
+  const mercator = maplibregl.MercatorCoordinate.fromLngLat({
     lng: latlng[1],
     lat: latlng[0],
   })

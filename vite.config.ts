@@ -50,14 +50,29 @@ export default defineConfig(({ mode }) => {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           runtimeCaching: [
             {
-              // Cache MapLibre CDN assets for faster repeat loads
-              urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/npm\/maplibre-gl@5\.15\.0\/.*/i,
+              // Cache Carto style JSON, sprites, and glyphs
+              urlPattern: /^https:\/\/basemaps\.cartocdn\.com\/gl\/.*/i,
               handler: 'CacheFirst',
               options: {
-                cacheName: 'maplibre-cdn',
+                cacheName: 'carto-gl-assets',
                 expiration: {
-                  maxEntries: 8,
+                  maxEntries: 60,
                   maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                },
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+              },
+            },
+            {
+              // Cache Carto basemap tiles
+              urlPattern: /^https:\/\/[a-d]\.basemaps\.cartocdn\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'carto-tiles',
+                expiration: {
+                  maxEntries: 500,
+                  maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
                 },
                 cacheableResponse: {
                   statuses: [0, 200],
@@ -90,7 +105,6 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       rollupOptions: {
-        external: ['maplibre-gl'],
         output: {
           manualChunks: (id) => {
             if (!id.includes('node_modules')) return undefined
@@ -115,9 +129,6 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
-    },
-    optimizeDeps: {
-      exclude: ['maplibre-gl'],
     },
     server: {
       proxy: {

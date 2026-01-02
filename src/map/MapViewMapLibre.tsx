@@ -1,6 +1,7 @@
 import { useEffect, useMemo, memo, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import * as MapLibreGL from 'maplibre-gl'
+import maplibregl from 'maplibre-gl'
+import type * as MapLibreGL from 'maplibre-gl'
 import { Map, MapControls, MapPopup, useMap } from '@/components/ui/map'
 import { useAppStore, filterVehiclesByRoute } from '../state/appStore'
 import { useVehiclesQuery } from '../data/vehiclesQuery'
@@ -197,7 +198,7 @@ function MapBoundsLimiter() {
   useEffect(() => {
     if (!map || !isLoaded) return
 
-    const bounds = new MapLibreGL.LngLatBounds(NUUK_BOUNDS[0], NUUK_BOUNDS[1])
+    const bounds = new maplibregl.LngLatBounds(NUUK_BOUNDS[0], NUUK_BOUNDS[1])
 
     const applyBounds = () => {
       const camera = map.cameraForBounds(bounds, { padding: 20 })
@@ -350,7 +351,7 @@ function MobileFollowSelectedVehicle() {
       }
     }
 
-    const distance = map.getCenter().distanceTo(new MapLibreGL.LngLat(targetCenter.lng, targetCenter.lat))
+    const distance = map.getCenter().distanceTo(new maplibregl.LngLat(targetCenter.lng, targetCenter.lat))
     if (distance < 20) {
       openSheet()
     } else {
@@ -491,7 +492,7 @@ const VehicleMarkers = memo(function VehicleMarkers() {
   useEffect(() => {
     if (!map || !isLoaded) return
     if (!hasFittedBounds.current && filteredVehicles.length > 0) {
-      const bounds = new MapLibreGL.LngLatBounds()
+      const bounds = new maplibregl.LngLatBounds()
       filteredVehicles.forEach((v) => bounds.extend([v.lon, v.lat]))
       map.fitBounds(bounds, { padding: 50, maxZoom: 15, duration: 0 })
       hasFittedBounds.current = true
