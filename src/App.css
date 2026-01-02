@@ -2081,9 +2081,17 @@ button.bottom-sheet__route-badge:hover {
     margin-left: 0.75rem;
   }
 
-  /* Stop popover: give space for close button */
+  /* Stop popover: give space for close button and left edge */
   .bottom-sheet--stop .bottom-sheet__title {
     padding-right: 0;
+  }
+
+  .bottom-sheet--stop .bottom-sheet__content {
+    padding-left: 0.25rem;
+  }
+
+  .bottom-sheet--stop .bottom-sheet__header--stop .bottom-sheet__route-badges {
+    padding-left: 0.15rem;
   }
 
   /* Bus popover: two-column layout via CSS Grid */
