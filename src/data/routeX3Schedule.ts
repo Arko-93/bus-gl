@@ -8,6 +8,13 @@ import { parseRouteScheduleCsv, parseTimeValue, type ScheduleTime } from './rout
 
 const ROUTE_X3_SCHEDULE_URL = '/data/timecodes_bus_X3.csv'
 
+const ROUTE_X3_ALIAS_MAP: Record<string, string> = {
+  nukappiakuluk: 'siaqqinneq nukappiakkuluk', // CSV uses short name
+  'mittarfik / lufthavn': 'nuuk lufthavn', // CSV uses bilingual name
+  'mittarfik': 'nuuk lufthavn', // Alternate
+  'lufthavn': 'nuuk lufthavn', // Alternate
+}
+
 function parseRouteX3TimeValue(value: string): ScheduleTime | null {
   const trimmed = value.trim()
   if (!trimmed) return null
@@ -35,6 +42,7 @@ export function useRouteX3Schedule() {
   const schedule = useMemo(() => {
     if (!csvQuery.data || !stopsData) return null
     return parseRouteScheduleCsv(csvQuery.data, stopsData, {
+      aliases: ROUTE_X3_ALIAS_MAP,
       parseTimeValue: parseRouteX3TimeValue,
     })
   }, [csvQuery.data, stopsData])

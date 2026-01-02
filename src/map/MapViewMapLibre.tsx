@@ -629,8 +629,7 @@ function SelectedVehiclePopup() {
 }
 
 function ResponsiveMapControls() {
-  const isMobile = useAppStore((state) => state.isMobile)
-  return <MapControls position={isMobile ? 'top-right' : 'bottom-right'} showZoom={true} />
+  return <MapControls position="top-right" showZoom={true} />
 }
 
 export default function MapViewMapLibre() {

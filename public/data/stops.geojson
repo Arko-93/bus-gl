@@ -2,13 +2,13 @@
   "type": "FeatureCollection",
   "generatedAt": "2025-12-29T00:31:44.408Z",
   "matchStats": {
-    "total": 40,
-    "matched": 40,
-    "unmatched": 0,
-    "coveragePercent": 100,
-    "ridangoStops": 40,
+    "total": 45,
+    "matched": 44,
+    "unmatched": 1,
+    "coveragePercent": 97.78,
+    "ridangoStops": 45,
     "osmOnlyStops": 0,
-    "manualStops": 0
+    "manualStops": 1
   },
   "features": [
     {
@@ -928,6 +928,121 @@
         "coordinates": [
           -51.6965073,
           64.1834714
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 137,
+        "name": "Siaqqinneq Nukappiakkuluk",
+        "osmId": 3213311962,
+        "osmName": "Siaqqinneq Nukappiakkuluk",
+        "matchScore": 1,
+        "matchMethod": "exact",
+        "seenCount": 1,
+        "priorityScore": 1,
+        "firstSeenAt": "2025-12-29T00:31:44.408Z",
+        "lastSeenAt": "2025-12-29T00:31:44.408Z",
+        "source": "ridango"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6824453,
+          64.1949604
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 139,
+        "name": "Air Greenland Adm.",
+        "osmId": 6123201921,
+        "osmName": "Air Greenland Adm.",
+        "matchScore": 1,
+        "matchMethod": "exact",
+        "seenCount": 1,
+        "priorityScore": 1,
+        "firstSeenAt": "2025-12-29T00:31:44.408Z",
+        "lastSeenAt": "2025-12-29T00:31:44.408Z",
+        "source": "ridango"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6713471,
+          64.1902768
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 144,
+        "name": "Nuuk Lufthavn",
+        "osmId": 10272011302,
+        "osmName": "Nuuk Lufthavn",
+        "matchScore": 1,
+        "matchMethod": "exact",
+        "seenCount": 1,
+        "priorityScore": 1,
+        "firstSeenAt": "2025-12-29T00:31:44.408Z",
+        "lastSeenAt": "2025-12-29T00:31:44.408Z",
+        "source": "ridango"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6759993,
+          64.1840605
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 149,
+        "name": "Isertitsiviit",
+        "osmId": 12921993758,
+        "osmName": "Isertitsiviit",
+        "matchScore": 1,
+        "matchMethod": "exact",
+        "seenCount": 1,
+        "priorityScore": 1,
+        "firstSeenAt": "2025-12-29T00:31:44.408Z",
+        "lastSeenAt": "2025-12-29T00:31:44.408Z",
+        "source": "ridango"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6641745,
+          64.2005526
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 151,
+        "name": "Napasuliaq",
+        "osmId": null,
+        "osmName": null,
+        "matchScore": 0,
+        "matchMethod": "manual",
+        "seenCount": 1,
+        "priorityScore": 1,
+        "firstSeenAt": "2025-12-29T00:31:44.408Z",
+        "lastSeenAt": "2025-12-29T00:31:44.408Z",
+        "source": "ridango"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -51.6675,
+          64.1955
         ]
       }
     }
